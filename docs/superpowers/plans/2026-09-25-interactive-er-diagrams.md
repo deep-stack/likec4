@@ -10,13 +10,13 @@
 
 **Spec:** `docs/superpowers/specs/2026-09-25-interactive-er-diagrams.md`
 
-**Status:** Plan for review. No implementation completed. Execute inline in the current session after review; do not delegate unless requested.
+**Status:** User approved starting the compatibility spike on 2026-09-25. Task 1 preview is implemented in `examples/er-tables/`; production Tasks 2–7 remain pending the visual checkpoint. Execute inline; do not delegate unless requested.
 
 ## Global Constraints
 
 - Node >=22.22.3; pnpm is pinned by package.json (currently 11.25.0). `.tool-versions` currently says 11.15.0; use packageManager for reproducible dependency commands without editing either pin as unrelated work.
 - Keep one LikeC4 canvas and XState machine.
-- No automatic playback. ER edges express data relationships, not chronological execution.
+- Updated user requirement: optional pausable directional green particles, respecting reduced motion. ER edges do not imply chronological execution or live traffic.
 - Missing nullability/cardinality stays unknown.
 - No `@liam-hq/erd-core` runtime dependency and no SQL importer in this change.
 - No edits to generated output by hand; run `pnpm generate` after grammar/style changes.
@@ -32,23 +32,29 @@
 4. Keyboard focus, hover exit, and view replacement: no stuck dimming or disrupted walkthrough (Task 6).
 5. Saved layouts after field reordering: no stale endpoints or rows (Task 4).
 
+## Pre-implementation audit
+
+Read `docs/superpowers/audits/2026-09-25-liam-integration.md` and its executed probe results. Do not import Liam leaf components through unsupported package paths. Do not reuse `convertSchemaToNodes` or `constraintsToRelationships`: confirmed defects affect composite handles, uniqueness inference, and invalid pair lengths. Adapt the adjacency algorithm; implement field ports and explicit cardinality against the typed LikeC4 contract. Namespace SVG markers per figure and keep URL/history state local to the existing host.
+
+Before Task 2, extend Task 1 with a minimal real LikeC4 integration spike: mount row handles, pass Graphviz port output through LikeC4's actual parser/saved layout, and verify row endpoints, self-loops, multiple/composite FKs, two independent figures, both themes, and unchanged document anchors. Direct WASM port support has already passed at the pinned version; do not repeat that isolated probe unless inputs change. The renderer/parser integration remains unproven and must pass this early gate.
+
 ## Execution order
 
-Visual sketch → data/parser → view computation → layout → native renderer → hover → integration and comparison.
+Visual sketch and integration spike → data/parser → view computation → layout → native renderer → hover → integration and comparison.
 
 Do not start by changing ngin8r's published dependency pins. First prove the LikeC4 fork works. The last task creates a separately bundled comparison; production ngin8r integration is a follow-up PR in its own repository.
 
-### Task 1: Isolated visual table sketch
+### Task 1: Isolated visual table sketch and integration spike
 
 **Files:** Create `examples/er-tables/README.md` and a fixture module beside the existing diagram development examples after inspecting their loader. Prototype component: `packages/diagram/src/custom/ErTableSketch.tsx` (temporary until Task 5).
 
 **Consumes:** The saved `auth-er-v1/schema.json` under Webharvest `.ngin8r/comparisons/`, plus Liam's table-row reference.
 **Produces:** An isolated table-node example using LikeC4's `elementNode` wrapper, style tokens, and existing controls.
 
-- [ ] Inspect the diagram development example registration and choose its existing mounting path; document the exact run command in `examples/er-tables/README.md` before editing it.
-- [ ] Copy the four-table schema as a non-sensitive fixture, preserving all 21 field names/types and supplied key markers. Store unknown nullability as absent.
-- [ ] Render a header and rows using an isolated custom node; leave every builtin shape unchanged. Use the existing LikeC4 viewer, not a new React Flow root.
-- [ ] Capture light/dark screenshots, check all rows and long labels, and present the concrete sketch for visual review. This is the repository shape workflow's visual checkpoint.
+- [x] Inspect the diagram development example registration and choose its existing mounting path; document the exact run command in `examples/er-tables/README.md` before editing it.
+- [x] Copy the four-table schema as a non-sensitive fixture, preserving all 21 field names/types and supplied key markers. Store unknown nullability as absent.
+- [x] Render a header and rows using an isolated custom node; leave every builtin shape unchanged. Use the existing LikeC4 viewer, not a new React Flow root.
+- [x] Capture light/dark screenshots, check all rows and long labels, and present the concrete sketch for visual review. This is the repository shape workflow's visual checkpoint.
 - [ ] Commit approved sketch and fixture: `git commit -m "add ER table preview"`.
 
 ### Task 2: Typed table data, parser, and validation
@@ -179,3 +185,11 @@ expect([...result.edges].sort()).toEqual(['ab', 'ac'])
 - One `TableDefinition`/`TableRelationship` contract travels from DSL/SDK to saved model. No parallel JSON-in-metadata schema.
 - Geometry is produced before reading saved diagrams. The initial implementation does not require Liam or ELK in the reader.
 - Visual review happens before the full model/shape wiring. Existing artifacts and application source remain untouched by comparison generation.
+
+## Task 1 compatibility result (2026-09-25)
+
+See `examples/er-tables/README.md` for reproducible commands and precise limitations. Frozen preview: http://127.0.0.1:34466/. Actual GraphvizParser and saved-model loading preserve seven field segments. Browser checks validate row alignment, self-loop, parallel segments, long field text, XState hover/focus, two independent figures, both themes and native zoom/fit. Existing layouts suite: 24/24. No production renderer/model/DSL files changed. Dragging, cardinality markers, aggregation/composite identity and walkthrough coordination are not proved by this spike.
+
+## Preview revision 2 (2026-09-25)
+
+User accepted the first appearance and requested table dragging and green direction animation. Implemented in the isolated preview at http://127.0.0.1:34467/; v1 remains on 34466. Tests cover independent movement without canvas panning, correct row endpoints during/after dragging, self-loop translation, both figures, particle motion, pause, reduced motion and scoped marker IDs. The viewport-local SVG adapter is a prototype; production edge registration, editor history and persistent manual-layout integration still belong to Tasks 4–6.

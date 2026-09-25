@@ -1,6 +1,6 @@
 # Interactive ER diagrams in LikeC4
 
-Status: proposed design for review; implementation has not started.
+Status: compatibility spike approved and implemented; visual preview awaiting review before production wiring.
 Branch: `feature/interactive-er-diagrams`.
 Base: `33dbc2d34` (`main`, synced before branching).
 
@@ -19,9 +19,11 @@ The reference is the user's Liam screenshot and the saved Webharvest comparison 
 - Existing architecture, deployment, and sequence behaviour remains unchanged for diagrams without tables.
 - Both light and dark LikeC4 themes, embedded reader usage, and saved/offline layout consumption.
 
-Not included: Liam's full viewer, its sidebars, schema importers, search palette, exports, diff UI, hosted services, recursive path tracing, or new decision-chart support. No automatic playback. ER edges express data relationships, not chronological execution.
+Not included: Liam's full viewer, its sidebars, schema importers, search palette, exports, diff UI, hosted services, recursive path tracing, or new decision-chart support. User requested directional green animation on 2026-09-25 after reviewing the first preview. Provide optional pausable flow particles that respect reduced motion. ER edges express data relationships, not chronological execution or live traffic.
 
 ## Approach
+
+Pre-implementation audit: `docs/superpowers/audits/2026-09-25-liam-integration.md`. Confirmed source-conversion defects mean we will not copy Liam's schema conversion or cardinality inference. Its leaf renderers are internal exports; source adaptation is deliberate. Run the real LikeC4 row-port/multiple-figure compatibility spike before DSL/model expansion. Namespace SVG definitions per figure and do not import Liam's URL-state provider.
 
 Selectively adapt Liam's field-row handles and adjacency-highlighting algorithm. Do not add `@liam-hq/erd-core` as a runtime dependency. Its components are coupled to Liam stores, CSS modules, and its own React Flow canvas; embedding that canvas would retain two interaction systems.
 
@@ -105,7 +107,7 @@ LikeC4's edge registry and normal precomputed edge paths need an explicit table-
 
 A pure helper computes highlighted node/edge sets from visible relationships. Table hover/focus feeds LikeC4's machine; the renderer consumes derived flags. Ordinary mouse hover must not mutate the saved model, trigger navigation, or overwrite an active walkthrough. Clear table-hover state on view replacement and node removal. A disconnected table highlights only itself. Related nodes with multiple parallel relationships highlight all incident connections, not unrelated connections between its neighbours.
 
-No animated particles are required. Provide keyboard-equivalent focus highlighting and honour reduced-motion settings for any transitions. Existing source actions remain available; field IDs must be exposed for a later ngin8r field-to-source binding without adding a second inspector.
+Directional green particles are requested in the updated preview; provide pause and reduced-motion support. Provide keyboard-equivalent focus highlighting and honour reduced-motion settings for any transitions. Existing source actions remain available; field IDs must be exposed for a later ngin8r field-to-source binding without adding a second inspector.
 
 ## Compatibility and packaging
 
