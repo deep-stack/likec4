@@ -1128,6 +1128,9 @@ function computeDiagramLayout(
   viewmodel: DrawioViewModelLike,
   options?: GenerateDrawioOptions,
 ): DiagramLayoutState {
+  if (viewmodel.$view.nodes.some(node => node.shape === 'table' || node.table)) {
+    throw new Error('ER table export is not supported by DrawIO; use the LikeC4 viewer or DSL export')
+  }
   const view = viewmodel.$view
   const { nodes } = view
   const layoutOverride = options?.layoutOverride

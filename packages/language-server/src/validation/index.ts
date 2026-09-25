@@ -1,3 +1,4 @@
+import { checkTable, checkTableRelation } from './table'
 // SPDX-License-Identifier: MIT
 //
 // Copyright (c) 2023-2026 Denis Davydkov
@@ -179,6 +180,8 @@ export function registerValidationChecks(services: LikeC4Services) {
     SubflowStep: subflowStep(services),
     LikeC4View: viewChecks(services),
     Element: checkElement(services),
+    TableProperty: checkTable(),
+    TableRelationProperty: checkTableRelation(services),
     ElementRef: checkElementRef(services),
     ElementKind: checkElementKind(services),
     Relation: relationChecks(services),

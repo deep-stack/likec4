@@ -244,7 +244,17 @@ export function parseGraphvizJson(
       continue
     }
     edges.push(
-      parseGraphvizEdge(graphvizEdge, computedEdge, view.id),
+      {
+        ...parseGraphvizEdge(graphvizEdge, computedEdge, view.id),
+        ...(computedEdge.tableRelation && {
+          tablePaths: computedEdge.tableRelation.pairs.map((_, index) => {
+            const id = index === 0 ? computedEdge.id : `${computedEdge.id}__pair${index}`
+            const segment = graphvizEdges.find(edge => edge.likec4_id === id)
+            invariant(segment, `Missing table relationship segment ${id}`)
+            return parseEdgePoints(segment, view.id)
+          }),
+        }),
+      },
     )
   }
 

@@ -3,6 +3,7 @@ import react from '../../packages/diagram/node_modules/@vitejs/plugin-react/dist
 import { defineConfig } from '../../packages/diagram/node_modules/vite/dist/node/index.js'
 const path = (relative: string) => fileURLToPath(new URL(relative, import.meta.url))
 export default defineConfig({
+  base: './',
   root: path('./'),
   plugins: [react()],
   resolve: {

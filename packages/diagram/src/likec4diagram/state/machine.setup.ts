@@ -102,6 +102,8 @@ export type ToggledFeatures = {
 }
 
 export interface Context extends Input {
+  tableFocusedNode: { node: NodeId; view: ViewId } | null
+  tableFlowEnabled: boolean
   relationshipBrowserScope: RelationshipBrowserScope
   xynodes: Types.Node[]
   xyedges: Types.Edge[]
@@ -167,6 +169,8 @@ export interface Context extends Input {
 export function Context({ input }: { input: Input }): Context {
   return {
     ...input,
+    tableFlowEnabled: true,
+    tableFocusedNode: null,
     fitView: input.fitView ?? true,
     relationshipBrowserScope: input.relationshipBrowserScope ?? 'view',
     xynodes: [],
@@ -209,6 +213,9 @@ export function Context({ input }: { input: Input }): Context {
 }
 
 export type Events =
+  | { type: 'table.toggleFlow' }
+  | { type: 'table.focus'; node: NodeId | null }
+  | { type: 'table.resetPositions' }
   | HotKeyEvent
   | MediaPrintEvent
   | { type: 'xyflow.init'; instance: XYFlowInstance }

@@ -578,7 +578,7 @@ function builder<Spec extends BuilderSpecification, T extends AnyTypes>(
       }
       if (!isGlobalFqn(sourceFqn) && !isGlobalFqn(targetFqn)) {
         invariant(
-          !isSameHierarchy(sourceEl, targetEl),
+          !isSameHierarchy(sourceEl, targetEl) || (sourceFqn === targetFqn && !!relation.tableRelation),
           'Cannot create relationship between elements in the same hierarchy',
         )
       }

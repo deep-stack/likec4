@@ -167,6 +167,8 @@ type ShapeSvgProps = {
 }
 function ShapeSvg({ shape, w, h, size = 'md' }: ShapeSvgProps) {
   switch (shape) {
+    case 'table':
+      return <rect width={w} height={h} rx={4} />
     case 'component': {
       return (
         <>

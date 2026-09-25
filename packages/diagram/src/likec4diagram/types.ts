@@ -53,6 +53,7 @@ export namespace Types {
       /**
        * View layout direction, used by DefaultHandles to position node handles
        */
+      table?: DiagramNode['table']
       viewLayoutDir?: AutoLayoutDirection | undefined
       /**
        * View this node belongs to
@@ -277,6 +278,8 @@ export namespace Types {
       >
     >
     & {
+      tableRelation?: DiagramEdge['tableRelation']
+      tablePaths?: DiagramEdge['tablePaths']
       notes: MarkdownOrString | null
       labelXY: XYPosition | null
       isLabelCustomized?: boolean | undefined

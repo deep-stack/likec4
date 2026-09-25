@@ -298,6 +298,13 @@ describe('LikeC4', () => {
           ],
           "folder": "dyn-config",
         },
+        "er-tables": {
+          "documents": [
+            "stress.c4",
+            "webharvest.c4",
+          ],
+          "folder": "er-tables",
+        },
         "issue-1624": {
           "documents": [
             "model.c4",

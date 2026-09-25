@@ -84,6 +84,7 @@ export interface ParsedAstSpecification {
 }
 
 export interface ParsedAstElement {
+  table?: c4.TableDefinition
   id: c4.Fqn
   astPath: string
   kind: c4.ElementKind
@@ -115,6 +116,7 @@ export interface ParsedAstExtendRelation {
 }
 
 export interface ParsedAstRelation {
+  tableRelation?: c4.TableRelationship
   id: c4.RelationId
   astPath: string
   source: c4.FqnRef.ModelRef

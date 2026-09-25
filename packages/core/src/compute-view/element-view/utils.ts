@@ -39,10 +39,13 @@ export function toComputedEdges<A extends AnyAux>(
 
     const directRelsList = filter(relations, r => r.source.id === source && r.target.id === target)
 
-    if (shouldExpand && relations.length > 1) {
+    if (relations.length > 1 && (shouldExpand || directRelsList.some(r => r.$relationship.tableRelation))) {
       const [expanded, merged] = pipe(
         relations,
-        partition(r => shouldExpand(r, conn)),
+        partition(r =>
+          !!(r.$relationship.tableRelation && r.source.id === source && r.target.id === target) ||
+          !!shouldExpand?.(r, conn)
+        ),
       )
 
       if (expanded.length > 0) {
@@ -65,6 +68,8 @@ export function toComputedEdges<A extends AnyAux>(
             target: target as scalar.NodeId,
             label: title ?? null,
             relations: [rel.id],
+            ...(rel.$relationship.tableRelation && rel.source.id === source && rel.target.id === target &&
+              { tableRelation: rel.$relationship.tableRelation }),
             color,
             line,
             head,
@@ -122,6 +127,8 @@ export function toComputedEdges<A extends AnyAux>(
       target: target as scalar.NodeId,
       label: title ?? null,
       relations: relations.map((r) => r.id),
+      ...(relations.length === 1 && only(directRelsList)?.$relationship.tableRelation &&
+        { tableRelation: only(directRelsList)!.$relationship.tableRelation }),
       color,
       line,
       head,

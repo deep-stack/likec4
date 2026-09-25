@@ -28,6 +28,7 @@ import { CompoundActions } from './CompoundActions'
 import { DeploymentElementActions, ElementActions } from './ElementActions'
 import { NodeDrifts } from './NodeDrifts'
 import { NodeNotes } from './NodeNotes'
+import { TableNode } from './TableNode'
 import { CompoundDeploymentToolbar, CompoundElementToolbar } from './toolbar/CompoundToolbar'
 import { DeploymentElementToolbar, ElementToolbar } from './toolbar/ElementToolbar'
 
@@ -96,6 +97,10 @@ export function CompoundDetailsButtonWithHandler(
  * Renders an element node.
  */
 export function ElementNode(props: Types.NodeProps<'element'>) {
+  return props.data.table ? <TableNode {...props} /> : <ArchitectureElementNode {...props} />
+}
+
+function ArchitectureElementNode(props: Types.NodeProps<'element'>) {
   const { enableElementTags, enableElementDetails, enableReadOnly, enableCompareWithLatest, enableNotes } =
     useEnabledFeatures()
   return (

@@ -32,6 +32,7 @@ export function applyCachedLayout(current: ComputedView, cached: LayoutedView): 
     return {
       ...computed,
       points: cachedEdge.points,
+      ...(cachedEdge.tablePaths && { tablePaths: cachedEdge.tablePaths }),
       label: cachedEdge.label,
       labelBBox: cachedEdge.labelBBox,
       ...(cachedEdge.controlPoints != null && { controlPoints: cachedEdge.controlPoints }),

@@ -16,6 +16,7 @@ import type * as aux from './_aux'
 import type { AnyAux } from './_aux'
 import type { FqnRef } from './fqnRef'
 import type * as scalar from './scalar'
+import type { TableDefinition, TableRelationship } from './table'
 
 export interface ElementStyle {
   readonly icon?: scalar.Icon
@@ -86,6 +87,7 @@ export interface Element<A extends AnyAux = AnyAux>
   readonly id: aux.StrictFqn<A>
   readonly kind: aux.ElementKind<A>
   readonly title: string
+  readonly table?: TableDefinition
   readonly style: ElementStyle
 }
 
@@ -118,6 +120,7 @@ export interface AbstractRelationship<A extends AnyAux>
 export interface Relationship<A extends AnyAux = AnyAux> extends AbstractRelationship<A> {
   readonly source: FqnRef.ModelRef<A>
   readonly target: FqnRef.ModelRef<A>
+  readonly tableRelation?: TableRelationship
   readonly isBidirectional?: boolean
 }
 

@@ -10,7 +10,7 @@
 
 **Spec:** `docs/superpowers/specs/2026-09-25-interactive-er-diagrams.md`
 
-**Status:** User approved starting the compatibility spike on 2026-09-25. Task 1 preview is implemented in `examples/er-tables/`; production Tasks 2–7 remain pending the visual checkpoint. Execute inline; do not delegate unless requested.
+**Status:** Visual checkpoint approved. Native implementation is complete; final verification, preserved comparison packaging and PR review are in progress. Execute inline, with a final fresh code review.
 
 ## Global Constraints
 
@@ -55,7 +55,7 @@ Do not start by changing ngin8r's published dependency pins. First prove the Lik
 - [x] Copy the four-table schema as a non-sensitive fixture, preserving all 21 field names/types and supplied key markers. Store unknown nullability as absent.
 - [x] Render a header and rows using an isolated custom node; leave every builtin shape unchanged. Use the existing LikeC4 viewer, not a new React Flow root.
 - [x] Capture light/dark screenshots, check all rows and long labels, and present the concrete sketch for visual review. This is the repository shape workflow's visual checkpoint.
-- [ ] Commit approved sketch and fixture: `git commit -m "add ER table preview"`.
+- [x] Commit approved sketch and fixture: `git commit -m "add ER table preview"`.
 
 ### Task 2: Typed table data, parser, and validation
 
@@ -156,7 +156,7 @@ expect([...result.edges].sort()).toEqual(['ab', 'ac'])
 - [ ] Test disconnected tables, self-loops, several edges to one neighbour, focus equivalence, hover exit, view replacement, node removal, and preservation of existing selection/walkthrough state.
 - [ ] Run `pnpm exec vitest run packages/diagram/src/likec4diagram/state/tableNeighbourhood.spec.ts packages/diagram/src/likec4diagram/state/machine.state.ready.table-hover.spec.ts` to establish failure.
 - [ ] Adapt Liam's adjacency concept into typed LikeC4 state. Transient highlighting applies only to table interactions and must not clear unrelated user state. Preserve original shape mouse behaviour.
-- [ ] Verify exactly the adjacent table/edge set in Chromium and clear state on pointer exit and blur. Honour reduced motion; no particle animation is needed.
+- [ ] Verify exactly the adjacent table/edge set in Chromium and clear state on pointer exit and blur. Honour reduced motion; match the approved six-particle, six-second highlight animation.
 - [ ] Run existing walkthrough tests as a regression check. Commit: `git commit -m "highlight related tables on hover"`.
 
 ### Task 7: Authoring, packaging, and persistent comparison

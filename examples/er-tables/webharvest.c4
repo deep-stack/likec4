@@ -1,0 +1,34 @@
+specification { element record { style { shape table color green } } }
+model {
+api_key = record { table {
+column id "text" { primaryKey }
+column name "text"
+column prefix "text"
+column secret_digest "text" { unique }
+column created_at "timestamp"
+column revoked_at "timestamp"
+} }
+operator_session = record { table {
+column id "text" { primaryKey }
+column token_digest "text" { unique }
+column created_at "timestamp"
+column expires_at "timestamp"
+column revoked_at "timestamp"
+} }
+scrape_request = record { table {
+column id "text" { primaryKey }
+column kind "text"
+column status "text"
+column url_normalised "text"
+column requested_at "timestamp"
+} }
+scrape_attempt = record { table {
+column id "bigint" { primaryKey }
+column request_id "text"
+column assigned_at "timestamp"
+column started_at "timestamp"
+column ended_at "timestamp"
+} }
+scrape_request -> scrape_attempt { tableRelation { pair id -> request_id sourceCardinality one targetCardinality zeroOrMany } }
+}
+views { view webharvest { title "Webharvest records" include api_key, operator_session, scrape_request, scrape_attempt autoLayout LeftRight } }

@@ -747,3 +747,16 @@ describe('applyManualLayout', () => {
     })
   })
 })
+
+it('reports changed table fields without mixing old row geometry with new fields', () => {
+  const { result, snapshotNodes } = testApplyManualLayout({
+    nodes: {
+      customer: node => {
+        node.table = { fields: [{ id: 'id', title: 'id', type: 'uuid' }] }
+      },
+    },
+  })
+  const customer = result.nodes.find(n => n.id === 'customer')!
+  expect(customer.drifts).toContain('label-changed')
+  expect(customer.table).toEqual(snapshotNodes.customer.table)
+})

@@ -50,7 +50,10 @@ export const relationChecks = (services: LikeC4Services): ValidationCheck<ast.Re
       }
     }
 
-    if (isSameHierarchy(FqnRef.flatten(source), FqnRef.flatten(target))) {
+    if (
+      isSameHierarchy(FqnRef.flatten(source), FqnRef.flatten(target))
+      && !(FqnRef.flatten(source) === FqnRef.flatten(target) && el.body?.props.some(ast.isTableRelationProperty))
+    ) {
       accept('error', 'Invalid parent-child relationship', {
         node: el,
       })

@@ -343,6 +343,8 @@ function applyNodesManualLayout(
       autoApplyMetaAndStyles(draft, next)
 
       const nodeDrifts = new Set<DiagramNodeDriftReason>()
+      // A manual snapshot keeps its old fields and matching splines until reapplied.
+      if (changed(node.table, next.table)) nodeDrifts.add('label-changed')
 
       const wasCompound = node.children.length > 0
       const willBeCompound = next.children.length > 0
@@ -442,7 +444,7 @@ function applyEdgesManualLayout(
   const edges = snapshotEdges.map((edge): DiagramEdge => {
     let next = nextEdges.get(edge.id) ?? pipe(
       nextEdges.values(),
-      ifilter(e => e.source === edge.source && e.target === edge.target),
+      ifilter(e => !edge.tableRelation && !e.tableRelation && e.source === edge.source && e.target === edge.target),
       ihead(),
     )
     if (next) {
@@ -456,6 +458,10 @@ function applyEdgesManualLayout(
         return
       }
       const edgeDrifts = new Set<DiagramEdgeDriftReason>()
+      if (changed(edge.tableRelation, next.tableRelation)) {
+        edgeDrifts.add('source-changed')
+        edgeDrifts.add('target-changed')
+      }
 
       const isSameId = edge.id === next.id
 

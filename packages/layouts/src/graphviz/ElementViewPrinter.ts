@@ -102,6 +102,24 @@ export class ElementViewPrinter<A extends AnyAux> extends DotPrinter<ComputedEle
   }
 
   protected override addEdge(edge: ComputedEdge, G: RootGraphModel): EdgeModel | null {
+    if (edge.tableRelation) {
+      const [sourceNode, source] = this.edgeEndpoint(edge.source, first)
+      const [targetNode, target] = this.edgeEndpoint(edge.target, first)
+      const segments = edge.tableRelation.pairs.map((pair, index) => {
+        const from = sourceNode.table?.fields.findIndex(field => field.id === pair.source) ?? -1
+        const to = targetNode.table?.fields.findIndex(field => field.id === pair.target) ?? -1
+        if (from < 0 || to < 0) throw new Error(`Missing table field on relationship ${edge.id}`)
+        return G.edge([source, target], {
+          [_.likec4_id]: index === 0 ? edge.id : `${edge.id}__pair${index}`,
+          [_.tailport]: `field${from}:e`,
+          [_.headport]: `field${to}:${edge.source === edge.target ? 'e' : 'w'}`,
+          [_.arrowhead]: 'none',
+          [_.arrowtail]: 'none',
+          [_.style]: 'solid',
+        })
+      })
+      return segments[0] ?? null
+    }
     // const viewEdges = this.view.edges
     const [sourceFqn, targetFqn] = edge.dir === 'back' ? [edge.target, edge.source] : [edge.source, edge.target]
     const [sourceNode, source, ltail] = this.edgeEndpoint(sourceFqn, nodes => last(nodes))

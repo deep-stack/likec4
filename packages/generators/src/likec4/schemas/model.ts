@@ -34,6 +34,15 @@ export const element = z
     ...common.props.shape,
     id: common.fqn,
     kind: common.kind,
+    table: z.object({
+      fields: z.array(z.object({
+        id: z.string(),
+        title: z.string(),
+        type: z.string(),
+        nullable: z.boolean().optional(),
+        keys: z.array(z.enum(['primary', 'unique'])).readonly().optional(),
+      })).readonly(),
+    }).optional(),
     style: common.style.optional(),
     /**
      * Allowing shape, color and icon to be defined at the element level for convenience,
@@ -77,6 +86,17 @@ export const relationship = z.object({
   ...common.props.shape,
   id: relationshipId.optional(),
   title: z.string().nullish(),
+  tableRelation: z.object({
+    pairs: z.array(z.object({ source: z.string(), target: z.string() })).min(1).readonly(),
+    sourceCardinality: z.object({
+      min: z.union([z.literal(0), z.literal(1)]),
+      max: z.union([z.literal(1), z.literal('many')]),
+    }).optional(),
+    targetCardinality: z.object({
+      min: z.union([z.literal(0), z.literal(1)]),
+      max: z.union([z.literal(1), z.literal('many')]),
+    }).optional(),
+  }).optional(),
   source: relationshipEndpoint,
   target: relationshipEndpoint,
   isBidirectional: z.boolean().nullish(),

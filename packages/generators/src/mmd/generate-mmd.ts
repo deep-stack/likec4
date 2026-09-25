@@ -24,6 +24,8 @@ const toSingleQuotes = (str: string): string => str.replace(/\\?"/g, `'`)
 const mmdshape = ({ shape, title }: Node): string => {
   const label = `label: ${JSON.stringify(title)}`
   switch (shape) {
+    case 'table':
+      throw new Error('ER table export is not supported by this format; use the LikeC4 viewer or DSL export')
     case 'queue': {
       return `@{ shape: horizontal-cylinder, ${label} }`
     }
@@ -58,6 +60,9 @@ const mmdshape = ({ shape, title }: Node): string => {
 }
 
 export function generateMermaid(viewmodel: LikeC4ViewModel<aux.Unknown>) {
+  if (viewmodel.$view.nodes.some(node => node.table)) {
+    throw new Error('ER table export is not supported by this format; use the LikeC4 viewer or DSL export')
+  }
   const view = viewmodel.$view
   const { nodes, edges } = view
   const names = new Map<NodeId, string>()
