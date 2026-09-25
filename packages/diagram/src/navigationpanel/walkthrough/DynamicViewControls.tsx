@@ -54,6 +54,7 @@ export function StartWalkthroughButton() {
   return (
     <Tooltip label={tooltipLabel}>
       <TriggerWalkthroughButton
+        aria-label="Start"
         onClick={e => {
           e.stopPropagation()
           actor.closeDropdown()

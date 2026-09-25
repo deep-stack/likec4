@@ -16,6 +16,7 @@ export function TableNode(props: Types.NodeProps<'element'>) {
   const drag = useRef<{ pointer: number; start: { x: number; y: number }; position: { x: number; y: number } } | null>(
     null,
   )
+  const suppressClick = useRef(false)
   const state = useDiagramContext(ctx => ({
     active: activeTable(ctx),
     edges: ctx.xyedges.filter(edge => !edge.hidden && 'tableRelation' in edge.data && edge.data.tableRelation),
@@ -40,7 +41,14 @@ export function TableNode(props: Types.NodeProps<'element'>) {
         aria-label={`Table ${props.data.title}`}
         onFocus={() => actor.send({ type: 'table.focus', node: props.data.id })}
         onBlur={() => actor.send({ type: 'table.focus', node: null })}
+        onClickCapture={event => {
+          if (!suppressClick.current || event.detail === 0) return
+          suppressClick.current = false
+          event.preventDefault()
+          event.stopPropagation()
+        }}
         onPointerDown={event => {
+          suppressClick.current = false
           if (!enableReadOnly || event.button !== 0) return
           event.stopPropagation()
           event.currentTarget.setPointerCapture(event.pointerId)
@@ -56,6 +64,9 @@ export function TableNode(props: Types.NodeProps<'element'>) {
           const origin = drag.current
           if (!origin || event.pointerId !== origin.pointer) return
           const point = flow.screenToFlowPosition({ x: event.clientX, y: event.clientY })
+          if (Math.hypot(point.x - origin.start.x, point.y - origin.start.y) * flow.getZoom() > 3) {
+            suppressClick.current = true
+          }
           actor.send({
             type: 'xyflow.applyChanges',
             nodes: [{
