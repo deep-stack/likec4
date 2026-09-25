@@ -1,0 +1,45 @@
+{
+  "liamCommit": "c89f31d45",
+  "checks": {
+    "publicExports": {
+      "ERDRenderer": true,
+      "ERDContent": true,
+      "ErdRendererProvider": true,
+      "TableNode": false,
+      "TableColumn": false,
+      "RelationshipEdge": false,
+      "highlightNodesAndEdges": true,
+      "convertSchemaToNodes": true,
+      "computeAutoLayout": true
+    },
+    "hover": {
+      "nodes": [
+        "a",
+        "b",
+        "c"
+      ],
+      "edges": [
+        "ab",
+        "ac"
+      ],
+      "method": "Unmodified helper transpiled; constants and type guard supplied equivalently."
+    },
+    "supersetUnique": {
+      "actual": "ONE_TO_ONE",
+      "expected": "ONE_TO_MANY",
+      "reason": "UNIQUE(parent_id, other) does not make parent_id unique."
+    },
+    "mismatchedPairs": {
+      "actualRelationships": 1,
+      "expected": "reject invalid unequal column-pair lengths"
+    },
+    "compositeSourceHandles": {
+      "sourceColumnName": "tenant_id",
+      "edgeSourceHandles": [
+        "parent-id",
+        "parent-tenant_id"
+      ],
+      "reason": "Renderer creates a source row handle only when sourceColumnName equals that row; only the last referenced column is retained."
+    }
+  }
+}

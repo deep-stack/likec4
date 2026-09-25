@@ -1,0 +1,29 @@
+model {
+accounts = record { table {
+column id "uuid" { primaryKey }
+column tenant_id "uuid" { primaryKey }
+column manager_id "uuid"
+column a_long_field_name_that_must_remain_readable "varchar(255)"
+} }
+assignments = record { table {
+column id "uuid" { primaryKey }
+column owner_id "uuid"
+column reviewer_id "uuid"
+column tenant_id "uuid"
+} }
+audit_log = record { table {
+column id "bigint" { primaryKey }
+column account_id "uuid"
+column assignment_id "uuid"
+} }
+disconnected = record { table {
+column id "uuid" { primaryKey }
+} }
+accounts -> assignments { tableRelation { pair id -> owner_id sourceCardinality one targetCardinality zeroOrMany } }
+accounts -> assignments { tableRelation { pair id -> reviewer_id sourceCardinality one targetCardinality zeroOrMany } }
+accounts -> assignments { tableRelation { pair tenant_id -> tenant_id sourceCardinality one targetCardinality zeroOrMany } }
+accounts -> accounts { tableRelation { pair id -> manager_id sourceCardinality one targetCardinality zeroOrMany } }
+accounts -> audit_log { tableRelation { pair id -> account_id sourceCardinality one targetCardinality zeroOrMany } }
+assignments -> audit_log { tableRelation { pair id -> assignment_id sourceCardinality one targetCardinality zeroOrMany } }
+}
+views { view stress { title "Relationship stress fixture" include accounts, assignments, audit_log, disconnected autoLayout LeftRight } }

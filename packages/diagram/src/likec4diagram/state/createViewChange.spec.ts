@@ -74,9 +74,16 @@ const view = {
 } satisfies LayoutedElementView
 
 describe('createViewChange', () => {
-  it('does not persist generated routing as authored control points after a node moves', () => {
+  it.each([false, true])('saves moved geometry without authored control points (table: %s)', table => {
+    const activeView: LayoutedElementView = {
+      ...view,
+      edges: [{
+        ...relationship,
+        ...(table && { tableRelation: { pairs: [{ source: 'id', target: 'id' }] }, tablePaths: [relationship.points] }),
+      }],
+    }
     const { xynodes, xyedges } = diagramToXY({
-      view,
+      view: activeView,
       currentViewId: undefined,
       where: null,
     })
@@ -98,8 +105,13 @@ describe('createViewChange', () => {
       }),
     } as unknown as XYStoreApi
 
-    const change = createViewChange({ view, xynodes, xyedges, xystore })
+    const change = createViewChange({ view: activeView, xynodes, xyedges, xystore })
 
     expect(change.layout.edges[0]?.controlPoints).toBeNull()
+    if (table) {
+      expect(change.layout.edges[0]?.tablePaths?.[0]?.[0]).toEqual([150, 50])
+      expect(change.layout.edges[0]?.points[0]).toEqual([150, 50])
+      expect(change.layout.edges[0]?.tablePaths?.[0]?.at(-1)).toEqual([450, 50])
+    }
   })
 })

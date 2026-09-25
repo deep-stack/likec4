@@ -88,7 +88,7 @@ export const NavigationPanel = memo<{ actorRef: NavigationPanelActorRef }>(({ ac
       <NavigationPanelActorContextProvider value={actorRef}>
         {mode !== 'walkthrough-flow' && (
           <>
-            <LayoutGroup>
+            <LayoutGroup id={actorRef.sessionId} inherit={false}>
               <AnimatePresence propagate initial={false}>
                 <Popover
                   offset={{

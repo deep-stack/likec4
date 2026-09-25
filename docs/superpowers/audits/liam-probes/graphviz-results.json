@@ -1,0 +1,24 @@
+{
+  "packageVersion": "1.22.2",
+  "records": [
+    {
+      "id": "first",
+      "tailport": "p0:e",
+      "headport": "p0:w",
+      "position": "e,96.097,12.4 60.097,12.4 71.472,12.4 76.781,12.4 84.65,12.4"
+    },
+    {
+      "id": "second",
+      "tailport": "p1:e",
+      "headport": "p1:w",
+      "position": "e,96.097,35.2 60.097,35.2 71.472,35.2 76.781,35.2 84.65,35.2"
+    },
+    {
+      "id": "self",
+      "tailport": "p1:e",
+      "headport": "p0:e",
+      "position": "e,161.41,12.4 161.41,35.2 178.95,44.2 212.02,44.2 212.02,23.8 212.02,7.0656 189.77,4.0587 172.09,8.4863"
+    }
+  ],
+  "scope": "Direct WASM probe: row ports, two distinct field pairs, self-loop. Does not exercise LikeC4 GraphvizParser, font metrics, drag, or saved-model conversion."
+}

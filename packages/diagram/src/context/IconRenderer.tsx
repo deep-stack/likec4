@@ -15,6 +15,7 @@ import {
   IconFileText,
   IconRectangularPrism,
   IconReorder,
+  IconTable,
   IconUser,
 } from '@tabler/icons-react'
 import {
@@ -113,6 +114,7 @@ export function IconRenderer({
 }
 
 const ShapeIcons = {
+  table: IconTable,
   browser: IconBrowser,
   cylinder: IconCylinder,
   mobile: IconDeviceMobile,

@@ -83,6 +83,7 @@ describe('LikeC4CompletionProvider', () => {
       text,
       index: 6,
       expectedItems: [
+        'table',
         'rectangle',
         'component',
         'person',
@@ -168,6 +169,7 @@ describe('LikeC4CompletionProvider', () => {
       text,
       index: 3,
       expectedItems: [
+        'table',
         'title',
         'technology',
         'this',
@@ -175,6 +177,8 @@ describe('LikeC4CompletionProvider', () => {
         'target',
         'try',
         'top',
+        'tableRelation',
+        'targetCardinality',
       ],
     })
     // sys = <|>s<|>ystem {

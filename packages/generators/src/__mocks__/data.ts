@@ -463,7 +463,7 @@ export const fakeComputedView3Levels: ComputedView = {
   viewOf: 'cloud',
 } as any
 
-const children = ElementShapes.map((shape, i) => ({
+const children = ElementShapes.filter(shape => shape !== 'table').map((shape, i) => ({
   id: `root.el${i + 1}`,
   parent: `root`,
   title: `Element with \n"${shape}" shape`,

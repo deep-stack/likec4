@@ -20,7 +20,10 @@ export function findConnection<A extends AnyAux>(
   | []
 {
   if (source === target) {
-    return []
+    const selfRelations = new Set(
+      [...source.allOutgoing].filter(r => r.source === source && r.target === target && r.$relationship.tableRelation),
+    )
+    return selfRelations.size ? [new ConnectionModel(source, target, selfRelations)] : []
   }
   if (isSameHierarchy(source, target)) {
     return []
@@ -81,9 +84,6 @@ export function findConnectionsBetween<M extends AnyAux>(
   const outgoing = [] as ConnectionModel<M>[]
   const incoming = [] as ConnectionModel<M>[]
   for (const _other of others) {
-    if (element === _other) {
-      continue
-    }
     for (const found of findConnection(element, _other, direction)) {
       if (found.source === element) {
         outgoing.push(found)
@@ -105,6 +105,7 @@ export function findConnectionsWithin<M extends AnyAux>(
   elements: Iterable<ElementModel<M>>,
 ): readonly ConnectionModel<M>[] {
   return [...elements].reduce((acc, el, index, array) => {
+    acc.push(...findConnection(el, el, 'directed'))
     // skip for last element
     if (index === array.length - 1) {
       return acc

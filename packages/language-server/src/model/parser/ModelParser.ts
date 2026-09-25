@@ -1,3 +1,4 @@
+import { parseTable, parseTableRelation } from './table'
 // SPDX-License-Identifier: MIT
 //
 // Copyright (c) 2023-2026 Denis Davydkov
@@ -94,6 +95,7 @@ export function ModelParser<TBase extends WithExpressionV2>(B: TBase) {
       const metadata = this.getMetadata(astNode.body?.props.find(ast.isMetadataProperty))
       const astPath = this.getAstNodePath(astNode)
 
+      const table = parseTable(astNode.body?.props.find(ast.isTableProperty))
       let [_title, _summary, _technology] = astNode.props ?? []
 
       const bodyProps = pipe(
@@ -121,6 +123,7 @@ export function ModelParser<TBase extends WithExpressionV2>(B: TBase) {
         links: this.parseLinks(astNode.body),
         ...descAndTech,
         style,
+        ...(table && { table }),
       })
     }
 
@@ -237,6 +240,7 @@ export function ModelParser<TBase extends WithExpressionV2>(B: TBase) {
         technology: astNode.technology,
       })
 
+      const tableRelation = parseTableRelation(astNode.body?.props.find(ast.isTableRelationProperty))
       const styleProp = astNode.body?.props.find(ast.isRelationStyleProperty)
       const id = stringHash(
         this.docUri,
@@ -259,6 +263,7 @@ export function ModelParser<TBase extends WithExpressionV2>(B: TBase) {
         description,
         technology,
         ...toRelationshipStyle(styleProp?.props, isValid),
+        ...(tableRelation && { tableRelation }),
       })
     }
   }

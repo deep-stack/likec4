@@ -31,6 +31,7 @@ import { useEditorActorStateHasTag } from '../hooks/useEditorActor'
 import { depsShallowEqual } from '../hooks/useUpdateEffect'
 import type { LikeC4DiagramProperties, NodeRenderers, ViewPaddings } from '../LikeC4Diagram.props'
 import { BuiltinEdges, BuiltinNodes } from './custom'
+import { TableControls } from './custom/nodes/TableControls'
 import { deriveToggledFeatures } from './state/machine.setup'
 import { viewBounds } from './state/utils'
 import type { Types } from './types'
@@ -345,6 +346,7 @@ export function LikeC4DiagramXYFlow({
           maxZoom={props.maxZoom}
         />
       )}
+      {enableControls && <TableControls />}
       {children}
     </BaseXYFlow>
   )

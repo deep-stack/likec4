@@ -71,7 +71,7 @@ export function calcDriftsFromSnapshot<V extends LayoutedView<any>>(
   const edges = autoLayouted.edges.map((edge): DiagramEdge => {
     const snapshotEdge = manualEdges.get(edge.id) ?? pipe(
       manualEdges.values(),
-      ifilter(e => e.source === edge.source && e.target === edge.target),
+      ifilter(e => !edge.tableRelation && !e.tableRelation && e.source === edge.source && e.target === edge.target),
       ihead(),
     )
     if (snapshotEdge) {

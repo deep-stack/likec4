@@ -66,7 +66,7 @@
     },
     {
       "name": "variable.other.property.likec4",
-      "match": "\\b(title|color|description|technology|navigateTo|notation|multiple|size|padding|textSize|opacity|variant|iconColor|iconPosition|iconSize)\\b"
+      "match": "\\b(title|color|description|tableRelation|table|column|pair|primaryKey|unique|nullable|sourceCardinality|targetCardinality|one|zeroOrOne|many|zeroOrMany|technology|navigateTo|notation|multiple|size|padding|textSize|opacity|variant|iconColor|iconPosition|iconSize)\\b"
     },
     {
       "name": "keyword.control.likec4",
@@ -76,7 +76,7 @@
     { "include": "#colors" },
     {
       "name": "keyword.control.likec4",
-      "match": "\\b(alt|and|as|autoLayout|border|break|catch|color|crow|dashed|description|deployment|deploymentNode|diamond|dot|dotted|dynamic|else|finally|from|global|group|element|exclude|extend|extends|head|icon|iconColor|iconPosition|iconSize|icons|if|import|include|includeAncestors|instance(Of)?|it|kind|line|likec4lib|link|loop|metadata|model|navigateTo|node|none|not|normal|odiamond|odot|of|onormal|opacity|open|opt|or|order|parallel|par|predicateGroup|predicate|relationship|shape|solid|specification|styleGroup|style|tag|tail|technology|this|title|try|vee|view|views|when|where|source|target|with)\\b"
+      "match": "\\b(alt|and|as|autoLayout|border|break|catch|color|crow|dashed|description|deployment|deploymentNode|diamond|dot|dotted|dynamic|else|finally|from|global|group|element|exclude|extend|extends|head|icon|iconColor|iconPosition|iconSize|icons|if|import|include|includeAncestors|instance(Of)?|it|kind|line|likec4lib|link|loop|metadata|model|navigateTo|node|none|not|normal|odiamond|odot|of|onormal|opacity|open|opt|or|order|parallel|par|predicateGroup|predicate|relationship|shape|solid|specification|styleGroup|style|tag|tail|tableRelation|table|column|pair|primaryKey|unique|nullable|sourceCardinality|targetCardinality|one|zeroOrOne|many|zeroOrMany|technology|this|title|try|vee|view|views|when|where|source|target|with)\\b"
     },
     {
       "name": "keyword.symbol.likec4",
@@ -178,7 +178,7 @@
     },
     "shapes": {
       "name": "keyword.control.likec4",
-      "match": "\\b(rectangle|component|person|browser|mobile|cylinder|storage|queue|bucket|document)\\b"
+      "match": "\\b(table|rectangle|component|person|browser|mobile|cylinder|storage|queue|bucket|document)\\b"
     },
     "colors": {
       "name": "entity.name.type.enum.likec4",

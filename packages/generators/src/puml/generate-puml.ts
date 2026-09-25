@@ -60,6 +60,8 @@ const pumlDirection = ({ autoLayout }: ProcessedView) => {
 
 const pumlShape = ({ shape }: ComputedNode) => {
   switch (shape) {
+    case 'table':
+      throw new Error('ER table export is not supported by this format; use the LikeC4 viewer or DSL export')
     case 'queue':
     case 'rectangle':
     case 'person': {
@@ -89,6 +91,9 @@ const escapeLabel = (label: string | null | undefined) =>
     .replace(/\\"/g, '"') // Unescape double quotes - PUML does not support escaped double quotes
 
 export function generatePuml(viewmodel: LikeC4ViewModel<aux.Unknown>) {
+  if (viewmodel.$view.nodes.some(node => node.table)) {
+    throw new Error('ER table export is not supported by this format; use the LikeC4 viewer or DSL export')
+  }
   const view = viewmodel.$view
   const colors = viewmodel.$model.$styles.theme.colors
   const { nodes, edges } = view

@@ -1,0 +1,124 @@
+{
+  "tables": {
+    "api_key": [
+      {
+        "type": "text",
+        "name": "id",
+        "key": "PK"
+      },
+      {
+        "type": "text",
+        "name": "name",
+        "key": ""
+      },
+      {
+        "type": "text",
+        "name": "prefix",
+        "key": ""
+      },
+      {
+        "type": "text",
+        "name": "secret_digest",
+        "key": "UK"
+      },
+      {
+        "type": "timestamp",
+        "name": "created_at",
+        "key": ""
+      },
+      {
+        "type": "timestamp",
+        "name": "revoked_at",
+        "key": ""
+      }
+    ],
+    "operator_session": [
+      {
+        "type": "text",
+        "name": "id",
+        "key": "PK"
+      },
+      {
+        "type": "text",
+        "name": "token_digest",
+        "key": "UK"
+      },
+      {
+        "type": "timestamp",
+        "name": "created_at",
+        "key": ""
+      },
+      {
+        "type": "timestamp",
+        "name": "expires_at",
+        "key": ""
+      },
+      {
+        "type": "timestamp",
+        "name": "revoked_at",
+        "key": ""
+      }
+    ],
+    "scrape_request": [
+      {
+        "type": "text",
+        "name": "id",
+        "key": "PK"
+      },
+      {
+        "type": "text",
+        "name": "kind",
+        "key": ""
+      },
+      {
+        "type": "text",
+        "name": "status",
+        "key": ""
+      },
+      {
+        "type": "text",
+        "name": "url_normalised",
+        "key": ""
+      },
+      {
+        "type": "timestamp",
+        "name": "requested_at",
+        "key": ""
+      }
+    ],
+    "scrape_attempt": [
+      {
+        "type": "bigint",
+        "name": "id",
+        "key": "PK"
+      },
+      {
+        "type": "text",
+        "name": "request_id",
+        "key": "FK"
+      },
+      {
+        "type": "timestamp",
+        "name": "assigned_at",
+        "key": ""
+      },
+      {
+        "type": "timestamp",
+        "name": "started_at",
+        "key": ""
+      },
+      {
+        "type": "timestamp",
+        "name": "ended_at",
+        "key": ""
+      }
+    ]
+  },
+  "relationships": [
+    {
+      "from": "scrape_request.id",
+      "to": "scrape_attempt.request_id",
+      "cardinality": "1 to 0..many"
+    }
+  ]
+}

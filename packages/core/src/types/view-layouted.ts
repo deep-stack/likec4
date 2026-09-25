@@ -44,6 +44,8 @@ export interface DiagramEdge<A extends AnyAux = AnyAux> extends ComputedEdge<A> 
    * (Absolute coordinates)
    */
   points: NonEmptyArray<Point>
+  /** One field-level spline per ordered pair of a table relationship. */
+  tablePaths?: readonly NonEmptyArray<Point>[]
   /**
    * Control points to adjust the edge
    * (Absolute coordinates)

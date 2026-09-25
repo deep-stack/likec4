@@ -33,6 +33,7 @@ import {
 import type { Types } from '../../types'
 import { EdgeDrifts } from './EdgeDrifts'
 import * as edgesCss from './edges.css'
+import { TableRelationshipEdge } from './TableRelationshipEdge'
 import { useControlPoints } from './useControlPoints'
 import { useRelationshipEdgePath } from './useRelationshipEdgePath'
 
@@ -44,7 +45,11 @@ const getEdgeCenter = (path: SVGPathElement) => {
   }
 }
 
-export const RelationshipEdge = memoEdge<Types.EdgeProps<'relationship'>>((props) => {
+export const RelationshipEdge = memoEdge<Types.EdgeProps<'relationship'>>(props =>
+  props.data.tableRelation ? <TableRelationshipEdge {...props} /> : <ArchitectureRelationshipEdge {...props} />
+)
+
+const ArchitectureRelationshipEdge = memoEdge<Types.EdgeProps<'relationship'>>((props) => {
   const [isControlPointDragging, setIsControlPointDragging] = useState(false)
 
   const isControlPointDraggingRef = useRef(isControlPointDragging)

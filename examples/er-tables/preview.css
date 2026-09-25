@@ -1,0 +1,70 @@
+html, body, #root {
+  margin: 0;
+  min-height: 100%;
+}
+body {
+  font-family:
+    var(--mantine-font-family), sans-serif;
+  background: var(--mantine-color-body);
+  color: var(--mantine-color-text);
+}
+main {
+  padding: 28px 36px;
+  max-width: 1800px;
+  margin: auto;
+}
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 20px;
+}
+.eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--mantine-color-dimmed);
+}
+h1 {
+  font-size: 27px;
+  font-weight: 550;
+  letter-spacing: -0.035em;
+  margin: 6px 0;
+}
+p, footer {
+  color: var(--mantine-color-dimmed);
+  font-size: 13px;
+}
+nav {
+  display: flex;
+  gap: 8px;
+}
+nav button {
+  border: 1px solid var(--mantine-color-default-border);
+  border-radius: 6px;
+  padding: 9px 12px;
+  background: var(--mantine-color-default);
+  color: inherit;
+  cursor: pointer;
+}
+.figure {
+  height: 680px;
+  border: 1px solid var(--mantine-color-default-border);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 18px;
+}
+@media (max-width: 900px) {
+  main {
+    padding: 16px;
+  }
+  .page-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+nav {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}

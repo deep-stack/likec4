@@ -21,6 +21,7 @@ import type {
   TextSize,
   ThemeColor as Color,
 } from '../types'
+import type { TableDefinition, TableRelationship } from '../types/table'
 import type { Builder } from './Builder'
 import type { DeploymentRulesBuilderOp } from './Builder.view-deployment'
 
@@ -75,6 +76,7 @@ export type Metadata<MetadataKey extends string> = IsNever<MetadataKey> extends 
   Record<string, string | NonEmptyArray<string>>
 
 export type NewElementProps<Tag, Metadata> = {
+  table?: TableDefinition
   title?: string
   summary?: MarkdownOrString | string
   description?: MarkdownOrString | string
@@ -187,7 +189,9 @@ export interface Types<
   // Metadata: Metadata<MetadataKey>
 
   NewElementProps: NewElementProps<Tag, Metadata<MetadataKey>>
-  NewRelationshipProps: NewRelationProps<RelationshipKind, Tag, Metadata<MetadataKey>>
+  NewRelationshipProps: NewRelationProps<RelationshipKind, Tag, Metadata<MetadataKey>> & {
+    tableRelation?: TableRelationship
+  }
   NewDeploymentRelationshipProps: NewRelationProps<RelationshipKind, Tag, Metadata<MetadataKey>>
   NewViewProps: NewViewProps<Tag>
 

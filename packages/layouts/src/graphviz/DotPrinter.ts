@@ -22,6 +22,7 @@ import {
 } from '@likec4/core/utils'
 import { Graph } from '@likec4/core/utils/graphology'
 import { createLogger } from '@likec4/log'
+import { tableLabel } from './table-label'
 
 import {
   concat,
@@ -400,6 +401,18 @@ export abstract class DotPrinter<V extends ViewToPrint> {
 
   protected elementToNode(element: NodeOf<V>, node: NodeModel) {
     invariant(!isCompound(element), 'node should not be compound')
+    if (element.table) {
+      node.attributes.apply({
+        [_.likec4_id]: element.id,
+        [_.likec4_level]: element.level,
+        [_.shape]: 'plain',
+        [_.margin]: 0,
+        [_.width]: 0,
+        [_.height]: 0,
+        [_.label]: `<${tableLabel(element.table, element.title)}>`,
+      })
+      return node
+    }
     const hasIcon = isTruthy(element.icon)
     const { values: { padding, sizes: { width, height } } } = this.styles.nodeSizes(element.style)
 

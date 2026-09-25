@@ -80,7 +80,7 @@ function hasStyleProps(el: ElementData): boolean {
 
 function hasElementProps(el: ElementData): boolean {
   return !!(
-    el.description || el.summary || el.technology || el.notation
+    el.table || el.description || el.summary || el.technology || el.notation
     || (el.tags && el.tags.length > 0)
     || (el.links && el.links.length > 0)
     || !isEmptyish(el.metadata)
@@ -92,6 +92,22 @@ function hasElementProps(el: ElementData): boolean {
 
 const elementProperties = zodOp(schemas.model.element)(
   lines(
+    select(
+      e => e.table,
+      print(table =>
+        `table {
+${
+          table.fields.map(field =>
+            `  column ${JSON.stringify(field.id)} ${JSON.stringify(field.type)} { title ${JSON.stringify(field.title)}${
+              field.keys?.includes('primary') ? ' primaryKey' : ''
+            }${field.keys?.includes('unique') ? ' unique' : ''}${
+              field.nullable !== undefined ? ` nullable ${field.nullable}` : ''
+            } }`
+          ).join('\n')
+        }
+}`
+      ),
+    ),
     tagsProperty(),
     technologyProperty(),
     summaryProperty(),
@@ -151,7 +167,7 @@ function hasRelationStyle(rel: schemas.model.relationship.Data): boolean {
 
 function hasRelationProps(rel: schemas.model.relationship.Data): boolean {
   return !!(
-    rel.description || rel.summary || rel.technology
+    rel.tableRelation || rel.description || rel.summary || rel.technology
     || (rel.tags && rel.tags.length > 0)
     || (rel.links && rel.links.length > 0)
     || !isEmptyish(rel.metadata)
@@ -172,6 +188,18 @@ export const relationship = zodOp(schemas.model.relationship)(
     when(
       hasRelationProps,
       body(
+        select(
+          r => r.tableRelation,
+          print(relation => {
+            const cardinality = (v: { min: 0 | 1; max: 1 | 'many' }) =>
+              v.max === 'many' ? v.min === 0 ? 'zeroOrMany' : 'many' : v.min === 0 ? 'zeroOrOne' : 'one'
+            return `tableRelation {
+${relation.pairs.map(pair => `  pair ${JSON.stringify(pair.source)} -> ${JSON.stringify(pair.target)}`).join('\n')}${
+              relation.sourceCardinality ? `\n  sourceCardinality ${cardinality(relation.sourceCardinality)}` : ''
+            }${relation.targetCardinality ? `\n  targetCardinality ${cardinality(relation.targetCardinality)}` : ''}
+}`
+          }),
+        ),
         tagsProperty(),
         technologyProperty(),
         summaryProperty(),

@@ -149,6 +149,7 @@ ElementBody: '{'
 ;
 
 ElementProperty:
+  TableProperty |
   ElementStringProperty |
   ElementStyleProperty |
   LinkProperty |
@@ -269,6 +270,7 @@ RelationBody: '{'
 ;
 
 RelationProperty:
+  TableRelationProperty |
   RelationStringProperty |
   RelationNavigateToProperty |
   RelationStyleProperty |
@@ -1131,6 +1133,7 @@ ThemeColor returns string:
   'amber';
 
 ElementShape returns string:
+  'table' |
   'rectangle' |
   'component' |
   'person' |
@@ -1188,7 +1191,9 @@ Id returns string:
   IconPositionValue |
   RankValue |
   // Allow reserved keywords as Id
-  'element' | 'model' | 'group' | 'node' | 'deployment' | 'instance' | 'relationship';
+  'element' | 'model' | 'group' | 'node' | 'deployment' | 'instance' | 'relationship' |
+  'tableRelation' | 'column' | 'pair' | 'primaryKey' | 'unique' | 'nullable' |
+  'sourceCardinality' | 'targetCardinality' | 'one' | 'zeroOrOne' | 'many' | 'zeroOrMany';
 
 HashId returns string:
   Hash Id;
@@ -1255,3 +1260,17 @@ terminal Float returns number: /\b\d+\.\d+\b/;
 terminal Number returns number: /\b\d+\b/;
 terminal IdTerminal:  /([a-zA-Z]|_+[a-zA-Z0-9])[-\w]*/;
 terminal Hex: /[a-fA-F0-9]{3,}(?![-_g-zG-Z])/;
+
+
+TableProperty: key='table' '{' fields+=TableField* '}';
+TableField: 'column' name=TableFieldId type=String ('{' props+=TableFieldProperty* '}')?;
+TableFieldProperty: TableFieldTitle | TableFieldKey | TableFieldNullable;
+TableFieldTitle: key='title' value=String;
+TableFieldKey: key=('primaryKey' | 'unique');
+TableFieldNullable: key='nullable' value=BOOLEAN;
+TableRelationProperty: key='tableRelation' '{' props+=TableRelationEntry* '}';
+TableRelationEntry: TableFieldPair | TableCardinality;
+TableFieldPair: 'pair' source=TableFieldId '->' target=TableFieldId;
+TableCardinality: key=('sourceCardinality' | 'targetCardinality') value=('one' | 'zeroOrOne' | 'many' | 'zeroOrMany');
+
+TableFieldId returns string: Id | String | 'kind' | 'title' | 'description' | 'source' | 'target';

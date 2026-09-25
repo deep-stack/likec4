@@ -34,6 +34,8 @@ const d2direction = ({ autoLayout }: AnyView) => {
 
 const d2shape = ({ shape }: Node) => {
   switch (shape) {
+    case 'table':
+      throw new Error('ER table export is not supported by this format; use the LikeC4 viewer or DSL export')
     case 'queue':
     case 'cylinder':
     case 'rectangle':
@@ -56,6 +58,9 @@ const d2shape = ({ shape }: Node) => {
 }
 
 export function generateD2(viewmodel: LikeC4ViewModel<aux.Unknown>) {
+  if (viewmodel.$view.nodes.some(node => node.table)) {
+    throw new Error('ER table export is not supported by this format; use the LikeC4 viewer or DSL export')
+  }
   const view = viewmodel.$view
   const { nodes, edges } = view
   const names = new Map<NodeId, string>()

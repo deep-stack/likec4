@@ -45,6 +45,23 @@ const _diagramMachine = machine.createMachine({
     },
   },
   on: {
+    'table.focus': {
+      actions: assign(({ context, event }) => ({
+        tableFocusedNode: event.node ? { node: event.node, view: context.view.id } : null,
+      })),
+    },
+    'table.toggleFlow': { actions: assign(({ context }) => ({ tableFlowEnabled: !context.tableFlowEnabled })) },
+    'table.resetPositions': {
+      actions: assign(({ context }) => ({
+        xynodes: context.xynodes.map(node => {
+          if (!('table' in node.data) || !node.data.table) return node
+          const saved = context.view.nodes.find(n => n.id === node.id)
+          if (!saved) return node
+          const parent = saved.parent ? context.view.nodes.find(n => n.id === saved.parent) : null
+          return { ...node, position: { x: saved.x - (parent?.x ?? 0), y: saved.y - (parent?.y ?? 0) } }
+        }),
+      })),
+    },
     'update.nodeData': {
       actions: assign(updateNodeData),
     },

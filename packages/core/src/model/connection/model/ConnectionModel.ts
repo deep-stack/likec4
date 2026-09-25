@@ -33,7 +33,7 @@ export class ConnectionModel<A extends AnyAux = Unknown> implements Connection<E
    * Represents the boundary of the connection.
    */
   get boundary(): ElementModel<A> | null {
-    return this._boundary ??= this.source.commonAncestor(this.target)
+    return this._boundary ??= this.source === this.target ? this.source.parent : this.source.commonAncestor(this.target)
   }
 
   /**

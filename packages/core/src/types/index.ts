@@ -62,3 +62,5 @@ export {
   isNonEmptyArray,
   isString,
 } from './guards'
+
+export * from './table'

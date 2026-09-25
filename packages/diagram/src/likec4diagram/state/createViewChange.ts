@@ -6,6 +6,7 @@ import type {
 } from '@likec4/core/types'
 import { getNodeDimensions } from '@xyflow/system'
 import { hasAtLeast, map } from 'remeda'
+import { translateTablePath } from '../../utils/table-path'
 import { calcViewBounds } from '../../utils/view-bounds'
 import type { DiagramContext } from './types'
 
@@ -59,6 +60,18 @@ export function createViewChange(
     const _updated: DiagramEdge = {
       ...edge,
       points: data.points,
+    }
+    if (edge.tableRelation) {
+      const delta = (id: string) => {
+        const before = view.nodes.find(node => node.id === id)
+        const after = nodes.find(node => node.id === id)
+        return { x: (after?.x ?? 0) - (before?.x ?? 0), y: (after?.y ?? 0) - (before?.y ?? 0) }
+      }
+      const paths = (edge.tablePaths ?? [edge.points]).map(points =>
+        translateTablePath(points, delta(edge.source), delta(edge.target))
+      )
+      _updated.tablePaths = paths
+      _updated.points = paths[0] ?? data.points
     }
     if (data.labelBBox) {
       _updated.labelBBox = {

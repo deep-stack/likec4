@@ -251,6 +251,7 @@ export function diagramToXY(opts: {
     }
 
     const leafNodeData = {
+      ...(node.table && { table: node.table }),
       viewId: view.id,
       id: node.id,
       title: node.title,
@@ -337,6 +338,8 @@ export function diagramToXY(opts: {
         isLabelCustomized: edge.isLabelCustomized ?? false,
         labelXY: null,
         points: edge.points,
+        ...(edge.tableRelation && { tableRelation: edge.tableRelation }),
+        ...(edge.tablePaths && { tablePaths: edge.tablePaths }),
         color: edge.color ?? 'gray',
         line: edge.line ?? 'dashed',
         dir: edge.dir ?? 'forward',

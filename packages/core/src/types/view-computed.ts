@@ -13,6 +13,7 @@ import type * as scalar from './scalar'
 import type {
   Icon,
 } from './scalar'
+import type { TableDefinition, TableRelationship } from './table'
 import type {
   BaseViewProperties,
   RankValue,
@@ -43,6 +44,7 @@ export interface ComputedNode<A extends AnyAux = AnyAux>
    * exactOptionalPropertyTypes conflicts when MetadataKey is a literal union.
    */
   readonly metadata?: Readonly<Record<string, string | string[] | undefined>> | null
+  table?: TableDefinition
   id: scalar.NodeId
   kind: aux.ElementKind<A> | aux.DeploymentKind<A> | '@group'
   parent: scalar.NodeId | null
@@ -81,6 +83,7 @@ export interface ComputedNode<A extends AnyAux = AnyAux>
 }
 
 export interface ComputedEdge<A extends AnyAux = AnyAux> extends aux.WithOptionalTags<A> {
+  tableRelation?: TableRelationship
   id: scalar.EdgeId
   parent: scalar.NodeId | null
   source: scalar.NodeId
