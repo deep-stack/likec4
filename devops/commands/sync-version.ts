@@ -45,7 +45,7 @@ export default defineCommand({
     const [currentPkg] = await $`pnpm ls -P --json`.json<[PnpmPackage]>()
 
     // Read likec4 package info
-    const [likec4Pkg] = await $`pnpm ls -P --json --filter=likec4`.json<[PnpmPackage]>()
+    const [likec4Pkg] = await $`pnpm ls -P --json --filter=@deep-stack/likec4`.json<[PnpmPackage]>()
 
     if (currentPkg.name === likec4Pkg.name) {
       echo(chalk.red('Current package is likec4 itself, cannot sync version'))

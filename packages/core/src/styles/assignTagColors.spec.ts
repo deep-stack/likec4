@@ -1,5 +1,5 @@
-import type { ColorLiteral, Tag, TagSpecification } from '@likec4/core/types'
 import { describe, expect, it } from 'vitest'
+import type { ColorLiteral, Tag, TagSpecification } from '../types/index'
 import { assignTagColors, DefaultTagColors } from './assignTagColors'
 
 // Helper to create test tags with proper typing

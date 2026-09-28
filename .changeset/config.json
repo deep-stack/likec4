@@ -1,13 +1,20 @@
 {
   "$schema": "https://unpkg.com/@changesets/config/schema.json",
-  "changelog": ["@changesets/changelog-github", { "repo": "likec4/likec4" }],
+  "changelog": [
+    "@changesets/changelog-github",
+    {
+      "repo": "deep-stack/likec4"
+    }
+  ],
   "commit": false,
   "fixed": [
     [
-      "likec4",
       "likec4-vscode",
       "@likec4/*",
       "!@likec4/icons"
+    ],
+    [
+      "@deep-stack/likec4*"
     ]
   ],
   "linked": [],

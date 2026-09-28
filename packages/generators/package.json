@@ -1,8 +1,8 @@
 {
-  "name": "@likec4/generators",
-  "version": "1.59.4",
+  "name": "@deep-stack/likec4-generators",
+  "version": "1.59.4-deepstack.1",
   "license": "MIT",
-  "bugs": "https://github.com/likec4/likec4/issues",
+  "bugs": "https://github.com/deep-stack/likec4/issues",
   "homepage": "https://likec4.dev",
   "author": "Denis Davydkov <denis@davydkov.com>",
   "description": "Converts LikeC4 Model to other formats, like Mermaid, PlantUML, SVG, etc. Also generates typings for Model API and React",
@@ -17,7 +17,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/likec4/likec4.git",
+    "url": "git+https://github.com/deep-stack/likec4.git",
     "directory": "packages/generators"
   },
   "type": "module",
@@ -41,7 +41,7 @@
     }
   },
   "publishConfig": {
-    "registry": "https://registry.npmjs.org",
+    "registry": "https://npm.pkg.github.com",
     "access": "public",
     "types": "dist/index.d.mts",
     "module": "dist/index.mjs"
@@ -58,9 +58,9 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@likec4/core": "workspace:*",
-    "@likec4/config": "workspace:*",
-    "@likec4/log": "workspace:*",
+    "@likec4/core": "workspace:@deep-stack/likec4-core@*",
+    "@likec4/config": "workspace:@deep-stack/likec4-config@*",
+    "@likec4/log": "workspace:@deep-stack/likec4-log@*",
     "langium": "catalog:langium",
     "pako": "catalog:",
     "remeda": "catalog:utils",

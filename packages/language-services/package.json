@@ -79,13 +79,13 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@likec4/config": "workspace:*",
-    "@likec4/core": "workspace:*",
-    "@likec4/generators": "workspace:*",
+    "@likec4/config": "workspace:@deep-stack/likec4-config@*",
+    "@likec4/core": "workspace:@deep-stack/likec4-core@*",
+    "@likec4/generators": "workspace:@deep-stack/likec4-generators@*",
     "@likec4/icons": "workspace:*",
     "@likec4/language-server": "workspace:*",
     "@likec4/layouts": "workspace:*",
-    "@likec4/log": "workspace:*",
+    "@likec4/log": "workspace:@deep-stack/likec4-log@*",
     "defu": "catalog:utils",
     "remeda": "catalog:utils",
     "langium": "catalog:langium",

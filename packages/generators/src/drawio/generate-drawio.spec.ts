@@ -1,14 +1,14 @@
 import { Builder } from '@likec4/core/builder'
 import type { aux, ProcessedView } from '@likec4/core/types'
-import type { DrawioViewModelLike } from '@likec4/generators'
+import { describe, expect, test } from 'vitest'
+import { fakeComputedView3Levels, fakeDiagram, fakeDiagram2 } from '../__mocks__/data'
+import type { DrawioViewModelLike } from '../index'
 import {
   generateDrawio,
   generateDrawioMulti,
   getAllDiagrams,
   parseDrawioToLikeC4,
-} from '@likec4/generators'
-import { describe, expect, test } from 'vitest'
-import { fakeComputedView3Levels, fakeDiagram, fakeDiagram2 } from '../__mocks__/data'
+} from '../index'
 
 /**
  * Asserts that the DrawIO XML does not contain the structure that causes

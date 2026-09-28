@@ -50,7 +50,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@likec4/core": "workspace:*",
+    "@likec4/core": "workspace:@deep-stack/likec4-core@*",
     "remeda": "catalog:utils"
   },
   "devDependencies": {
