@@ -154,6 +154,7 @@ export class MergedSpecification {
     summary,
     metadata,
     table,
+    classifier,
   }: ParsedAstElement): c4.Element | null => {
     try {
       const __kind = this.specs.elements[kind]
@@ -193,6 +194,7 @@ export class MergedSpecification {
         notation: __kind.notation,
         style: mergedStyle,
         ...(table && { table }),
+        ...(classifier && { classifier }),
         links,
         tags,
         summary,

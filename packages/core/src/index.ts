@@ -39,3 +39,5 @@ export type {
   ComputedProjectsView,
   LayoutedProjectsView,
 } from './compute-view/projects-view/_types'
+
+export * from './uml'

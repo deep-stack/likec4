@@ -4,7 +4,7 @@ import { edgePath } from '@likec4/styles/recipes'
 import { type PointerEventHandler, forwardRef } from 'react'
 import type { UndefinedOnPartialDeep } from 'type-fest'
 import type { BaseEdgePropsWithData } from '../../base/types'
-import { arrowTypeToMarker, EdgeMarkers } from './EdgeMarkers'
+import { arrowTypeToMarker, EdgeMarkers, UmlOpenArrow, UmlTriangle } from './EdgeMarkers'
 
 type Data = UndefinedOnPartialDeep<
   Pick<
@@ -24,6 +24,9 @@ type EdgePathProps = {
    */
   isDragging?: boolean
   strokeWidth?: number
+  /** Compact dashes for dense diagrams; retains the authored line kind. */
+  compact?: boolean
+  notation?: 'uml' | undefined
   onEdgePointerDown?: PointerEventHandler<SVGGElement> | undefined
 }
 
@@ -43,6 +46,8 @@ export const EdgePath = forwardRef<SVGPathElement, EdgePathProps>(({
   isDragging = false, // omit
   onEdgePointerDown,
   strokeWidth,
+  compact = false,
+  notation,
   svgPath,
 }, svgPathRef) => {
   let markerStartName = arrowTypeToMarker(tail)
@@ -51,17 +56,25 @@ export const EdgePath = forwardRef<SVGPathElement, EdgePathProps>(({
     ;[markerStartName, markerEndName] = [markerEndName, markerStartName]
   }
 
-  const MarkerStart = markerStartName ? EdgeMarkers[markerStartName] : null
-  const MarkerEnd = markerEndName ? EdgeMarkers[markerEndName] : null
+  const marker = (name: typeof markerStartName) =>
+    notation === 'uml' && name === 'OArrow' ?
+      UmlTriangle
+      : notation === 'uml' && name === 'Open' ?
+      UmlOpenArrow
+      : name
+      ? EdgeMarkers[name]
+      : null
+  const MarkerStart = marker(markerStartName)
+  const MarkerEnd = marker(markerEndName)
 
   const isDotted = line === 'dotted'
   const isDashed = isDotted || line === 'dashed'
 
   let strokeDasharray: string | undefined
   if (isDotted) {
-    strokeDasharray = '1,8'
+    strokeDasharray = compact ? '1,6' : '1,8'
   } else if (isDashed) {
-    strokeDasharray = '8,10'
+    strokeDasharray = compact ? '6,7' : '8,10'
   }
 
   const classes = edgePath()
@@ -112,6 +125,7 @@ export const EdgePath = forwardRef<SVGPathElement, EdgePathProps>(({
           )}
           d={svgPath}
           style={style}
+          strokeLinejoin={'round'}
           strokeLinecap={'round'}
         />
         <path
@@ -124,6 +138,7 @@ export const EdgePath = forwardRef<SVGPathElement, EdgePathProps>(({
           d={svgPath}
           style={style}
           strokeWidth={strokeWidth}
+          strokeLinejoin={'round'}
           strokeLinecap={'round'}
           strokeDasharray={strokeDasharray}
           markerStart={MarkerStart ? `url(#start${id})` : undefined}

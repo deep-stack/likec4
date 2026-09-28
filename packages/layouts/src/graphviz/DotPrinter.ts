@@ -23,6 +23,7 @@ import {
 import { Graph } from '@likec4/core/utils/graphology'
 import { createLogger } from '@likec4/log'
 import { tableLabel } from './table-label'
+import { umlClassifierLabel } from './uml-label'
 
 import {
   concat,
@@ -393,7 +394,9 @@ export abstract class DotPrinter<V extends ViewToPrint> {
       [_.style]: 'filled',
       [_.margin]: pxToPoints(compound.children.length > 1 ? 40 : 32),
     })
-    if (!isEmpty(compound.title.trim())) {
+    if (compound.classifier) {
+      subgraph.set(_.label, `<${umlClassifierLabel(compound.classifier, compound.title, compound.umlPresentation)}>`)
+    } else if (!isEmpty(compound.title.trim())) {
       subgraph.set(_.label, compoundLabel(compound, textColor))
     }
     return subgraph
@@ -401,6 +404,32 @@ export abstract class DotPrinter<V extends ViewToPrint> {
 
   protected elementToNode(element: NodeOf<V>, node: NodeModel) {
     invariant(!isCompound(element), 'node should not be compound')
+    if (element.umlArtifact) {
+      const anchor = element.umlArtifact === 'anchor'
+      const junction = element.umlArtifact === 'junction'
+      node.attributes.apply({
+        [_.likec4_id]: element.id,
+        [_.likec4_level]: element.level,
+        [_.shape]: anchor ? 'point' : junction ? 'diamond' : 'note',
+        [_.label]: anchor ? '' : element.title,
+        [_.width]: pxToInch(anchor ? 1 : junction ? 44 : 220),
+        [_.height]: pxToInch(anchor ? 1 : junction ? 44 : 80),
+        [_.fontsize]: 14,
+      })
+      return node
+    }
+    if (element.classifier) {
+      node.attributes.apply({
+        [_.likec4_id]: element.id,
+        [_.likec4_level]: element.level,
+        [_.shape]: 'plain',
+        [_.margin]: 0,
+        [_.width]: 0,
+        [_.height]: 0,
+        [_.label]: `<${umlClassifierLabel(element.classifier, element.title, element.umlPresentation)}>`,
+      })
+      return node
+    }
     if (element.table) {
       node.attributes.apply({
         [_.likec4_id]: element.id,

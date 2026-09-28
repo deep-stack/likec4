@@ -23,6 +23,7 @@ import type {
 } from '../types'
 import type { DecisionBranch } from '../types/decision'
 import type { TableDefinition, TableRelationship } from '../types/table'
+import type { UmlBinaryRelationship, UmlClassifier } from '../types/uml'
 import type { Builder } from './Builder'
 import type { DeploymentRulesBuilderOp } from './Builder.view-deployment'
 
@@ -78,6 +79,7 @@ export type Metadata<MetadataKey extends string> = IsNever<MetadataKey> extends 
 
 export type NewElementProps<Tag, Metadata> = {
   table?: TableDefinition
+  classifier?: UmlClassifier
   title?: string
   summary?: MarkdownOrString | string
   description?: MarkdownOrString | string
@@ -193,6 +195,7 @@ export interface Types<
   NewRelationshipProps: NewRelationProps<RelationshipKind, Tag, Metadata<MetadataKey>> & {
     tableRelation?: TableRelationship
     decisionBranch?: DecisionBranch
+    uml?: UmlBinaryRelationship
   }
   NewDeploymentRelationshipProps: NewRelationProps<RelationshipKind, Tag, Metadata<MetadataKey>>
   NewViewProps: NewViewProps<Tag>

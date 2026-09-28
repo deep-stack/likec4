@@ -1,3 +1,4 @@
+import { UmlArtifactNode } from './custom/nodes/UmlArtifactNode'
 // SPDX-License-Identifier: MIT
 //
 // Copyright (c) 2023-2026 Denis Davydkov
@@ -43,6 +44,7 @@ const edgeTypes = {
 }
 
 const builtinNodes = {
+  'uml-artifact': UmlArtifactNode,
   element: BuiltinNodes.ElementNode,
   deployment: BuiltinNodes.DeploymentNode,
   'compound-element': BuiltinNodes.CompoundElementNode,
@@ -57,6 +59,7 @@ function prepareNodeTypes(nodeTypes?: NodeRenderers): Types.NodeRenderers {
     return builtinNodes
   }
   return {
+    'uml-artifact': builtinNodes['uml-artifact'],
     element: nodeTypes.element ?? builtinNodes.element,
     deployment: nodeTypes.deployment ?? builtinNodes.deployment,
     'compound-element': nodeTypes.compoundElement ?? builtinNodes['compound-element'],

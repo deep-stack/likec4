@@ -157,6 +157,46 @@ const ODot = (props: SVGProps<SVGMarkerElement>) => (
   </marker>
 )
 
+/** UML generalization and realization use an unfilled triangle, without an arrow notch. */
+export const UmlTriangle = (props: SVGProps<SVGMarkerElement>) => (
+  <marker
+    viewBox="-1 -1 12 10"
+    refX={8}
+    refY={4}
+    markerWidth="8"
+    markerHeight="7"
+    orient="auto-start-reverse"
+    {...props}>
+    <path
+      d="M0 0 L8 4 L0 8 Z"
+      fill="var(--likec4-background-color)"
+      stroke="context-stroke"
+      strokeWidth={1}
+      strokeLinejoin="round"
+      strokeDasharray={0} />
+  </marker>
+)
+
+export const UmlOpenArrow = (props: SVGProps<SVGMarkerElement>) => (
+  <marker
+    viewBox="-1 -1 12 10"
+    refX={8}
+    refY={4}
+    markerWidth="7"
+    markerHeight="6"
+    orient="auto-start-reverse"
+    {...props}>
+    <path
+      d="M0 0 L8 4 L0 8"
+      fill="none"
+      stroke="context-stroke"
+      strokeWidth={1}
+      strokeLinejoin="round"
+      strokeLinecap="round"
+      strokeDasharray={0} />
+  </marker>
+)
+
 export const EdgeMarkers = {
   Arrow,
   Crow,

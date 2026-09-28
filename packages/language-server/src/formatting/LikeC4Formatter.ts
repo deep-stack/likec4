@@ -327,7 +327,11 @@ export class LikeC4Formatter extends AbstractFormatter {
 
   protected formatLeafProperty(node: AstNode) {
     if (
-      ast.isElementStringProperty(node)
+      ast.isUmlStringProperty(node)
+      || ast.isUmlBooleanProperty(node)
+      || ast.isUmlEnumProperty(node)
+      || ast.isUmlPresentationEntry(node)
+      || ast.isElementStringProperty(node)
       || ast.isRelationStringProperty(node)
       || ast.isViewStringProperty(node)
       || ast.isViewOrderProperty(node)

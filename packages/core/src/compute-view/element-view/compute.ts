@@ -20,6 +20,7 @@ import {
   ModelRelationExpr,
   whereOperatorAsPredicate,
 } from '../../types'
+import { addUmlArtifacts } from '../../uml/artifacts'
 import { invariant, nonexhaustive, nonNullable, sortParentsFirst } from '../../utils'
 import { DefaultMap } from '../../utils/mnemonist'
 import { applyCustomElementProperties, flattenGroupRules } from '../utils/applyCustomElementProperties'
@@ -298,7 +299,7 @@ export function computeElementView<A extends AnyAux>(
   }
   memory = assignElementsToGroups(memory)
 
-  const nodesMap = buildNodes(likec4model, memory)
+  const nodesMap = new Map(buildNodes(likec4model, memory))
 
   const expandPredicate = buildExpandPredicate(likec4model, rules)
 
@@ -307,6 +308,11 @@ export function computeElementView<A extends AnyAux>(
     expandPredicate,
   )
 
+  // Resolve presentation before attaching notes to members hidden in this view.
+  for (const node of applyCustomElementProperties(rules, applyViewRuleStyles(rules, [...nodesMap.values()]))) {
+    nodesMap.set(node.id, node)
+  }
+  addUmlArtifacts(nodesMap, computedEdges, likec4model.$data.uml)
   linkNodesWithEdges(nodesMap, computedEdges)
 
   const sorted = topologicalSort({

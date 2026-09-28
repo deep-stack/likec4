@@ -118,6 +118,7 @@ Model:
 ;
 
 ModelElement:
+  UmlModelProperty |
   ExtendElementOrRelation |
   Relation<true> |
   Element
@@ -149,6 +150,7 @@ ElementBody: '{'
 ;
 
 ElementProperty:
+  ClassifierProperty |
   TableProperty |
   ElementStringProperty |
   ElementStyleProperty |
@@ -270,6 +272,7 @@ RelationBody: '{'
 ;
 
 RelationProperty:
+  UmlRelationshipProperty |
   TableRelationProperty |
   DecisionBranchProperty |
   RelationStringProperty |
@@ -490,6 +493,7 @@ NotesProperty:
 
 CustomElementProperties: '{'
   props+=(
+    UmlPresentationProperty |
     NavigateToProperty |
     ElementStringProperty |
     NotationProperty |
@@ -1279,3 +1283,35 @@ TableCardinality: key=('sourceCardinality' | 'targetCardinality') value=('one' |
 TableFieldId returns string: Id | String | 'kind' | 'title' | 'description' | 'source' | 'target';
 
 DecisionBranchProperty: key='branch' value=String ';'?;
+// Structured UML blocks share lexical properties; semantic validation checks context.
+ClassifierProperty: key='classifier' '{' props+=UmlProperty* '}';
+UmlRelationshipProperty: key='uml' '{' props+=UmlProperty* '}';
+UmlModelProperty: key='umlModel' '{' props+=UmlProperty* '}';
+UmlProperty: UmlNamedBlock | UmlEndBlock | UmlTypeProperty | UmlBooleanProperty | UmlEnumProperty | UmlStringProperty;
+UmlNamedBlock:
+  key=('attribute' | 'operation' | 'parameter' | 'template' | 'literal' | 'compartment' | 'entry' | 'qualifier' |
+    'binding' | 'argument' | 'association' | 'associationClass' | 'generalizationSet' | 'annotation' | 'end' | 'target')
+  name=TableFieldId title=String? '{' props+=UmlProperty* '}';
+UmlEndBlock: key=('sourceEnd' | 'targetEnd') '{' props+=UmlProperty* '}';
+UmlTypeProperty: (key=('type' | 'bound' | 'defaultType') (isReference?='ref')? value=String
+  | key='returns' ((isReference?='ref')? value=String)?)
+  ('{' props+=UmlProperty* '}')?;
+UmlBooleanProperty: key=('abstract' | 'static' | 'constructor' | 'readOnly' | 'ordered' | 'unique' | 'derived' | 'query' | 'disjoint' | 'complete') value=BOOLEAN;
+UmlEnumProperty:
+  (key='kind' value=('class' | 'interface' | 'enumeration' | 'dataType' | 'primitiveType' | 'package' | 'association' | 'generalization' | 'realization' | 'dependency' | 'note' | 'comment' | 'constraint')) |
+  (key='visibility' value=('public' | 'private' | 'protected' | 'package')) |
+  (key='direction' value=('in' | 'out' | 'inout' | 'return')) |
+  (key='navigability' value=('unspecified' | 'navigable' | 'nonNavigable')) |
+  (key='aggregation' value=('none' | 'shared' | 'composite'));
+UmlStringProperty:
+  key=('id' | 'description' | 'default' | 'multiplicity' | 'stereotype' | 'constraint' | 'role' | 'member' |
+    'element' | 'relationship' | 'associationRef' | 'classifierRef' | 'templateRef' | 'parameterRef' | 'text' |
+    'targetElement' | 'targetRelationship' | 'targetMember' | 'targetEndId' | 'redefines' | 'subsets') value=String;
+
+UmlPresentationProperty:
+  key='umlPresentation' '{' props+=UmlPresentationEntry* '}'
+;
+UmlPresentationEntry:
+  key=('hideMember' | 'hideCompartment') value=String
+  | key='visibility' value=('public' | 'private' | 'protected' | 'package')
+;

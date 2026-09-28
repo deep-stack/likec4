@@ -18,6 +18,7 @@ import { hasAtLeast, isTruthy } from 'remeda'
 import type { Writable } from 'type-fest'
 import { EDGE_LABEL_MAX_CHARS, EDGE_LABEL_MAX_LINES, wrap } from './dot-labels'
 import type { BoundingBox, GraphvizJson, GVPos } from './types-dot'
+import { smoothUmlAttachments } from './uml-routing'
 import { inchToPx, pointToPx } from './utils'
 
 function parseBB(bb: string | undefined): BoundingBox {
@@ -148,7 +149,9 @@ function parseGraphvizEdge(
   { id, source, target, dir, label, description, ...computedEdge }: ComputedEdge,
   viewId: string,
 ): DiagramEdge {
-  const labelBBox = parseLabelBbox(graphvizEdge._ldraw_ ?? graphvizEdge._tldraw_ ?? graphvizEdge._hldraw_)
+  const labelBBox = parseLabelBbox(
+    computedEdge.uml ? graphvizEdge._ldraw_ : graphvizEdge._ldraw_ ?? graphvizEdge._tldraw_ ?? graphvizEdge._hldraw_,
+  )
   const isBack = graphvizEdge.dir === 'back' || dir === 'back'
   label = (label && labelBBox)
     ? wrap(label, { maxchars: EDGE_LABEL_MAX_CHARS, maxLines: EDGE_LABEL_MAX_LINES }).join('\n')
@@ -162,6 +165,12 @@ function parseGraphvizEdge(
     ...isTruthy(description) && { description },
     points: parseEdgePoints(graphvizEdge, viewId),
     labelBBox,
+    ...(computedEdge.uml && {
+      umlEndLabels: {
+        source: parseLabelBbox(isBack ? graphvizEdge._hldraw_ : graphvizEdge._tldraw_),
+        target: parseLabelBbox(isBack ? graphvizEdge._tldraw_ : graphvizEdge._hldraw_),
+      },
+    }),
     ...(isBack ? { dir: 'back' } : {}),
     ...computedEdge,
   }
@@ -258,6 +267,7 @@ export function parseGraphvizJson(
     )
   }
 
+  smoothUmlAttachments(nodes, edges)
   return diagram
 }
 

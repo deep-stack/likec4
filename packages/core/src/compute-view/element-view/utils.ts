@@ -7,6 +7,7 @@ import {
   type scalar,
   exact,
 } from '../../types'
+import { umlRelationshipPresentation } from '../../uml/presentation'
 import { invariant } from '../../utils'
 import { stringHash } from '../../utils/string-hash'
 import { buildComputedNodes, elementModelToNodeSource } from '../utils/buildComputedNodes'
@@ -41,13 +42,16 @@ export function toComputedEdges<A extends AnyAux>(
 
     if (
       relations.length > 1 &&
-      (shouldExpand || directRelsList.some(r => r.$relationship.tableRelation || r.$relationship.decisionBranch))
+      (shouldExpand ||
+        directRelsList.some(r =>
+          r.$relationship.tableRelation || r.$relationship.decisionBranch || r.$relationship.uml
+        ))
     ) {
       const [expanded, merged] = pipe(
         relations,
         partition(r =>
-          !!(r.$relationship.tableRelation && r.source.id === source && r.target.id === target) ||
-          !!(r.$relationship.decisionBranch && r.source.id === source && r.target.id === target) ||
+          !!((r.$relationship.tableRelation || r.$relationship.decisionBranch || r.$relationship.uml) &&
+            r.source.id === source && r.target.id === target) ||
           !!shouldExpand?.(r, conn)
         ),
       )
@@ -80,6 +84,10 @@ export function toComputedEdges<A extends AnyAux>(
             line,
             head,
             ...props,
+            ...(rel.$relationship.uml && rel.source.id === source && rel.target.id === target && {
+              uml: rel.$relationship.uml,
+              ...umlRelationshipPresentation(rel.$relationship.uml),
+            }),
           } as ComputedEdge<A>
         })
 
@@ -143,6 +151,10 @@ export function toComputedEdges<A extends AnyAux>(
       line,
       head,
       ...props,
+      ...(relations.length === 1 && only(directRelsList)?.$relationship.uml && {
+        uml: only(directRelsList)!.$relationship.uml!,
+        ...umlRelationshipPresentation(only(directRelsList)!.$relationship.uml!),
+      }),
     })
 
     return [edge]

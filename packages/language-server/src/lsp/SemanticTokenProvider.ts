@@ -107,6 +107,15 @@ export class LikeC4SemanticTokenProvider extends AbstractSemanticTokenProvider {
       this.rules.push(rule as unknown as Rule<AstNode>)
     }
 
+    when(ast.isUmlNamedBlock, mark => {
+      if (mark.node.key === 'operation') mark.property('name').declaration.method()
+      else if (mark.node.key === 'attribute') mark.property('name').declaration.property()
+      else mark.property('name').declaration.variable()
+    })
+    when(ast.isUmlTypeProperty, mark => {
+      mark.property('value').type()
+    })
+
     when(ast.isRelationshipKind, mark => {
       mark.property('name').function()
     })

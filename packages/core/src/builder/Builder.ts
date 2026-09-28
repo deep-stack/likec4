@@ -1,3 +1,5 @@
+import type { UmlModelExtensions } from '../types/uml'
+import { validateUmlModel } from '../uml/validation'
 // oxlint-disable consistent-type-specifier-style
 import { defu } from 'defu'
 import {
@@ -273,6 +275,9 @@ export interface Builder<T extends AnyTypes> extends BuilderMethods<T> {
 
   build(): ParsedLikeC4ModelData<Types.ToAux<T>>
 
+  /** Replace advanced UML records in an immutable copy. */
+  withUml(extensions: UmlModelExtensions): Builder<T>
+
   /**
    * Returns Computed LikeC4Model
    */
@@ -415,6 +420,7 @@ function builder<Spec extends BuilderSpecification, T extends AnyTypes>(
   _deploymentRelations = [] as DeploymentRelation[],
   _imports = new DefaultMap<string, Map<string, Element<Any>>>(() => new Map()),
   _mode: BuilderMode = 'editable',
+  _uml?: UmlModelExtensions,
 ): Builder<T> {
   const spec = validateSpec(_spec)
 
@@ -519,6 +525,7 @@ function builder<Spec extends BuilderSpecification, T extends AnyTypes>(
         structuredClone(_deploymentRelations),
         imports,
         _mode,
+        structuredClone(_uml),
       ) as unknown as Builder<Types.Merge<T, Types.FromSpecification<NewSpec>>>
     },
     clone: () => {
@@ -537,6 +544,7 @@ function builder<Spec extends BuilderSpecification, T extends AnyTypes>(
         structuredClone(_deploymentRelations),
         imports,
         _mode,
+        structuredClone(_uml),
       )
     },
 
@@ -657,8 +665,25 @@ function builder<Spec extends BuilderSpecification, T extends AnyTypes>(
       })
       return self
     },
+    withUml: extensions => {
+      const imports = new DefaultMap<string, Map<string, Element<Any>>>(() => new Map())
+      for (const [key, value] of _imports) imports.set(key, structuredClone(value))
+      return builder<BuilderSpecification, T>(
+        structuredClone(spec),
+        structuredClone(_elements),
+        structuredClone(_relations),
+        structuredClone(_views),
+        structuredClone(_globals),
+        structuredClone(_deployments),
+        structuredClone(_deploymentRelations),
+        imports,
+        _mode,
+        structuredClone(extensions),
+      )
+    },
     build: (project?: string | LikeC4Project) => ({
       [_stage]: 'parsed',
+      ...(_uml && { uml: structuredClone(_uml) }),
       projectId: typeof project === 'string' ? project : project?.id ?? 'from-builder',
       project: {
         id: typeof project === 'string' ? project : 'from-builder',
@@ -696,6 +721,8 @@ function builder<Spec extends BuilderSpecification, T extends AnyTypes>(
     } as any),
     toLikeC4Model: (project?: LikeC4Project) => {
       const parsed = self.build(project as any)
+      const errors = validateUmlModel(parsed).filter(d => d.severity === 'error')
+      invariant(errors.length === 0, errors.map(d => d.message).join('\n'))
       return computeLikeC4Model(parsed) as any
     },
     helpers: () => ({
@@ -1200,6 +1227,7 @@ function fromParsedImpl<T extends AnyTypes = AnyTypes>(
     seedDeploymentRelations as unknown as DeploymentRelation[],
     seedImports,
     mode,
+    structuredClone(data.uml),
   )
 }
 

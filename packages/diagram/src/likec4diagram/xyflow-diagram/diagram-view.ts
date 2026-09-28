@@ -184,6 +184,7 @@ export function diagramToXY(opts: {
      */
     if (isCompound) {
       const compoundData = {
+        ...(node.classifier && { classifier: node.classifier, umlPresentation: node.umlPresentation }),
         viewId: view.id,
         id: node.id,
         title: node.title,
@@ -245,13 +246,15 @@ export function diagramToXY(opts: {
       continue
     }
 
-    if (!modelFqn && !deploymentFqn) {
+    if (!modelFqn && !deploymentFqn && !node.umlArtifact) {
       console.error('Invalid node', node)
       throw new Error('Element should have either modelRef or deploymentRef')
     }
 
     const leafNodeData = {
+      ...(node.umlArtifact && { umlArtifact: node.umlArtifact, umlOrigin: node.umlOrigin }),
       ...(node.table && { table: node.table }),
+      ...(node.classifier && { classifier: node.classifier, umlPresentation: node.umlPresentation }),
       viewId: view.id,
       id: node.id,
       title: node.title,
@@ -274,6 +277,10 @@ export function diagramToXY(opts: {
     } satisfies Types.LeafNodeData
 
     switch (true) {
+      case !!node.umlArtifact: {
+        xynodes.push({ ...base, type: 'uml-artifact', data: leafNodeData } satisfies Types.UmlArtifactNode)
+        break
+      }
       case !!deploymentFqn: {
         xynodes.push(
           {
@@ -339,6 +346,11 @@ export function diagramToXY(opts: {
         labelXY: null,
         points: edge.points,
         ...(edge.tableRelation && { tableRelation: edge.tableRelation }),
+        ...(edge.uml && { uml: edge.uml, umlEndLabels: edge.umlEndLabels }),
+        ...((edge.uml || edge.umlOrigin || nodeById(source).classifier || nodeById(target).classifier) && {
+          umlNodeBounds: { source: nodeById(source), target: nodeById(target) },
+          ...(edge.umlOrigin && { umlOrigin: edge.umlOrigin }),
+        }),
         ...(edge.tablePaths && { tablePaths: edge.tablePaths }),
         color: edge.color ?? 'gray',
         line: edge.line ?? 'dashed',

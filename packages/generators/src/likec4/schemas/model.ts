@@ -1,3 +1,4 @@
+import type { UmlBinaryRelationship, UmlClassifier, UmlModelExtensions } from '@likec4/core'
 import {
   RelationId,
 } from '@likec4/core/types'
@@ -34,6 +35,7 @@ export const element = z
     ...common.props.shape,
     id: common.fqn,
     kind: common.kind,
+    classifier: z.custom<UmlClassifier>().optional(),
     table: z.object({
       fields: z.array(z.object({
         id: z.string(),
@@ -87,6 +89,7 @@ export const relationship = z.object({
   id: relationshipId.optional(),
   title: z.string().nullish(),
   decisionBranch: z.object({ label: z.string() }).optional(),
+  uml: z.custom<UmlBinaryRelationship>().optional(),
   tableRelation: z.object({
     pairs: z.array(z.object({ source: z.string(), target: z.string() })).min(1).readonly(),
     sourceCardinality: z.object({
@@ -120,6 +123,7 @@ const genRelationshipId = (r: z.output<typeof relationship>): RelationId => r.id
 
 export const schema = z
   .object({
+    uml: z.custom<UmlModelExtensions>().optional(),
     elements: z
       .union([
         elements,

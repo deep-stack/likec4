@@ -817,3 +817,16 @@ it('reports changed table fields without mixing old row geometry with new fields
   expect(customer.drifts).toContain('label-changed')
   expect(customer.table).toEqual(snapshotNodes.customer.table)
 })
+
+it('keeps saved classifier geometry and reports changed members as drift', () => {
+  const { result, snapshotNodes } = testApplyManualLayout({
+    nodes: {
+      customer: node => {
+        node.classifier = { kind: 'class', attributes: [{ id: 'id', name: 'id', type: { external: 'UUID' } }] }
+      },
+    },
+  })
+  const customer = result.nodes.find(n => n.id === 'customer')!
+  expect(customer.drifts).toContain('label-changed')
+  expect(customer.classifier).toEqual(snapshotNodes.customer.classifier)
+})

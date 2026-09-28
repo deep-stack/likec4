@@ -346,6 +346,10 @@ function applyNodesManualLayout(
       const nodeDrifts = new Set<DiagramNodeDriftReason>()
       // A manual snapshot keeps its old fields and matching splines until reapplied.
       if (changed(node.table, next.table)) nodeDrifts.add('label-changed')
+      if (
+        changed(node.classifier, next.classifier) || changed(node.umlPresentation, next.umlPresentation) ||
+        changed(node.umlArtifact, next.umlArtifact)
+      ) nodeDrifts.add('label-changed')
 
       const wasCompound = node.children.length > 0
       const willBeCompound = next.children.length > 0
@@ -459,6 +463,13 @@ function applyEdgesManualLayout(
         return
       }
       const edgeDrifts = new Set<DiagramEdgeDriftReason>()
+      if (
+        changed(edge.uml, next.uml) || changed(edge.umlAttachment, next.umlAttachment) ||
+        changed(edge.umlOrigin, next.umlOrigin)
+      ) {
+        edgeDrifts.add('source-changed')
+        edgeDrifts.add('target-changed')
+      }
       if (changed(edge.tableRelation, next.tableRelation)) {
         edgeDrifts.add('source-changed')
         edgeDrifts.add('target-changed')

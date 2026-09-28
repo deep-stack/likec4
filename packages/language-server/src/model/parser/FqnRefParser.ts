@@ -87,6 +87,15 @@ export function ExpressionV2Parser<TBase extends Base>(B: TBase) {
           if (!this.isValid(prop)) {
             return acc
           }
+          if (ast.isUmlPresentationProperty(prop)) {
+            acc.custom.umlPresentation = {
+              hiddenMembers: prop.props.filter(p => p.key === 'hideMember').map(p => p.value),
+              hiddenCompartments: prop.props.filter(p => p.key === 'hideCompartment').map(p => p.value),
+              ...(prop.props.some(p => p.key === 'visibility') &&
+                { visibility: prop.props.filter(p => p.key === 'visibility').map(p => p.value as c4.UmlVisibility) }),
+            }
+            return acc
+          }
           if (ast.isNavigateToProperty(prop)) {
             const viewId = prop.value.view.$refText
             if (isTruthy(viewId)) {

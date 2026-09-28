@@ -12,6 +12,7 @@ import type { SetRequired } from 'type-fest'
 import { CompletionItem, CompletionItemKind, InsertTextFormat, TextEdit } from 'vscode-languageserver-types'
 import { ast } from '../ast'
 import type { LikeC4Services } from '../module'
+import { umlAllowedProperties } from '../validation/uml'
 
 function isCompletionForPojectName(
   context: CompletionContext,
@@ -59,6 +60,26 @@ export class LikeC4CompletionProvider extends DefaultCompletionProvider {
     keyword: GrammarAST.Keyword,
     acceptor: CompletionAcceptor,
   ): MaybePromise<void> {
+    // Keywords accepted as ordinary identifiers are not property suggestions.
+    const rule = AstUtils.getContainerOfType(keyword, GrammarAST.isParserRule)
+    if (rule?.name === 'Id' && umlAllowedProperties.all.has(keyword.value)) return
+    const container = context.node &&
+      AstUtils.getContainerOfType(
+        context.node,
+        n =>
+          ast.isClassifierProperty(n) || ast.isUmlRelationshipProperty(n) || ast.isUmlModelProperty(n) ||
+          ast.isUmlNamedBlock(n) || ast.isUmlEndBlock(n),
+      )
+    if (container && 'key' in container && umlAllowedProperties.all.has(keyword.value)) {
+      const allowed = umlAllowedProperties.context[String(container.key)]?.split(' ')
+      // Only constrain property keys; enum values have their own grammar context.
+      if (
+        rule?.name === 'UmlNamedBlock' || rule?.name === 'UmlStringProperty' || rule?.name === 'UmlBooleanProperty' ||
+        rule?.name === 'UmlTypeProperty' || rule?.name === 'UmlEndBlock'
+      ) {
+        if (!allowed?.includes(keyword.value)) return
+      }
+    }
     if (!this.filterKeyword(context, keyword)) {
       return
     }

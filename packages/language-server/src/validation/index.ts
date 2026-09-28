@@ -48,6 +48,7 @@ import {
   checkTag,
 } from './specification'
 import { checkTable, checkTableRelation } from './table'
+import { checkUmlModel, checkUmlSyntax } from './uml'
 import { viewChecks, viewOrderChecks } from './view'
 import { viewRuleRankChecks } from './view-checks'
 import {
@@ -62,6 +63,7 @@ import {
 export { LikeC4DocumentValidator } from './DocumentValidator'
 
 const isValidatableAstNode = isAnyOf(
+  ast.isUmlPresentationProperty,
   ast.isImportsFromPoject,
   ast.isImported,
   ast.isGlobals,
@@ -172,6 +174,10 @@ export function registerValidationChecks(services: LikeC4Services) {
     IconProperty: iconPropertyRuleChecks(services),
     SpecificationRule: checkSpecificationRule(services),
     Model: checkModel(services),
+    LikeC4Grammar: checkUmlModel(services),
+    ClassifierProperty: checkUmlSyntax(),
+    UmlRelationshipProperty: checkUmlSyntax(),
+    UmlModelProperty: checkUmlSyntax(),
     Globals: checkGlobals(services),
     GlobalPredicateGroup: checkGlobalPredicate(services),
     GlobalDynamicPredicateGroup: checkGlobalPredicate(services),

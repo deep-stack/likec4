@@ -85,6 +85,7 @@ export interface ParsedAstSpecification {
 
 export interface ParsedAstElement {
   table?: c4.TableDefinition
+  classifier?: c4.UmlClassifier
   id: c4.Fqn
   astPath: string
   kind: c4.ElementKind
@@ -118,6 +119,7 @@ export interface ParsedAstExtendRelation {
 export interface ParsedAstRelation {
   tableRelation?: c4.TableRelationship
   decisionBranch?: c4.DecisionBranch
+  uml?: c4.UmlBinaryRelationship
   id: c4.RelationId
   astPath: string
   source: c4.FqnRef.ModelRef
@@ -238,6 +240,7 @@ type LikeC4DocumentDiagnostic = Diagnostic & DiagnosticInfo<LikeC4AstNode>
 export interface LikeC4DocumentProps {
   diagnostics?: Array<LikeC4DocumentDiagnostic>
   c4Specification?: ParsedAstSpecification
+  c4Uml?: c4.UmlModelExtensions[]
   c4Elements?: ParsedAstElement[]
   c4ExtendElements?: ParsedAstExtend[]
   c4ExtendDeployments?: ParsedAstExtend[]

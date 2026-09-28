@@ -402,6 +402,14 @@ export function buildModelData(
         ...(metadataKeys.size > 0 && { metadataKeys: [...metadataKeys].sort(compareNatural) }),
         customColors,
       },
+      ...(docs.some(d => d.c4Uml?.length) && {
+        uml: {
+          associations: docs.flatMap(d => d.c4Uml?.flatMap(u => u.associations ?? []) ?? []),
+          associationClasses: docs.flatMap(d => d.c4Uml?.flatMap(u => u.associationClasses ?? []) ?? []),
+          generalizationSets: docs.flatMap(d => d.c4Uml?.flatMap(u => u.generalizationSets ?? []) ?? []),
+          annotations: docs.flatMap(d => d.c4Uml?.flatMap(u => u.annotations ?? []) ?? []),
+        },
+      }),
       elements: elementsForOutput,
       relations,
       globals: c4Specification.globals,

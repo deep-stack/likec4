@@ -35,6 +35,7 @@ import {
   LikeC4HoverProvider,
   LikeC4SemanticTokenProvider,
 } from './lsp'
+import { UmlDefinitionProvider, UmlRenameProvider } from './lsp/UmlReferences'
 import {
   type LikeC4ModelBuilder,
   DefaultLikeC4ModelBuilder,
@@ -46,6 +47,7 @@ import {
   LikeC4ValueConverter,
 } from './model'
 import { LikeC4ModelChanges } from './model-change/ModelChanges'
+import { LikeC4TokenBuilder } from './model/parser/TokenBuilder'
 import {
   LikeC4NameProvider,
   LikeC4ScopeComputation,
@@ -207,7 +209,8 @@ export function createLikeC4Module(
       LastSeen: bind(LastSeenArtifacts),
     },
     lsp: {
-      // RenameProvider: bind(LikeC4RenameProvider),
+      DefinitionProvider: bind(UmlDefinitionProvider),
+      RenameProvider: bind(UmlRenameProvider),
       CompletionProvider: bind(LikeC4CompletionProvider),
       DocumentHighlightProvider: bind(LikeC4DocumentHighlightProvider),
       DocumentSymbolProvider: bind(LikeC4DocumentSymbolProvider),
@@ -225,6 +228,7 @@ export function createLikeC4Module(
     },
     parser: {
       ValueConverter: bind(LikeC4ValueConverter),
+      TokenBuilder: () => new LikeC4TokenBuilder(),
     },
   })
 }

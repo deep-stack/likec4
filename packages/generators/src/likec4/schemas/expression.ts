@@ -197,6 +197,7 @@ const commonCustomProperties = z.object({
 })
 
 const customElementProperties = z.object({
+  umlPresentation: z.custom<import('@likec4/core').UmlPresentation>(),
   ...commonCustomProperties.shape,
   shape: common.shape,
   icon: common.icon,

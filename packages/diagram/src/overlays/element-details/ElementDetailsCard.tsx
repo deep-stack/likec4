@@ -1,3 +1,4 @@
+import { UmlClassifierDetails } from '../../base-primitives/uml/UmlClassifierDetails'
 // SPDX-License-Identifier: MIT
 //
 // Copyright (c) 2023-2026 Denis Davydkov
@@ -418,6 +419,12 @@ export function ElementDetailsCard({
               <TabsPanel value="Properties">
                 <ScrollArea scrollbars="y" type="scroll" offsetScrollbars>
                   <Box className={styles.propertiesGrid} pt={'xs'}>
+                    {elementModel.$element.classifier && (
+                      <>
+                        <PropertyLabel>class members</PropertyLabel>
+                        <UmlClassifierDetails classifier={elementModel.$element.classifier} />
+                      </>
+                    )}
                     {elementModel.hasSummary && (
                       <>
                         <PropertyLabel>summary</PropertyLabel>

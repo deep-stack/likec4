@@ -139,6 +139,18 @@ export class LikeC4DocumentSymbolProvider implements DocumentSymbolProvider {
         children: astModel.elements.flatMap(e => {
           // Skip ExtendRelation nodes as they don't need symbols
           if (ast.isExtendRelation(e)) return []
+          if (ast.isUmlModelProperty(e)) {
+            return e.props.filter(ast.isUmlNamedBlock).flatMap(p =>
+              p.$cstNode ?
+                [{
+                  kind: SymbolKind.Object,
+                  name: p.title ?? p.name,
+                  range: p.$cstNode.range,
+                  selectionRange: GrammarUtils.findNodeForProperty(p.$cstNode, 'name')?.range ?? p.$cstNode.range,
+                }] :
+                []
+            )
+          }
           return this.getElementsSymbol(e)
         }),
       },
@@ -214,10 +226,32 @@ export class LikeC4DocumentSymbolProvider implements DocumentSymbolProvider {
         range: cst.range,
         selectionRange: nameNode.range,
         detail,
-        children: astElement.body?.elements.flatMap(e => this.getElementsSymbol(e)) ?? [],
+        children: [
+          ...astElement.body?.elements.flatMap(e => this.getElementsSymbol(e)) ?? [],
+          ...astElement.body?.props.filter(ast.isClassifierProperty).flatMap(c =>
+            c.props.filter(ast.isUmlNamedBlock).flatMap(p => this.getUmlSymbol(p))
+          ) ?? [],
+        ],
       },
     ]
   }
+  protected getUmlSymbol(node: ast.UmlNamedBlock): DocumentSymbol[] {
+    if (!node.$cstNode) return []
+    return [{
+      name: node.title ?? node.name,
+      kind: node.key === 'operation'
+        ? SymbolKind.Method
+        : node.key === 'attribute'
+        ? SymbolKind.Field
+        : node.key === 'parameter'
+        ? SymbolKind.Variable
+        : SymbolKind.Object,
+      range: node.$cstNode.range,
+      selectionRange: GrammarUtils.findNodeForProperty(node.$cstNode, 'name')?.range ?? node.$cstNode.range,
+      children: node.props.filter(ast.isUmlNamedBlock).flatMap(p => this.getUmlSymbol(p)),
+    }]
+  }
+
   protected getModelViewsSymbol(astViews: ast.ModelViews): DocumentSymbol[] {
     const cst = astViews.$cstNode
     const nameNode = GrammarUtils.findNodeForProperty(cst, 'name')
