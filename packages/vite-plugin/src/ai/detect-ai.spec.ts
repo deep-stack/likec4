@@ -37,6 +37,12 @@ describe('detectAI', () => {
     resetEnv()
   })
 
+  it('does not install AI packages when no provider is configured', async () => {
+    const { detectAI } = await import('./detect-ai')
+    expect(await detectAI()).toBeUndefined()
+    expect(mocks.ensurePackage).not.toHaveBeenCalled()
+  })
+
   it('loads MiniMax with the global endpoint and default model', async () => {
     process.env['MINIMAX_API_KEY'] = 'mm-test-key'
 

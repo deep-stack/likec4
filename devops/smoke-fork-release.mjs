@@ -21,7 +21,14 @@ copyFileSync('examples/er-tables/webharvest.c4', join(directory, 'er.c4'))
 try {
   // Install the actual tarballs under the aliases ngin8r uses. No workspace links,
   // rewritten manifests, NODE_PATH, or already-published fork versions are needed.
-  execFileSync('npm', ['install', '--ignore-scripts', '--no-audit', '--no-fund'], {
+  execFileSync('npm', [
+    'install',
+    '--ignore-scripts',
+    '--no-audit',
+    '--no-fund',
+    '--strict-peer-deps',
+    '--legacy-peer-deps=false',
+  ], {
     cwd: directory,
     stdio: 'inherit',
     timeout: 300_000,
@@ -33,6 +40,11 @@ try {
     assert.equal(manifest.name, pkg.name)
     assert.equal(manifest.version, version)
   }
+  assert(
+    !Object.keys(JSON.parse(readFileSync(join(directory, 'package-lock.json'), 'utf8')).packages)
+      .some(name => name.includes('node_modules/@tanstack/ai')),
+    'Ordinary consumers must not install AI providers',
+  )
   execFileSync(process.execPath, ['node_modules/likec4/bin/likec4.mjs', '--version'], {
     cwd: directory,
     stdio: 'inherit',

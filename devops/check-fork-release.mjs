@@ -23,6 +23,12 @@ export function checkRelease({ packed = false, tag = process.env.RELEASE_TAG } =
     assert.equal(manifest.version, release, `${pkg.name}: mismatched release version`)
     assert.equal(manifest.publishConfig.registry, 'https://npm.pkg.github.com')
     assert.equal(manifest.repository.url, 'git+https://github.com/deep-stack/likec4.git')
+    if (pkg.imported === 'likec4') {
+      assert(
+        !Object.keys(manifest.peerDependencies ?? {}).some(name => name.startsWith('@tanstack/ai')),
+        'AI providers must not become install-time peers when registry optional-peer metadata is absent',
+      )
+    }
     if (!packed) continue
     for (const group of ['dependencies', 'optionalDependencies', 'peerDependencies']) {
       for (const [name, spec] of Object.entries(manifest[group] ?? {})) {

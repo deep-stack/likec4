@@ -2,13 +2,13 @@
 
 The fork publishes five npm packages to [deep-stack GitHub Packages](https://github.com/orgs/deep-stack/packages):
 
-| Package | Used for |
-| --- | --- |
-| `@deep-stack/likec4` | DSL compiler, CLI and bundled React viewer (`likec4/react`) |
-| `@deep-stack/likec4-core` | Model types and APIs |
-| `@deep-stack/likec4-generators` | Exports, including Mermaid |
-| `@deep-stack/likec4-config` | Generator configuration dependency |
-| `@deep-stack/likec4-log` | Shared logging dependency |
+| Package                         | Used for                                                    |
+| ------------------------------- | ----------------------------------------------------------- |
+| `@deep-stack/likec4`            | DSL compiler, CLI and bundled React viewer (`likec4/react`) |
+| `@deep-stack/likec4-core`       | Model types and APIs                                        |
+| `@deep-stack/likec4-generators` | Exports, including Mermaid                                  |
+| `@deep-stack/likec4-config`     | Generator configuration dependency                          |
+| `@deep-stack/likec4-log`        | Shared logging dependency                                   |
 
 The unchanged `@likec4/icons` package comes from npmjs.org. Other workspace
 packages are built into the compiler/viewer as needed; this workflow does not
@@ -101,3 +101,21 @@ Consumer dependencies can retain existing imports through npm aliases:
 ngin8r still pins upstream packages until its manifests, lockfiles, bundled
 viewer and compiler-version checks are updated together. Publishing these
 packages alone does not switch ngin8r over or enable native ER in its validators.
+
+## Optional AI integrations
+
+The fork does not declare TanStack AI or provider adapters as install-time peers.
+GitHub Packages omitted `peerDependenciesMeta` for the first fork release even
+though the tarball contained it, causing npm to install mutually incompatible
+provider versions during ordinary compiler/viewer installation.
+
+AI imports remain external and are loaded only by the optional development-server
+AI integration, whose existing loader ensures the selected packages are installed.
+This change does not remove AI features or bundle provider SDKs into the CLI.
+React and React DOM remain declared peers. The release smoke test installs with
+strict peer checks and asserts that ordinary consumers install no AI packages.
+
+After this fix is merged, publish a new coordinated fork version before removing
+ngin8r's temporary `legacy-peer-deps` setting. Version `1.59.4-deepstack.1` is
+already published and cannot be replaced; this branch intentionally leaves the
+release version unchanged for integration with other pending changes.

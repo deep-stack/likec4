@@ -28,6 +28,9 @@ export default defineConfig([
       'src/index.ts',
     ],
     platform: 'node',
+    // AI is loaded on demand by the optional dev-server integration.
+    // Keep it external without exposing optional peers in registry metadata.
+    deps: { neverBundle: [/^@tanstack\/ai(?:-|$)/] },
     dts: true,
     inputOptions: {
       resolve: {
