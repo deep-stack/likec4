@@ -1,5 +1,6 @@
 import type { AnyAux } from '../../../types'
 import { isSameHierarchy } from '../../../utils/fqn'
+import { supportsSelfRelationship } from '../../../utils/relations'
 import { intersection } from '../../../utils/set'
 import type { ElementModel } from '../../ElementModel'
 import { ConnectionModel } from './ConnectionModel'
@@ -21,7 +22,9 @@ export function findConnection<A extends AnyAux>(
 {
   if (source === target) {
     const selfRelations = new Set(
-      [...source.allOutgoing].filter(r => r.source === source && r.target === target && r.$relationship.tableRelation),
+      [...source.allOutgoing].filter(r =>
+        r.source === source && r.target === target && supportsSelfRelationship(r.$relationship)
+      ),
     )
     return selfRelations.size ? [new ConnectionModel(source, target, selfRelations)] : []
   }

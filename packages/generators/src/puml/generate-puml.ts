@@ -62,7 +62,7 @@ const pumlShape = ({ shape }: ComputedNode) => {
   switch (shape) {
     case 'diamond':
     case 'pill':
-      return 'rectangle' as const
+      throw new Error('Decision shape export is not supported by PlantUML; use Mermaid, DrawIO or the LikeC4 viewer')
     case 'table':
       throw new Error('ER table export is not supported by this format; use the LikeC4 viewer or DSL export')
     case 'queue':

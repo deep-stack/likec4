@@ -27,7 +27,7 @@ const mmdshape = ({ shape, title }: Node): string => {
     case 'diamond':
       return `@{ shape: diamond, ${label} }`
     case 'pill':
-      return `@{ shape: rounded, ${label} }`
+      return `@{ shape: stadium, ${label} }`
     case 'table':
       throw new Error('ER table export is not supported by this format; use the LikeC4 viewer or DSL export')
     case 'queue': {

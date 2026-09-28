@@ -12,3 +12,5 @@
 ---
 
 Add native decision flowcharts with diamond questions, pill actions, and labeled branches. Branches remain distinct when they share a destination, and the supplied scenario can be rendered on the LikeC4 canvas.
+
+Support explicit decision retry loops, warn about incomplete or duplicate outgoing answers, and reject unsupported decision exports rather than changing their notation. Mermaid pills use stadium shapes.

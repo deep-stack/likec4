@@ -21,6 +21,6 @@ The supplied example is the visual acceptance fixture: `Identify issue` leads to
 
 ## Compatibility and verification
 
-- Update syntax highlighting, shape icons, completion, and format exporters. Exporters may use a close native shape if exact pill geometry is unavailable, but must retain branch labels.
+- Update syntax highlighting, shape icons, completion, and format exporters. Exporters must retain decision notation and branch labels or report an explicit unsupported-export error. Mermaid uses stadium shapes for pills; D2 pills and PlantUML decision shapes are currently rejected.
 - Verify parsing and validation, Builder input, parallel branch preservation, DSL round trips, Graphviz node and edge layout, saved model rendering, both color schemes, and architecture/sequence regressions.
 - Add an example project and a patch changeset. Do not alter the published ngin8r dependency in this PR.

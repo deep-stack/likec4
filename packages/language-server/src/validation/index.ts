@@ -1,5 +1,3 @@
-import { checkDecisionBranch } from './decision'
-import { checkTable, checkTableRelation } from './table'
 // SPDX-License-Identifier: MIT
 //
 // Copyright (c) 2023-2026 Denis Davydkov
@@ -16,6 +14,7 @@ import { DiagnosticSeverity } from 'vscode-languageserver-types'
 import { type LikeC4AstNode, type LikeC4LangiumDocument, ast } from '../ast'
 import { logger } from '../logger'
 import type { LikeC4Services } from '../module'
+import { checkDecisionBranch, checkDecisionElement } from './decision'
 import {
   deployedInstanceChecks,
   deploymentNodeChecks,
@@ -48,6 +47,7 @@ import {
   checkSpecificationRule,
   checkTag,
 } from './specification'
+import { checkTable, checkTableRelation } from './table'
 import { viewChecks, viewOrderChecks } from './view'
 import { viewRuleRankChecks } from './view-checks'
 import {
@@ -180,7 +180,7 @@ export function registerValidationChecks(services: LikeC4Services) {
     StepSeries: stepSeries(services),
     SubflowStep: subflowStep(services),
     LikeC4View: viewChecks(services),
-    Element: checkElement(services),
+    Element: [checkElement(services), checkDecisionElement(services)],
     TableProperty: checkTable(),
     TableRelationProperty: checkTableRelation(services),
     DecisionBranchProperty: checkDecisionBranch(),

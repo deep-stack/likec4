@@ -95,3 +95,29 @@ it('compiles the supplied decision scenario into six nodes and five distinct pat
     await likec4.dispose()
   }
 })
+
+it('lays out a decision self-loop and preserves it through DSL round trips', async () => {
+  const source = `specification { element question { style { shape diamond } } element action }
+  model { check = question done = action
+    check -> check { branch 'Retry' }
+    check -> done { branch 'Continue' }
+  }
+  views { view retry { include * } }`
+  const first = await fromSource(source, { throwIfInvalid: true })
+  try {
+    const second = await fromSource(await first.toDSL(), { throwIfInvalid: true })
+    try {
+      const view = (await second.layoutedModel()).view('retry').$view
+      expect(view.edges).toHaveLength(2)
+      const loop = view.edges.find(edge => edge.source === edge.target)
+      expect(loop?.decisionBranch).toEqual({ label: 'Retry' })
+      expect(loop?.label).toBe('Retry')
+      expect(loop?.points.length).toBeGreaterThan(3)
+      expect(loop?.parent).toBeNull()
+    } finally {
+      await second.dispose()
+    }
+  } finally {
+    await first.dispose()
+  }
+})

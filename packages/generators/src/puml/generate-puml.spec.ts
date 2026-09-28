@@ -90,5 +90,7 @@ test('generate puml - with dashed identifiers', () => {
 })
 
 test('generate puml - AllShapes', ({ expect }) => {
-  expect(generatePuml(mockViewModel(fakeComputedViewWithAllShapes))).toMatchSnapshot()
+  expect(() => generatePuml(mockViewModel(fakeComputedViewWithAllShapes))).toThrow(
+    'Decision shape export is not supported',
+  )
 })
