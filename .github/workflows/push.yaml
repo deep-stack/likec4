@@ -26,6 +26,7 @@ jobs:
   checks:
     # If on pull request, run only if coming from forked repos
     if: |
+      github.repository == 'likec4/likec4' &&
       !contains(github.event.head_commit.message, 'ci skip') && (
         github.event_name == 'push' || github.event.pull_request.head.repo.fork
       )
