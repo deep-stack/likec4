@@ -12,7 +12,7 @@ export function hasUml(view: ProcessedView): boolean {
 
 /** Native baseline class writers; richer constructs fail before producing partial output. */
 export function generateUml(view: ProcessedView, format: 'Mermaid' | 'PlantUML'): string {
-  const fail = (construct: string): never => {
+  const fail: (construct: string) => never = (construct) => {
     throw new Error(`${format} UML export does not support ${construct}; use the native viewer or DSL export`)
   }
   const safe = (text: string) =>
