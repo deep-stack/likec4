@@ -2,7 +2,7 @@
   "name": "@deep-stack/likec4-log",
   "description": "Shared interface for logging",
   "license": "MIT",
-  "version": "1.59.4-deepstack.1",
+  "version": "1.59.4-deepstack.2",
   "bugs": "https://github.com/deep-stack/likec4/issues",
   "homepage": "https://likec4.dev",
   "author": "Denis Davydkov <denis@davydkov.com>",
