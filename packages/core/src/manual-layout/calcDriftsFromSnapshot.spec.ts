@@ -95,6 +95,26 @@ describe('calcDriftsFromSnapshot', () => {
   })
 
   describe('edges', () => {
+    it('marks the new decision branch as added after ids change', () => {
+      const { snapshot, layouted } = prepareFixtures()
+      const base = snapshot.edges[0]!
+      const yes = { ...base, id: 'old-yes' as any, label: 'Yes', decisionBranch: { label: 'Yes' } }
+      const no = { ...base, id: 'old-no' as any, label: 'No', decisionBranch: { label: 'No' } }
+      const manual = { ...snapshot, edges: [yes, snapshot.edges[1]!] }
+      const latest = {
+        ...layouted,
+        edges: [
+          { ...no, id: 'new-no' as any },
+          { ...yes, id: 'new-yes' as any },
+          layouted.edges[1]!,
+        ],
+      }
+
+      const result = calcDriftsFromSnapshot(latest, manual)
+      expect(result.edges.find(edge => edge.id === 'new-no')?.drifts).toEqual(['added'])
+      expect(result.edges.find(edge => edge.id === 'new-yes')?.drifts).toBeUndefined()
+    })
+
     it('should detect edges-added drift', () => {
       const { result, edges } = testCalcDrifts({
         nodes: {

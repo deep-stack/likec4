@@ -83,6 +83,8 @@ describe('LikeC4CompletionProvider', () => {
       text,
       index: 6,
       expectedItems: [
+        'diamond',
+        'pill',
         'table',
         'rectangle',
         'component',

@@ -10,8 +10,10 @@ import { cx as clsx } from '@likec4/styles/css'
 import {
   type IconProps,
   IconBrowser,
+  IconCapsule,
   IconCylinder,
   IconDeviceMobile,
+  IconDiamond,
   IconFileText,
   IconRectangularPrism,
   IconReorder,
@@ -115,6 +117,8 @@ export function IconRenderer({
 
 const ShapeIcons = {
   table: IconTable,
+  diamond: IconDiamond,
+  pill: IconCapsule,
   browser: IconBrowser,
   cylinder: IconCylinder,
   mobile: IconDeviceMobile,

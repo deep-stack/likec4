@@ -1,3 +1,4 @@
+import { checkDecisionBranch } from './decision'
 import { checkTable, checkTableRelation } from './table'
 // SPDX-License-Identifier: MIT
 //
@@ -182,6 +183,7 @@ export function registerValidationChecks(services: LikeC4Services) {
     Element: checkElement(services),
     TableProperty: checkTable(),
     TableRelationProperty: checkTableRelation(services),
+    DecisionBranchProperty: checkDecisionBranch(),
     ElementRef: checkElementRef(services),
     ElementKind: checkElementKind(services),
     Relation: relationChecks(services),

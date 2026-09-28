@@ -235,6 +235,10 @@ function getThemeColorValues(
 function drawioShape(shape: Node['shape']): string {
   const rectStyle = 'shape=rectangle;rounded=1;arcSize=12;'
   switch (shape) {
+    case 'diamond':
+      return 'shape=rhombus;perimeter=rhombusPerimeter;'
+    case 'pill':
+      return 'shape=rectangle;rounded=1;arcSize=50;'
     case 'person':
       return 'shape=actor;'
     case 'rectangle':

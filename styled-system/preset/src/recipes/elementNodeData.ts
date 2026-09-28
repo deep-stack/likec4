@@ -46,6 +46,10 @@ export const elementNodeData = defineRecipe({
         paddingLeft: '46px',
         paddingRight: '16px',
       },
+      _shapeDiamond: {
+        paddingLeft: '48px',
+        paddingRight: '48px',
+      },
       _shapeMobile: {
         paddingLeft: '46px',
         paddingRight: '16px',

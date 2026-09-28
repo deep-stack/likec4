@@ -437,6 +437,14 @@ export abstract class DotPrinter<V extends ViewToPrint> {
       })
     }
     switch (element.shape) {
+      case 'diamond': {
+        node.attributes.set(_.shape, 'diamond')
+        break
+      }
+      case 'pill': {
+        node.attributes.apply({ [_.shape]: 'box', [_.style]: 'rounded,filled' })
+        break
+      }
       case 'cylinder':
       case 'storage': {
         node.attributes.apply({

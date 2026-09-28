@@ -66,6 +66,16 @@ skinparam component<<RootEl10>>{
   FontColor #eff6ff
   BorderColor #2563eb
 }
+skinparam rectangle<<RootEl11>>{
+  BackgroundColor #3b82f6
+  FontColor #eff6ff
+  BorderColor #2563eb
+}
+skinparam rectangle<<RootEl12>>{
+  BackgroundColor #3b82f6
+  FontColor #eff6ff
+  BorderColor #2563eb
+}
 rectangle ""Root" element" <<Root>> as Root {
   skinparam RectangleBorderColor<<Root>> #3b82f6
   skinparam RectangleFontColor<<Root>> #3b82f6
@@ -81,6 +91,8 @@ rectangle ""Root" element" <<Root>> as Root {
   rectangle "==Element with \\n"bucket" shape" <<RootEl8>> as RootEl8
   rectangle "==Element with \\n"document" shape" <<RootEl9>> as RootEl9
   component "==Element with \\n"component" shape" <<RootEl10>> as RootEl10
+  rectangle "==Element with \\n"diamond" shape" <<RootEl11>> as RootEl11
+  rectangle "==Element with \\n"pill" shape" <<RootEl12>> as RootEl12
 }
 
 RootEl1 .[#777777,thickness=2].> RootEl2 : <color:#777777>With 'Label'

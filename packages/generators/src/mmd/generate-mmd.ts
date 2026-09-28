@@ -24,6 +24,10 @@ const toSingleQuotes = (str: string): string => str.replace(/\\?"/g, `'`)
 const mmdshape = ({ shape, title }: Node): string => {
   const label = `label: ${JSON.stringify(title)}`
   switch (shape) {
+    case 'diamond':
+      return `@{ shape: diamond, ${label} }`
+    case 'pill':
+      return `@{ shape: rounded, ${label} }`
     case 'table':
       throw new Error('ER table export is not supported by this format; use the LikeC4 viewer or DSL export')
     case 'queue': {

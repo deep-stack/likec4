@@ -291,6 +291,12 @@ describe('LikeC4', () => {
           ],
           "folder": "cloud-system",
         },
+        "decision-flowchart": {
+          "documents": [
+            "scenario.c4",
+          ],
+          "folder": "decision-flowchart",
+        },
         "dyn-config": {
           "documents": [
             "_spec.c4",

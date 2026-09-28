@@ -416,6 +416,63 @@ describe('applyManualLayout', () => {
   })
 
   describe('edges', () => {
+    it('keeps parallel decision routes paired with their branch after ids change', () => {
+      const { snapshot, layouted } = prepareFixtures()
+      const base = snapshot.edges[0]!
+      const yes = {
+        ...base,
+        id: 'old-yes' as any,
+        label: 'Yes',
+        decisionBranch: { label: 'Yes' },
+        relations: ['old-yes'] as any,
+      }
+      const no = {
+        ...base,
+        id: 'old-no' as any,
+        label: 'No',
+        decisionBranch: { label: 'No' },
+        relations: ['old-no'] as any,
+      }
+      const manual = { ...snapshot, edges: [yes, no, snapshot.edges[1]!] }
+      const latest = {
+        ...layouted,
+        edges: [
+          { ...no, id: 'new-no' as any, relations: ['new-no'] as any },
+          { ...yes, id: 'new-yes' as any, relations: ['new-yes'] as any },
+          layouted.edges[1]!,
+        ],
+      }
+
+      const result = applyManualLayout(latest, manual)
+      expect(result.edges.find(edge => edge.id === 'old-yes')?.relations).toEqual(['new-yes'])
+      expect(result.edges.find(edge => edge.id === 'old-no')?.relations).toEqual(['new-no'])
+    })
+
+    it('updates decision branch metadata when its label changes', () => {
+      const { snapshot, layouted } = prepareFixtures()
+      const manual = {
+        ...snapshot,
+        edges: snapshot.edges.map(edge =>
+          edge.id === 'edge1'
+            ? { ...edge, label: 'Yes', decisionBranch: { label: 'Yes' } }
+            : edge
+        ),
+      }
+      const latest = {
+        ...layouted,
+        edges: layouted.edges.map(edge =>
+          edge.id === 'edge1'
+            ? { ...edge, label: 'Approved', decisionBranch: { label: 'Approved' } }
+            : edge
+        ),
+      }
+
+      const result = applyManualLayout(latest, manual)
+      const branch = result.edges.find(edge => edge.id === 'edge1')
+      expect(branch?.label).toBe('Approved')
+      expect(branch?.decisionBranch).toEqual({ label: 'Approved' })
+    })
+
     it('should detect edges-added drift', () => {
       const { result } = testApplyManualLayout({
         edges: {

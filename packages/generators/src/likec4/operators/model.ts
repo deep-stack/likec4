@@ -167,7 +167,7 @@ function hasRelationStyle(rel: schemas.model.relationship.Data): boolean {
 
 function hasRelationProps(rel: schemas.model.relationship.Data): boolean {
   return !!(
-    rel.tableRelation || rel.description || rel.summary || rel.technology
+    rel.tableRelation || rel.decisionBranch || rel.description || rel.summary || rel.technology
     || (rel.tags && rel.tags.length > 0)
     || (rel.links && rel.links.length > 0)
     || !isEmptyish(rel.metadata)
@@ -188,6 +188,10 @@ export const relationship = zodOp(schemas.model.relationship)(
     when(
       hasRelationProps,
       body(
+        select(
+          r => r.decisionBranch,
+          print(branch => `branch ${JSON.stringify(branch.label)}`),
+        ),
         select(
           r => r.tableRelation,
           print(relation => {

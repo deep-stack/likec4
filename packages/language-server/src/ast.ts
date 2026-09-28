@@ -117,6 +117,7 @@ export interface ParsedAstExtendRelation {
 
 export interface ParsedAstRelation {
   tableRelation?: c4.TableRelationship
+  decisionBranch?: c4.DecisionBranch
   id: c4.RelationId
   astPath: string
   source: c4.FqnRef.ModelRef

@@ -34,6 +34,10 @@ const d2direction = ({ autoLayout }: AnyView) => {
 
 const d2shape = ({ shape }: Node) => {
   switch (shape) {
+    case 'diamond':
+      return 'diamond' as const
+    case 'pill':
+      return 'rectangle' as const
     case 'table':
       throw new Error('ER table export is not supported by this format; use the LikeC4 viewer or DSL export')
     case 'queue':

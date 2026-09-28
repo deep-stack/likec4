@@ -25,6 +25,7 @@ export type * from '../geometry'
 export { BBox, RectBox } from '../geometry'
 
 export * from './const'
+export * from './decision'
 export * from './expression'
 export * from './expression-model'
 export * from './fqnRef'
