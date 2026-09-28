@@ -271,6 +271,7 @@ RelationBody: '{'
 
 RelationProperty:
   TableRelationProperty |
+  DecisionBranchProperty |
   RelationStringProperty |
   RelationNavigateToProperty |
   RelationStyleProperty |
@@ -1133,6 +1134,8 @@ ThemeColor returns string:
   'amber';
 
 ElementShape returns string:
+  'diamond' |
+  'pill' |
   'table' |
   'rectangle' |
   'component' |
@@ -1193,7 +1196,7 @@ Id returns string:
   // Allow reserved keywords as Id
   'element' | 'model' | 'group' | 'node' | 'deployment' | 'instance' | 'relationship' |
   'tableRelation' | 'column' | 'pair' | 'primaryKey' | 'unique' | 'nullable' |
-  'sourceCardinality' | 'targetCardinality' | 'one' | 'zeroOrOne' | 'many' | 'zeroOrMany';
+  'sourceCardinality' | 'targetCardinality' | 'one' | 'zeroOrOne' | 'many' | 'zeroOrMany' | 'branch';
 
 HashId returns string:
   Hash Id;
@@ -1274,3 +1277,5 @@ TableFieldPair: 'pair' source=TableFieldId '->' target=TableFieldId;
 TableCardinality: key=('sourceCardinality' | 'targetCardinality') value=('one' | 'zeroOrOne' | 'many' | 'zeroOrMany');
 
 TableFieldId returns string: Id | String | 'kind' | 'title' | 'description' | 'source' | 'target';
+
+DecisionBranchProperty: key='branch' value=String ';'?;

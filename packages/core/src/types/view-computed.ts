@@ -8,6 +8,7 @@ import type {
 import type * as aux from './_aux'
 import type { AnyAux } from './_aux'
 import type { _stage, _type } from './const'
+import type { DecisionBranch } from './decision'
 import type { ElementStyle } from './model-logical'
 import type * as scalar from './scalar'
 import type {
@@ -84,6 +85,7 @@ export interface ComputedNode<A extends AnyAux = AnyAux>
 
 export interface ComputedEdge<A extends AnyAux = AnyAux> extends aux.WithOptionalTags<A> {
   tableRelation?: TableRelationship
+  decisionBranch?: DecisionBranch
   id: scalar.EdgeId
   parent: scalar.NodeId | null
   source: scalar.NodeId

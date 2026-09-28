@@ -241,6 +241,7 @@ export function ModelParser<TBase extends WithExpressionV2>(B: TBase) {
       })
 
       const tableRelation = parseTableRelation(astNode.body?.props.find(ast.isTableRelationProperty))
+      const branch = astNode.body?.props.find(ast.isDecisionBranchProperty)
       const styleProp = astNode.body?.props.find(ast.isRelationStyleProperty)
       const id = stringHash(
         this.docUri,
@@ -264,6 +265,7 @@ export function ModelParser<TBase extends WithExpressionV2>(B: TBase) {
         technology,
         ...toRelationshipStyle(styleProp?.props, isValid),
         ...(tableRelation && { tableRelation }),
+        ...(branch && { decisionBranch: { label: branch.value } }),
       })
     }
   }

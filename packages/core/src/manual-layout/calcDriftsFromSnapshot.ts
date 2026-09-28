@@ -10,6 +10,7 @@ import {
 } from '../types/index'
 import { ifilter, ihead } from '../utils/index'
 import { applyManualLayout } from './applyManualLayout'
+import { matchEdgeWithoutId } from './matchEdgeWithoutId'
 
 /**
  * Calculates drifts comparing latest autoLayouted with manual snapshot.
@@ -71,7 +72,7 @@ export function calcDriftsFromSnapshot<V extends LayoutedView<any>>(
   const edges = autoLayouted.edges.map((edge): DiagramEdge => {
     const snapshotEdge = manualEdges.get(edge.id) ?? pipe(
       manualEdges.values(),
-      ifilter(e => !edge.tableRelation && !e.tableRelation && e.source === edge.source && e.target === edge.target),
+      ifilter(e => matchEdgeWithoutId(edge, e)),
       ihead(),
     )
     if (snapshotEdge) {

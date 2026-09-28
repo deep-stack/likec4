@@ -34,3 +34,9 @@ export const compareRelations = <T extends RelationshipLike>(a: T, b: T): number
   }
   return compareFqnHierarchically(a.target.id, b.target.id)
 }
+
+/** Model relationships whose notation supports an explicit loop on the source. */
+export const supportsSelfRelationship = (relation: {
+  readonly tableRelation?: unknown
+  readonly decisionBranch?: unknown
+}): boolean => !!(relation.tableRelation || relation.decisionBranch)

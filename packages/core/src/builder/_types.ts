@@ -21,6 +21,7 @@ import type {
   TextSize,
   ThemeColor as Color,
 } from '../types'
+import type { DecisionBranch } from '../types/decision'
 import type { TableDefinition, TableRelationship } from '../types/table'
 import type { Builder } from './Builder'
 import type { DeploymentRulesBuilderOp } from './Builder.view-deployment'
@@ -191,6 +192,7 @@ export interface Types<
   NewElementProps: NewElementProps<Tag, Metadata<MetadataKey>>
   NewRelationshipProps: NewRelationProps<RelationshipKind, Tag, Metadata<MetadataKey>> & {
     tableRelation?: TableRelationship
+    decisionBranch?: DecisionBranch
   }
   NewDeploymentRelationshipProps: NewRelationProps<RelationshipKind, Tag, Metadata<MetadataKey>>
   NewViewProps: NewViewProps<Tag>

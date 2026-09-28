@@ -62,7 +62,7 @@ export {
 export { memoizeProp } from './memoize-prop'
 export { delay, onNextTick, promiseNextTick } from './promises'
 
-export { compareRelations } from './relations'
+export { compareRelations, supportsSelfRelationship } from './relations'
 
 export {
   difference,

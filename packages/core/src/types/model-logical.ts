@@ -14,6 +14,7 @@ import type {
 } from '../styles/types'
 import type * as aux from './_aux'
 import type { AnyAux } from './_aux'
+import type { DecisionBranch } from './decision'
 import type { FqnRef } from './fqnRef'
 import type * as scalar from './scalar'
 import type { TableDefinition, TableRelationship } from './table'
@@ -121,6 +122,7 @@ export interface Relationship<A extends AnyAux = AnyAux> extends AbstractRelatio
   readonly source: FqnRef.ModelRef<A>
   readonly target: FqnRef.ModelRef<A>
   readonly tableRelation?: TableRelationship
+  readonly decisionBranch?: DecisionBranch
   readonly isBidirectional?: boolean
 }
 

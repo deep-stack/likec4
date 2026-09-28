@@ -6,6 +6,7 @@
 // Portions of this file have been modified by NVIDIA CORPORATION & AFFILIATES.
 
 import { type ProjectId, FqnRef, isSameHierarchy } from '@likec4/core'
+import { supportsSelfRelationship } from '@likec4/core/utils'
 import { type ValidationCheck, AstUtils, DocumentState, WorkspaceCache } from 'langium'
 import { flatMap, map, pipe } from 'remeda'
 import { ast } from '../ast'
@@ -52,7 +53,10 @@ export const relationChecks = (services: LikeC4Services): ValidationCheck<ast.Re
 
     if (
       isSameHierarchy(FqnRef.flatten(source), FqnRef.flatten(target))
-      && !(FqnRef.flatten(source) === FqnRef.flatten(target) && el.body?.props.some(ast.isTableRelationProperty))
+      && !(FqnRef.flatten(source) === FqnRef.flatten(target) && supportsSelfRelationship({
+        tableRelation: el.body?.props.find(ast.isTableRelationProperty),
+        decisionBranch: el.body?.props.find(ast.isDecisionBranchProperty),
+      }))
     ) {
       accept('error', 'Invalid parent-child relationship', {
         node: el,

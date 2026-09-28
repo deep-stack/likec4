@@ -57,7 +57,7 @@ import {
   isGlobalFqn,
   splitGlobalFqn,
 } from '../types'
-import { DefaultMap, invariant } from '../utils'
+import { DefaultMap, invariant, supportsSelfRelationship } from '../utils'
 import { isSameHierarchy, nameFromFqn, parentFqn } from '../utils/fqn'
 import type { AnyTypes, BuilderMode, BuilderProjectSpecification, BuilderSpecification, Types } from './_types'
 import type { AddDeploymentNode } from './Builder.deployment'
@@ -578,7 +578,7 @@ function builder<Spec extends BuilderSpecification, T extends AnyTypes>(
       }
       if (!isGlobalFqn(sourceFqn) && !isGlobalFqn(targetFqn)) {
         invariant(
-          !isSameHierarchy(sourceEl, targetEl) || (sourceFqn === targetFqn && !!relation.tableRelation),
+          !isSameHierarchy(sourceEl, targetEl) || (sourceFqn === targetFqn && supportsSelfRelationship(relation)),
           'Cannot create relationship between elements in the same hierarchy',
         )
       }

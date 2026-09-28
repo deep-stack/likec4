@@ -86,6 +86,7 @@ export const relationship = z.object({
   ...common.props.shape,
   id: relationshipId.optional(),
   title: z.string().nullish(),
+  decisionBranch: z.object({ label: z.string() }).optional(),
   tableRelation: z.object({
     pairs: z.array(z.object({ source: z.string(), target: z.string() })).min(1).readonly(),
     sourceCardinality: z.object({

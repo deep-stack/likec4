@@ -167,6 +167,10 @@ type ShapeSvgProps = {
 }
 function ShapeSvg({ shape, w, h, size = 'md' }: ShapeSvgProps) {
   switch (shape) {
+    case 'diamond':
+      return <path d={`M ${w / 2} 0 L ${w} ${h / 2} L ${w / 2} ${h} L 0 ${h / 2} Z`} />
+    case 'pill':
+      return <rect width={w} height={h} rx={h / 2} />
     case 'table':
       return <rect width={w} height={h} rx={4} />
     case 'component': {
@@ -306,6 +310,12 @@ function ShapeSvg({ shape, w, h, size = 'md' }: ShapeSvgProps) {
 function ShapeSvgOutline({ shape, w, h }: ShapeSvgProps) {
   let svg
   switch (shape) {
+    case 'diamond':
+      svg = <path d={`M ${w / 2} -4 L ${w + 4} ${h / 2} L ${w / 2} ${h + 4} L -4 ${h / 2} Z`} />
+      break
+    case 'pill':
+      svg = <rect x={-3} y={-3} width={w + 6} height={h + 6} rx={(h + 6) / 2} />
+      break
     case 'bucket':
       svg = (
         <g transform="translate(-3 -3)">

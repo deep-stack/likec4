@@ -15,6 +15,7 @@ import {
   isElementView,
 } from '../types/index'
 import { ifilter, ihead, invariant, symmetricDifference } from '../utils/index'
+import { matchEdgeWithoutId } from './matchEdgeWithoutId'
 
 const changed = (a: unknown, b: unknown) => {
   if (a === b || (isNullish(a) && isNullish(b))) {
@@ -444,7 +445,7 @@ function applyEdgesManualLayout(
   const edges = snapshotEdges.map((edge): DiagramEdge => {
     let next = nextEdges.get(edge.id) ?? pipe(
       nextEdges.values(),
-      ifilter(e => !edge.tableRelation && !e.tableRelation && e.source === edge.source && e.target === edge.target),
+      ifilter(e => matchEdgeWithoutId(edge, e)),
       ihead(),
     )
     if (next) {
@@ -520,6 +521,11 @@ function applyEdgesManualLayout(
       draft.navigateTo = next.navigateTo ?? null
       draft.tags = next.tags ? [...next.tags] : null
       draft.relations = [...next.relations]
+      if (next.decisionBranch) {
+        draft.decisionBranch = { ...next.decisionBranch }
+      } else {
+        delete draft.decisionBranch
+      }
 
       if (changed(edge.notes, next.notes)) {
         // If notes was added/removed - consider it drifted

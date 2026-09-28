@@ -1,0 +1,34 @@
+specification {
+  element action {
+    style { shape pill color blue size sm }
+  }
+  element question {
+    style { shape diamond color blue size sm }
+  }
+  relationship flow {
+    line solid
+  }
+}
+
+model {
+  identify = action 'Identify issue'
+  impacting = question 'Impacting deliverables?'
+  continue = action 'Continue with current migration'
+  internal = question 'Can it be solved internally?'
+  escalate = action 'Escalate to project sponsor'
+  monitor = action 'Log issue and monitor'
+
+  identify -[flow]-> impacting
+  impacting -[flow]-> continue { branch 'No' }
+  impacting -[flow]-> internal { branch 'Yes' }
+  internal -[flow]-> escalate { branch 'No' }
+  internal -[flow]-> monitor { branch 'Yes' }
+}
+
+views {
+  view scenario {
+    title 'The Scenario'
+    include *
+    autoLayout TopBottom
+  }
+}

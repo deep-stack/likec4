@@ -39,11 +39,15 @@ export function toComputedEdges<A extends AnyAux>(
 
     const directRelsList = filter(relations, r => r.source.id === source && r.target.id === target)
 
-    if (relations.length > 1 && (shouldExpand || directRelsList.some(r => r.$relationship.tableRelation))) {
+    if (
+      relations.length > 1 &&
+      (shouldExpand || directRelsList.some(r => r.$relationship.tableRelation || r.$relationship.decisionBranch))
+    ) {
       const [expanded, merged] = pipe(
         relations,
         partition(r =>
           !!(r.$relationship.tableRelation && r.source.id === source && r.target.id === target) ||
+          !!(r.$relationship.decisionBranch && r.source.id === source && r.target.id === target) ||
           !!shouldExpand?.(r, conn)
         ),
       )
@@ -66,10 +70,12 @@ export function toComputedEdges<A extends AnyAux>(
             parent: conn.boundary?.id as scalar.NodeId ?? null,
             source: source as scalar.NodeId,
             target: target as scalar.NodeId,
-            label: title ?? null,
+            label: rel.$relationship.decisionBranch?.label ?? title ?? null,
             relations: [rel.id],
             ...(rel.$relationship.tableRelation && rel.source.id === source && rel.target.id === target &&
               { tableRelation: rel.$relationship.tableRelation }),
+            ...(rel.$relationship.decisionBranch && rel.source.id === source && rel.target.id === target &&
+              { decisionBranch: rel.$relationship.decisionBranch }),
             color,
             line,
             head,
@@ -125,10 +131,14 @@ export function toComputedEdges<A extends AnyAux>(
       parent: conn.boundary?.id as scalar.NodeId ?? null,
       source: source as scalar.NodeId,
       target: target as scalar.NodeId,
-      label: title ?? null,
+      label: relations.length === 1 ?
+        only(directRelsList)?.$relationship.decisionBranch?.label ?? title ?? null :
+        title ?? null,
       relations: relations.map((r) => r.id),
       ...(relations.length === 1 && only(directRelsList)?.$relationship.tableRelation &&
         { tableRelation: only(directRelsList)!.$relationship.tableRelation }),
+      ...(relations.length === 1 && only(directRelsList)?.$relationship.decisionBranch &&
+        { decisionBranch: only(directRelsList)!.$relationship.decisionBranch }),
       color,
       line,
       head,
