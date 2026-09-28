@@ -1,6 +1,7 @@
 import type { Fqn } from '@likec4/core/types'
 import { nameFromFqn, parentFqn, sortParentsFirst } from '@likec4/core/utils'
 import { isEmptyish, pipe, values } from 'remeda'
+import { printUmlClassifier, printUmlExtensions, printUmlRelationship } from './uml'
 
 import { schemas } from '../schemas'
 import {
@@ -80,7 +81,7 @@ function hasStyleProps(el: ElementData): boolean {
 
 function hasElementProps(el: ElementData): boolean {
   return !!(
-    el.table || el.description || el.summary || el.technology || el.notation
+    el.classifier || el.table || el.description || el.summary || el.technology || el.notation
     || (el.tags && el.tags.length > 0)
     || (el.links && el.links.length > 0)
     || !isEmptyish(el.metadata)
@@ -92,6 +93,10 @@ function hasElementProps(el: ElementData): boolean {
 
 const elementProperties = zodOp(schemas.model.element)(
   lines(
+    select(
+      e => e.classifier,
+      print(printUmlClassifier),
+    ),
     select(
       e => e.table,
       print(table =>
@@ -167,7 +172,7 @@ function hasRelationStyle(rel: schemas.model.relationship.Data): boolean {
 
 function hasRelationProps(rel: schemas.model.relationship.Data): boolean {
   return !!(
-    rel.tableRelation || rel.decisionBranch || rel.description || rel.summary || rel.technology
+    rel.uml || rel.tableRelation || rel.decisionBranch || rel.description || rel.summary || rel.technology
     || (rel.tags && rel.tags.length > 0)
     || (rel.links && rel.links.length > 0)
     || !isEmptyish(rel.metadata)
@@ -191,6 +196,10 @@ export const relationship = zodOp(schemas.model.relationship)(
         select(
           r => r.decisionBranch,
           print(branch => `branch ${JSON.stringify(branch.label)}`),
+        ),
+        select(
+          r => r.uml,
+          print(printUmlRelationship),
         ),
         select(
           r => r.tableRelation,
@@ -234,6 +243,7 @@ export const element = zodOp(schemas.model.element)(
 export const model = zodOp(schemas.model.schema)(
   body('model')(
     lines(2)(
+      select(d => d.uml, print(printUmlExtensions)),
       select(
         d => buildTree(d.elements ? values(d.elements) : []).roots,
         lines(2)(

@@ -12,6 +12,7 @@ import {
   merge,
   print,
   property,
+  select,
   space,
   spaceBetween,
   withctx,
@@ -25,6 +26,7 @@ import {
   styleProperties,
   titleProperty,
 } from './properties'
+import { printUmlPresentation } from './uml'
 
 function appendSelector(out: Output, selector: PredicateSelector | undefined) {
   if (selector) {
@@ -223,6 +225,7 @@ export const fqnExprCustom = zodOp(schemas.fqnExprCustom)(({ ctx: { custom }, ex
   )
   const customOp = withctx(custom)(
     body('with')(
+      select(c => c.umlPresentation, print(printUmlPresentation)),
       titleProperty(),
       descriptionProperty(),
       notationProperty(),

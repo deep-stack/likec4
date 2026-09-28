@@ -1,4 +1,6 @@
 import type { AnyAux, ComputedEdge, ComputedElementView, ComputedNode, Fqn, HexColor } from '@likec4/core'
+import { umlEndText } from '@likec4/core'
+import { measureUmlClassifier } from '@likec4/core/geometry'
 import { nonNullable } from '@likec4/core/utils'
 import { createLogger } from '@likec4/log'
 import { chunk, filter, first, isNonNullish, last, map, pipe } from 'remeda'
@@ -132,6 +134,26 @@ export class ElementViewPrinter<A extends AnyAux> extends DotPrinter<ComputedEle
     const e = G.edge([source, target], {
       [_.likec4_id]: edge.id,
     })
+    if (edge.umlAttachment) {
+      const memberPort = (node: ComputedNode, member: string | undefined) =>
+        node.classifier && member
+          ? measureUmlClassifier(node.classifier, node.title, node.umlPresentation).compartments.flatMap(c => c.rows)
+            .find(r => r.id === member)?.port
+          : undefined
+      const sourceMember = edge.dir === 'back' ? edge.umlAttachment.targetMember : edge.umlAttachment.sourceMember
+      const targetMember = edge.dir === 'back' ? edge.umlAttachment.sourceMember : edge.umlAttachment.targetMember
+      const sourcePort = memberPort(sourceNode, sourceMember)
+      const targetPort = memberPort(targetNode, targetMember)
+      if (sourcePort) e.attributes.set(_.tailport, `${sourcePort}:e`)
+      if (targetPort) e.attributes.set(_.headport, `${targetPort}:w`)
+    }
+    if (edge.uml) {
+      const [sourceEnd, targetEnd] = edge.dir === 'back'
+        ? [edge.uml.target, edge.uml.source]
+        : [edge.uml.source, edge.uml.target]
+      e.attributes.set(_.taillabel, umlEndText(sourceEnd).join('\n'))
+      e.attributes.set(_.headlabel, umlEndText(targetEnd).join('\n'))
+    }
     if (edge.line && edge.line !== this.$defaults.relationship.line) {
       e.attributes.set(_.style, edge.line)
     }
@@ -183,7 +205,7 @@ export class ElementViewPrinter<A extends AnyAux> extends DotPrinter<ComputedEle
         [_.arrowhead]: 'none',
         [_.dir]: 'none',
         [_.minlen]: 0,
-        [_.constraint]: false,
+        [_.constraint]: !!edge.uml,
       })
       return e
     }

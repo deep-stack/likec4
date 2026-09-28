@@ -1,3 +1,6 @@
+import { measureUmlClassifier } from '@likec4/core/geometry'
+import { ClassCompartments } from '../../../base-primitives/uml/ClassCompartments'
+import { useClassDrag } from './useClassDrag'
 // SPDX-License-Identifier: MIT
 //
 // Copyright (c) 2023-2026 Denis Davydkov
@@ -101,13 +104,38 @@ export function ElementNode(props: Types.NodeProps<'element'>) {
 }
 
 function ArchitectureElementNode(props: Types.NodeProps<'element'>) {
+  const classDrag = useClassDrag(props.id)
+  const diagram = useDiagram()
   const { enableElementTags, enableElementDetails, enableReadOnly, enableCompareWithLatest, enableNotes } =
     useEnabledFeatures()
   return (
     <ElementNodeContainer nodeProps={props}>
       {enableCompareWithLatest && <NodeDrifts nodeProps={props} />}
-      <ElementShape {...props} />
-      <ElementData {...props} aria-hidden />
+      {props.data.classifier
+        ? (
+          <>
+            <ElementShape {...props} data={{ ...props.data, shape: 'rectangle' }} />
+            <div
+              className="nopan"
+              style={{ width: '100%', height: '100%', position: 'relative', cursor: 'grab', touchAction: 'none' }}
+              {...classDrag}>
+              <ClassCompartments
+                id={props.id}
+                title={props.data.title}
+                classifier={props.data.classifier}
+                presentation={props.data.umlPresentation}
+                onMember={enableElementDetails
+                  ? () => diagram.openElementDetails(props.data.modelFqn, props.id as NodeId)
+                  : undefined} />
+            </div>
+          </>
+        )
+        : (
+          <>
+            <ElementShape {...props} />
+            <ElementData {...props} aria-hidden />
+          </>
+        )}
       {enableElementTags && <ElementTags {...props} />}
       <ElementActions {...props} />
       {enableElementDetails && <ElementDetailsButtonWithHandler {...props} />}
@@ -156,7 +184,24 @@ export function CompoundElementNode(props: Types.NodeProps<'compound-element'>) 
       nodeProps={props}
     >
       {enableCompareWithLatest && <NodeDrifts nodeProps={props} />}
-      <CompoundTitle {...props} aria-hidden />
+      {props.data.classifier ?
+        (
+          <div
+            style={{
+              position: 'absolute',
+              top: 8,
+              left: 8,
+              width: measureUmlClassifier(props.data.classifier, props.data.title, props.data.umlPresentation).width,
+            }}>
+            <ClassCompartments
+              id={props.id}
+              title={props.data.title}
+              classifier={props.data.classifier}
+              presentation={props.data.umlPresentation}
+              embedded />
+          </div>
+        ) :
+        <CompoundTitle {...props} aria-hidden />}
       <CompoundActions {...props} />
       {enableElementDetails && <CompoundDetailsButtonWithHandler {...props} />}
       {!enableReadOnly && <CompoundElementToolbar {...props} />}

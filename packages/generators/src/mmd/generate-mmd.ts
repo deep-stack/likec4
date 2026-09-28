@@ -4,6 +4,7 @@ import type { aux, NodeId, ProcessedView as AnyView } from '@likec4/core/types'
 import { CompositeGeneratorNode, joinToNode } from 'langium/generate'
 import { isNullish as isNil } from 'remeda'
 import { NL, toStringLF } from '../newline'
+import { generateUml, hasUml } from '../uml-native'
 
 const capitalizeFirstLetter = (value: string) => value.charAt(0).toLocaleUpperCase() + value.slice(1)
 
@@ -64,6 +65,7 @@ const mmdshape = ({ shape, title }: Node): string => {
 }
 
 export function generateMermaid(viewmodel: LikeC4ViewModel<aux.Unknown>) {
+  if (hasUml(viewmodel.$view)) return generateUml(viewmodel.$view, 'Mermaid')
   if (viewmodel.$view.nodes.some(node => node.table)) {
     throw new Error('ER table export is not supported by this format; use the LikeC4 viewer or DSL export')
   }

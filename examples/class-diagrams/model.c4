@@ -1,0 +1,54 @@
+specification {
+  element type { style { color blue } }
+}
+model {
+  account = type 'Account' {
+    classifier {
+      kind class abstract true stereotype 'entity'
+      attribute id 'id' { type 'UUID' visibility private readOnly true }
+      attribute balance 'balance' { type ref 'money' visibility protected default '0' constraint 'balance >= 0' }
+      operation create 'Account' { visibility public constructor true parameter id { type 'UUID' } }
+      operation debit 'debit' { visibility public abstract true parameter amount { type ref 'money' direction in } returns 'Boolean' }
+      operation findId 'find' { visibility public static true parameter id { type 'UUID' } returns ref 'account' { multiplicity '0..1' } }
+      operation findName 'find' { visibility public static true parameter name { type 'String' } returns ref 'account' { multiplicity '0..*' } }
+      compartment rules 'Business rules' { entry positive 'No overdraft without approval' {} }
+    }
+  }
+  savings = type 'SavingsAccount' { classifier { kind class attribute rate { type 'Decimal' visibility private } } }
+  checking = type 'CheckingAccount' { classifier { kind class attribute overdraft { type ref 'money' visibility private } } }
+  auditable = type 'Auditable' { classifier { kind interface operation audit 'audit' { visibility public abstract true returns 'String' } } }
+  money = type 'Money' { classifier { kind dataType attribute amount { type 'Decimal' readOnly true } attribute currency { type 'String' readOnly true } } }
+  status = type 'Status' { classifier { kind enumeration literal active 'ACTIVE' {} literal closed 'CLOSED' {} } }
+  identifier = type 'Identifier' { classifier { kind primitiveType } }
+  repository = type 'Repository' { classifier { kind class template item 'T' {} operation all 'all' { returns 'T' { multiplicity '*' ordered true unique false } } } }
+  accountRepository = type 'AccountRepository' { classifier { kind class binding accounts { templateRef 'repository' argument item { type ref 'account' } } } }
+  assignment = type 'Assignment' { classifier { kind class attribute since { type 'Date' } } }
+  branch = type 'Branch' { classifier { kind class attribute name { type 'String' } } }
+  customer = type 'Customer' { classifier { kind class attribute name { type 'String' } } }
+  domain = type 'Domain' { classifier { kind package }
+    address = type 'Address' { classifier { kind dataType attribute city { type 'String' } } }
+  }
+  savings -> account { uml { id 'savingsBase' kind generalization } }
+  checking -> account { uml { id 'checkingBase' kind generalization } }
+  account -> auditable { uml { id 'auditContract' kind realization } }
+  account -> money { uml { id 'ownsBalance' kind association sourceEnd { aggregation composite multiplicity '1' } targetEnd { role 'balance' multiplicity '1' navigability navigable } } }
+  account -> account { uml { id 'parentAccount' kind association sourceEnd { id 'parent' role 'parent' multiplicity '0..1' } targetEnd { id 'children' role 'children' multiplicity '*' navigability navigable } } }
+  customer -> account { uml { id 'accounts' kind association sourceEnd { role 'owner' multiplicity '1' } targetEnd { role 'accounts' multiplicity '*' qualifier number { type ref 'identifier' } } } }
+  accountRepository -> account { uml { id 'usesAccount' kind dependency } }
+  account -> status { uml { id 'state' kind association targetEnd { multiplicity '1' } } }
+  umlModel {
+    association allocation 'Allocation' {
+      end customer { element 'customer' role 'customer' multiplicity '1' }
+      end account { element 'account' role 'account' multiplicity '*' }
+      end branch { element 'branch' role 'branch' multiplicity '1' }
+    }
+    associationClass allocationDetails { associationRef 'allocation' classifierRef 'assignment' }
+    generalizationSet accountKinds 'Account kinds' { relationship 'savingsBase' relationship 'checkingBase' disjoint true complete false }
+    annotation balanceRule { kind constraint text 'Balance never becomes negative' target balance { targetElement 'account' targetMember 'balance' } }
+  }
+}
+views {
+  view overview { title 'Classes and contracts' include * autoLayout LeftRight }
+  view publicApi { title 'Public API' include account with { umlPresentation { visibility public hideCompartment 'attributes' hideCompartment 'rules' } } }
+  view packages { title 'Packages and nested types' include domain, domain.* }
+}

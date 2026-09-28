@@ -3,6 +3,7 @@ import type { aux, ComputedNode, NodeId, ProcessedView as AnyView } from '@likec
 import { CompositeGeneratorNode, joinToNode } from 'langium/generate'
 import { isNullish as isNil } from 'remeda'
 import { NL, toStringLF } from '../newline'
+import { assertNoUmlExport } from '../uml-capabilities'
 
 const capitalizeFirstLetter = (value: string) => value.charAt(0).toLocaleUpperCase() + value.slice(1)
 
@@ -62,6 +63,7 @@ const d2shape = ({ shape }: Node) => {
 }
 
 export function generateD2(viewmodel: LikeC4ViewModel<aux.Unknown>) {
+  assertNoUmlExport(viewmodel.$view, 'D2')
   if (viewmodel.$view.nodes.some(node => node.table)) {
     throw new Error('ER table export is not supported by this format; use the LikeC4 viewer or DSL export')
   }

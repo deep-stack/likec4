@@ -79,6 +79,7 @@ export namespace ModelFqnExpr {
       technology?: string
       notation?: string
       notes?: scalar.MarkdownOrString
+      umlPresentation?: import('./uml').UmlPresentation
       shape?: ElementShape
       color?: Color
       icon?: scalar.Icon

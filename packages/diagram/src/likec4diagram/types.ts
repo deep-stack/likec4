@@ -54,6 +54,10 @@ export namespace Types {
        * View layout direction, used by DefaultHandles to position node handles
        */
       table?: DiagramNode['table']
+      classifier?: DiagramNode['classifier']
+      umlPresentation?: DiagramNode['umlPresentation']
+      umlOrigin?: DiagramNode['umlOrigin']
+      umlArtifact?: DiagramNode['umlArtifact']
       viewLayoutDir?: AutoLayoutDirection | undefined
       /**
        * View this node belongs to
@@ -156,6 +160,7 @@ export namespace Types {
   >
 
   export type CompoundNodeData = Simplify<
+    & { classifier?: DiagramNode['classifier']; umlPresentation?: DiagramNode['umlPresentation'] }
     & BaseNodeData
     & NonOptional<
       Pick<
@@ -220,6 +225,9 @@ export namespace Types {
     }
   >
 
+  export type UmlArtifactNodeData = LeafNodeData & { modelFqn?: never; deploymentFqn?: never; navigateTo?: never }
+  export type UmlArtifactNode = BaseNode<UmlArtifactNodeData, 'uml-artifact'>
+
   export type ElementNode = BaseNode<ElementNodeData, 'element'>
   export type DeploymentElementNode = BaseNode<DeploymentElementNodeData, 'deployment'>
 
@@ -232,6 +240,7 @@ export namespace Types {
   export type ViewGroupNode = BaseNode<ViewGroupNodeData, 'view-group'>
 
   export type AnyNode =
+    | UmlArtifactNode
     | ElementNode
     | DeploymentElementNode
     | CompoundElementNode
@@ -244,6 +253,7 @@ export namespace Types {
   export type NodeType = AnyNode['type']
 
   export type NodeData = ExclusiveUnion<{
+    UmlArtifactNodeData: UmlArtifactNodeData
     ElementNodeData: ElementNodeData
     DeploymentElementNodeData: DeploymentElementNodeData
     CompoundElementNodeData: CompoundElementNodeData
@@ -279,6 +289,10 @@ export namespace Types {
     >
     & {
       tableRelation?: DiagramEdge['tableRelation']
+      umlNodeBounds?: { source: import('@likec4/core/geometry').BBox; target: import('@likec4/core/geometry').BBox }
+      uml?: DiagramEdge['uml']
+      umlEndLabels?: DiagramEdge['umlEndLabels']
+      umlOrigin?: DiagramEdge['umlOrigin']
       tablePaths?: DiagramEdge['tablePaths']
       notes: MarkdownOrString | null
       labelXY: XYPosition | null

@@ -13,6 +13,7 @@ import type {
 import { flattenMarkdownOrString } from '@likec4/core/types'
 import pako from 'pako'
 import { isEmptyish, isNullish as isNil } from 'remeda'
+import { assertNoUmlExport } from '../uml-capabilities'
 import {
   CONTAINER_TITLE_CELL_ID_START,
   CONTAINER_TITLE_CHAR_WIDTH_PX,
@@ -1132,6 +1133,7 @@ function computeDiagramLayout(
   viewmodel: DrawioViewModelLike,
   options?: GenerateDrawioOptions,
 ): DiagramLayoutState {
+  assertNoUmlExport(viewmodel.$view, 'DrawIO')
   if (viewmodel.$view.nodes.some(node => node.shape === 'table' || node.table)) {
     throw new Error('ER table export is not supported by DrawIO; use the LikeC4 viewer or DSL export')
   }

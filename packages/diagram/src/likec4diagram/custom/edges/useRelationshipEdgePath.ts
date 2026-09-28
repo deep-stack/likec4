@@ -1,5 +1,5 @@
 // oxlint-disable exhaustive-deps
-import { vector } from '@likec4/core/geometry'
+import { moveUmlSpline, vector } from '@likec4/core/geometry'
 import { nonNullable } from '@likec4/core/utils'
 import type { XYPosition } from '@xyflow/react'
 import { getNodeDimensions } from '@xyflow/system'
@@ -62,6 +62,24 @@ export function useRelationshipEdgePath({
   const isModified = isTruthy(data.controlPoints) || isControlPointDragging
 
   if (!isModified) {
+    if (data.umlNodeBounds) {
+      const sourceBounds = {
+        x: sourceX - sourceNodeWidth / 2,
+        y: sourceY - sourceNodeHeight / 2,
+        width: sourceNodeWidth,
+        height: sourceNodeHeight,
+      }
+      const targetBounds = {
+        x: targetX - targetNodeWidth / 2,
+        y: targetY - targetNodeHeight / 2,
+        width: targetNodeWidth,
+        height: targetNodeHeight,
+      }
+      const [a, b, nextA, nextB] = data.dir === 'back'
+        ? [data.umlNodeBounds.target, data.umlNodeBounds.source, targetBounds, sourceBounds]
+        : [data.umlNodeBounds.source, data.umlNodeBounds.target, sourceBounds, targetBounds]
+      return bezierPath(moveUmlSpline(data.points, a, b, nextA, nextB))
+    }
     return bezierPath(data.points)
   }
 

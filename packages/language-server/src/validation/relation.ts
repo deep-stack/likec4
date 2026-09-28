@@ -56,6 +56,7 @@ export const relationChecks = (services: LikeC4Services): ValidationCheck<ast.Re
       && !(FqnRef.flatten(source) === FqnRef.flatten(target) && supportsSelfRelationship({
         tableRelation: el.body?.props.find(ast.isTableRelationProperty),
         decisionBranch: el.body?.props.find(ast.isDecisionBranchProperty),
+        uml: el.body?.props.find(ast.isUmlRelationshipProperty),
       }))
     ) {
       accept('error', 'Invalid parent-child relationship', {

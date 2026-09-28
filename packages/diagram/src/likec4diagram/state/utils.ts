@@ -218,6 +218,7 @@ export function nodeRef(node: Types.Node): Fqn | DeploymentFqn | null {
     case 'seq-parallel':
     case 'seq-subflow':
     case 'view-group':
+    case 'uml-artifact':
       return null
     default:
       nonexhaustive(node)

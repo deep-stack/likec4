@@ -146,6 +146,7 @@ export class LikeC4ModelParser extends ADisposable {
         deployments: {},
       },
       c4Elements: [],
+      c4Uml: [],
       c4ExtendElements: [],
       c4ExtendDeployments: [],
       c4ExtendRelations: [],

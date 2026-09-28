@@ -571,6 +571,7 @@ describe('LikeC4CompletionProvider', () => {
       text,
       index: 1,
       expectedItems: [
+        'umlPresentation',
         'navigateTo',
         'title',
         'description',

@@ -16,6 +16,7 @@ import { RichText } from '@likec4/core/types'
 import { CompositeGeneratorNode, joinToNode } from 'langium/generate'
 import { isEmptyish, isNullish as isNil } from 'remeda'
 import { NL, toStringLF } from '../newline'
+import { generateUml, hasUml } from '../uml-native'
 
 const capitalizeFirstLetter = (value: string) => value.charAt(0).toLocaleUpperCase() + value.slice(1)
 
@@ -94,6 +95,7 @@ const escapeLabel = (label: string | null | undefined) =>
     .replace(/\\"/g, '"') // Unescape double quotes - PUML does not support escaped double quotes
 
 export function generatePuml(viewmodel: LikeC4ViewModel<aux.Unknown>) {
+  if (hasUml(viewmodel.$view)) return generateUml(viewmodel.$view, 'PlantUML')
   if (viewmodel.$view.nodes.some(node => node.table)) {
     throw new Error('ER table export is not supported by this format; use the LikeC4 viewer or DSL export')
   }

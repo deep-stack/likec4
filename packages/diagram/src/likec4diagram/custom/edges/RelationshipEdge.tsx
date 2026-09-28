@@ -34,6 +34,7 @@ import type { Types } from '../../types'
 import { EdgeDrifts } from './EdgeDrifts'
 import * as edgesCss from './edges.css'
 import { TableRelationshipEdge } from './TableRelationshipEdge'
+import { UmlEndLabels } from './UmlEndLabels'
 import { useControlPoints } from './useControlPoints'
 import { useRelationshipEdgePath } from './useRelationshipEdgePath'
 
@@ -307,19 +308,27 @@ const ArchitectureRelationshipEdge = memoEdge<Types.EdgeProps<'relationship'>>((
     <>
       <EdgeContainer
         {...props}
+        data-uml-edge={props.data.uml || props.data.umlOrigin ? 'true' : undefined}
         className={css({
+          '&[data-uml-edge="true"]': {
+            '--xy-edge-stroke-width': '2',
+            '&:is(.selected, [data-likec4-hovered="true"])': { '--xy-edge-stroke-width': '3' },
+          },
           '& .react-flow__edge-interaction': {
             cursor: enabledEditing && selected ? '[copy]' : 'inherit',
           },
         })}>
         <EdgePath
           edgeProps={props}
+          compact={!!(props.data.uml || props.data.umlOrigin)}
+          notation={props.data.uml ? 'uml' : undefined}
           svgPath={edgePath}
           ref={svgPathRef}
           isDragging={isControlPointDragging}
           {...enabledEditing && {
             onEdgePointerDown,
           }} />
+        <UmlEndLabels {...props} />
         {enableCompareWithLatest && (
           <EdgeDrifts
             edgeProps={props}

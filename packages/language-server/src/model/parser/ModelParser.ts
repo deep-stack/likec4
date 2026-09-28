@@ -1,4 +1,5 @@
 import { parseTable, parseTableRelation } from './table'
+import { parseUmlClassifier, parseUmlExtensions, parseUmlRelationship } from './uml'
 // SPDX-License-Identifier: MIT
 //
 // Copyright (c) 2023-2026 Denis Davydkov
@@ -40,6 +41,10 @@ function* streamModel(doc: LikeC4LangiumDocument) {
       relations.push(el)
       continue
     }
+    if (ast.isUmlModelProperty(el)) {
+      yield el
+      continue
+    }
     if (el.body?.elements && hasAtLeast(el.body.elements, 1)) {
       for (const child of el.body.elements) {
         traverseStack.push(child)
@@ -57,6 +62,10 @@ export function ModelParser<TBase extends WithExpressionV2>(B: TBase) {
       const doc = this.doc
       for (const el of streamModel(doc)) {
         try {
+          if (ast.isUmlModelProperty(el)) {
+            doc.c4Uml.push(parseUmlExtensions(el))
+            continue
+          }
           if (ast.isElement(el)) {
             doc.c4Elements.push(this.parseElement(el))
             continue
@@ -95,6 +104,7 @@ export function ModelParser<TBase extends WithExpressionV2>(B: TBase) {
       const metadata = this.getMetadata(astNode.body?.props.find(ast.isMetadataProperty))
       const astPath = this.getAstNodePath(astNode)
 
+      const classifier = parseUmlClassifier(astNode.body?.props.find(ast.isClassifierProperty))
       const table = parseTable(astNode.body?.props.find(ast.isTableProperty))
       let [_title, _summary, _technology] = astNode.props ?? []
 
@@ -124,6 +134,7 @@ export function ModelParser<TBase extends WithExpressionV2>(B: TBase) {
         ...descAndTech,
         style,
         ...(table && { table }),
+        ...(classifier && { classifier }),
       })
     }
 
@@ -240,6 +251,7 @@ export function ModelParser<TBase extends WithExpressionV2>(B: TBase) {
         technology: astNode.technology,
       })
 
+      const uml = parseUmlRelationship(astNode.body?.props.find(ast.isUmlRelationshipProperty))
       const tableRelation = parseTableRelation(astNode.body?.props.find(ast.isTableRelationProperty))
       const branch = astNode.body?.props.find(ast.isDecisionBranchProperty)
       const styleProp = astNode.body?.props.find(ast.isRelationStyleProperty)
@@ -266,6 +278,7 @@ export function ModelParser<TBase extends WithExpressionV2>(B: TBase) {
         ...toRelationshipStyle(styleProp?.props, isValid),
         ...(tableRelation && { tableRelation }),
         ...(branch && { decisionBranch: { label: branch.value } }),
+        ...(uml && { uml, id: uml.id as c4.RelationId }),
       })
     }
   }

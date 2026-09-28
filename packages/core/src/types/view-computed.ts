@@ -50,8 +50,9 @@ export interface ComputedNode<A extends AnyAux = AnyAux>
   classifier?: UmlClassifier
   umlPresentation?: UmlPresentation
   umlOrigin?: UmlOrigin
+  umlArtifact?: 'junction' | 'anchor' | 'note'
   id: scalar.NodeId
-  kind: aux.ElementKind<A> | aux.DeploymentKind<A> | '@group'
+  kind: aux.ElementKind<A> | aux.DeploymentKind<A> | '@group' | '@uml'
   parent: scalar.NodeId | null
   /**
    * Reference to model element
@@ -88,6 +89,7 @@ export interface ComputedNode<A extends AnyAux = AnyAux>
 }
 
 export interface ComputedEdge<A extends AnyAux = AnyAux> extends aux.WithOptionalTags<A> {
+  umlAttachment?: { sourceMember?: string; targetMember?: string }
   tableRelation?: TableRelationship
   decisionBranch?: DecisionBranch
   uml?: UmlBinaryRelationship

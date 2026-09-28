@@ -277,6 +277,12 @@ describe('LikeC4', () => {
           ],
           "folder": "boutique",
         },
+        "class-diagrams": {
+          "documents": [
+            "model.c4",
+          ],
+          "folder": "class-diagrams",
+        },
         "cloud-system": {
           "documents": [
             "_spec.c4",

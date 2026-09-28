@@ -60,10 +60,20 @@ export function validateUmlModel(model: {
     ...classifier.templates ?? [],
     ...classifier.compartments?.flatMap(c => c.entries) ?? [],
   ]
+  const inheritedMember = (element: string, member: string, visited = new Set<string>()): boolean => {
+    if (visited.has(element)) return false
+    visited.add(element)
+    const classifier = classifiers.get(element)
+    if (classifier && members(classifier).some(m => m.id === member)) return true
+    return Object.values(model.relations).some(r =>
+      r.uml?.kind === 'generalization' && FqnRef.flatten(r.source) === element &&
+      inheritedMember(FqnRef.flatten(r.target), member, visited)
+    )
+  }
   const elementTarget = (element: string, member: string | undefined, target: UmlTarget) => {
     const classifier = classifiers.get(element)
     if (!classifier) report('unknown-classifier', `Unknown classifier: ${element}`, target)
-    else if (member && !members(classifier).some(m => m.id === member)) {
+    else if (member && !inheritedMember(element, member)) {
       report('unknown-member', `Unknown member: ${element}.${member}`, target)
     }
   }
@@ -79,7 +89,10 @@ export function validateUmlModel(model: {
     }
     for (const attribute of classifier.attributes ?? []) {
       typed(attribute, { element, member: attribute.id })
-      for (const ref of [...attribute.redefines ?? [], ...attribute.subsets ?? []]) elementTarget(element, ref, target)
+      for (const ref of [...attribute.redefines ?? [], ...attribute.subsets ?? []]) {
+        const dot = ref.lastIndexOf('.')
+        elementTarget(dot < 0 ? element : ref.slice(0, dot), dot < 0 ? ref : ref.slice(dot + 1), target)
+      }
     }
     const signatures = new Set<string>()
     for (const operation of classifier.operations ?? []) {
@@ -133,13 +146,21 @@ export function validateUmlModel(model: {
   }
   const relations = new Map(Object.values(model.relations).flatMap(r => r.uml ? [[r.uml.id, r] as const] : []))
   const associations = new Map((model.uml?.associations ?? []).map(a => [a.id, a]))
-  ids([
+  const globalItems = [
     ...Object.values(model.relations).flatMap(r => r.uml ? [r.uml] : []),
     ...model.uml?.associations ?? [],
     ...model.uml?.associationClasses ?? [],
     ...model.uml?.generalizationSets ?? [],
     ...model.uml?.annotations ?? [],
-  ], { relationship: '' })
+  ]
+  const globalIds = new Set<string>()
+  for (const item of globalItems) {
+    if (!item.id.trim()) report('empty-id', 'UML identifiers must not be empty', { relationship: item.id })
+    if (globalIds.has(item.id)) {
+      report('duplicate-id', `Duplicate UML identifier: ${item.id}`, { relationship: item.id })
+    }
+    globalIds.add(item.id)
+  }
   const end = (value: UmlRelationshipEnd, element: string, relationship: string) => {
     const target = { relationship, end: value.id }
     elementTarget(element, value.member, target)
@@ -229,19 +250,20 @@ export function validateUmlModel(model: {
     }
   }
   for (const annotation of model.uml?.annotations ?? []) {
+    const location = { relationship: annotation.id }
     for (const target of annotation.targets) {
-      if ('element' in target) elementTarget(target.element, target.member, target)
+      if ('element' in target) elementTarget(target.element, target.member, location)
       else {
         const relation = relations.get(target.relationship)?.uml
         const association = associations.get(target.relationship)
         if (!relation && !association) {
-          report('unknown-relationship', `Unknown relationship: ${target.relationship}`, target)
+          report('unknown-relationship', `Unknown relationship: ${target.relationship}`, location)
         }
         else if (
           target.end &&
           !(association?.ends ?? (relation ? [relation.source, relation.target] : [])).some(e => e.id === target.end)
         ) {
-          report('unknown-end', `Unknown association end: ${target.end}`, target)
+          report('unknown-end', `Unknown association end: ${target.end}`, location)
         }
       }
     }
