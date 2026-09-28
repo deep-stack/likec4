@@ -942,8 +942,17 @@ describe('LikeC4CompletionProvider', () => {
     })
   })
 
-  it('should suggest deployments', async ({ expect, completion }) => {
-    const text = `
+  for (
+    const { index, expectedItems } of [
+      { index: 0, expectedItems: ['env', 'node'] },
+      { index: 1, expectedItems: ['env', 'node'] },
+      { index: 3, expectedItems: ['i1', 'n1', 'n2'] },
+      { index: 4, expectedItems: ['dev', 'n1', 'n2', 'i1'] },
+      { index: 5, expectedItems: ['dev', 'n1', 'n2', 'i1', 'c1', 'c2', 'element.tag', 'element.kind'] },
+    ]
+  ) {
+    it(`should suggest deployments at marker ${index}`, async ({ expect, completion }) => {
+      const text = `
       specification {
         element component
         deploymentNode env
@@ -974,91 +983,24 @@ describe('LikeC4CompletionProvider', () => {
       }
     `
 
-    await completion({
-      text,
-      index: 0,
-      assert: completions => {
-        expect(completions.items).not.to.be.empty
-        expect(pluck('label', completions.items)).to.include.members(['env', 'node'])
-      },
-      disposeAfterCheck: true,
+      // Each position builds and disposes its own document; keep independent checks
+      // in separate tests so they do not share one timeout on slower CI runners.
+      await completion({
+        text,
+        index,
+        ...(index === 0
+          ? {
+            assert: completions => {
+              expect(completions.items).not.to.be.empty
+              expect(pluck('label', completions.items)).to.include.members(expectedItems)
+            },
+          }
+          : { expectedItems }),
+        disposeAfterCheck: true,
+      })
+      // Markers 2 (instanceOf) and 6 (incoming relations) remain unsupported here.
     })
-
-    await completion({
-      text,
-      index: 1,
-      expectedItems: [
-        'env',
-        'node',
-      ],
-      disposeAfterCheck: true,
-    })
-
-    // TODO fix completion
-    // await completion({
-    //   text,
-    //   index: 2,
-    //   expectedItems: [
-    //     'c1',
-    //     'c2',
-    //   ],
-    //   disposeAfterCheck: true,
-    // })
-
-    await completion({
-      text,
-      index: 3,
-      expectedItems: [
-        'i1',
-        'n1',
-        'n2',
-      ],
-      disposeAfterCheck: true,
-    })
-
-    await completion({
-      text,
-      index: 4,
-      expectedItems: [
-        'dev',
-        'n1',
-        'n2',
-        'i1',
-      ],
-      disposeAfterCheck: true,
-    })
-
-    await completion({
-      text,
-      index: 5,
-      expectedItems: [
-        'dev',
-        'n1',
-        'n2',
-        'i1',
-        'c1',
-        'c2',
-        // Because of ElementTagExpression and ElementKindExpression
-        'element.tag',
-        'element.kind',
-      ],
-      disposeAfterCheck: true,
-    })
-
-    // TODO: stopped working in tests but same exampel works in runtime
-    // await completion({
-    //   text,
-    //   index: 6,
-    //   parseOptions: {
-    //     validation: false
-    //   },
-    //   expectedItems: [
-    //     'i1',
-    //     'n1',
-    //     'n2',
-    //   ],
-    // })
-  })
+  }
 
   it('should suggest imports', async ({ expect }) => {
     const { services, validateAll } = await createMultiProjectTestServices({

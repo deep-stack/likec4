@@ -1,5 +1,5 @@
-import type { ComputedView, DiagramEdge, DiagramNode, LayoutedView } from '@likec4/core/types'
-import { _layout, _stage } from '@likec4/core/types'
+import type { ComputedView, DiagramEdge, DiagramNode, LayoutedView } from '../types/index'
+import { _layout, _stage } from '../types/index'
 
 /**
  * When restoring a LayoutedView from cache, the cached view may have stale

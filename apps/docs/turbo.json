@@ -8,7 +8,7 @@
       "dependsOn": [
         "^generate",
         "@likec4/react#build",
-        "likec4#build"
+        "@deep-stack/likec4#build"
       ],
       "outputs": [
         ".astro/**"

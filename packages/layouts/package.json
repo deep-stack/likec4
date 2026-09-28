@@ -77,8 +77,8 @@
   },
   "dependencies": {
     "@hpcc-js/wasm-graphviz": "catalog:externals",
-    "@likec4/core": "workspace:*",
-    "@likec4/log": "workspace:*",
+    "@likec4/core": "workspace:@deep-stack/likec4-core@*",
+    "@likec4/log": "workspace:@deep-stack/likec4-log@*",
     "@lume/kiwi": "catalog:utils",
     "fast-equals": "catalog:utils",
     "indent-string": "catalog:utils",

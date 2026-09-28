@@ -135,6 +135,20 @@ export function localMcpBin(installDir, platform = process.platform) {
   return path.join(installDir, 'node_modules', '.bin', platform === 'win32' ? 'likec4-mcp.cmd' : 'likec4-mcp')
 }
 
+/** @param {Array<WorkspacePackage>} packages */
+export function packedDependencies(packages) {
+  const publicPackages = packages.filter(pkg => !pkg.private)
+  const dependencies = Object.fromEntries(publicPackages.map(pkg => [pkg.name, `file:${tarballPath(pkg)}`]))
+  for (const pkg of packages) {
+    const manifest = JSON.parse(readFileSync(join(pkg.dir, 'package.json'), 'utf8'))
+    for (const [alias, spec] of Object.entries({ ...manifest.dependencies, ...manifest.optionalDependencies })) {
+      const target = publicPackages.find(candidate => spec === `workspace:${candidate.name}@*`)
+      if (target) dependencies[alias] = `file:${tarballPath(target)}`
+    }
+  }
+  return dependencies
+}
+
 export function main() {
   const tempRoot = mkdtempSync(join(tmpdir(), 'likec4-mcp-pack-smoke-'))
   const installDir = join(tempRoot, 'install')
@@ -157,10 +171,10 @@ export function main() {
 
     writeFileSync(
       join(installDir, 'package.json'),
-      `${JSON.stringify({ private: true, type: 'module' }, null, 2)}\n`,
+      `${JSON.stringify({ private: true, type: 'module', dependencies: packedDependencies(packages) }, null, 2)}\n`,
     )
 
-    const install = run('npm', ['install', ...tarballs], {
+    const install = run('npm', ['install', '--no-audit', '--no-fund'], {
       cwd: installDir,
       capture: true,
       timeout: npmInstallTimeoutMs,

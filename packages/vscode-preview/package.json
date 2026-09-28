@@ -21,7 +21,7 @@
   },
   "devDependencies": {
     "@fontsource-variable/ibm-plex-sans": "catalog:",
-    "@likec4/core": "workspace:*",
+    "@likec4/core": "workspace:@deep-stack/likec4-core@*",
     "@likec4/diagram": "workspace:*",
     "@likec4/devops": "workspace:*",
     "@likec4/styles": "workspace:*",

@@ -1,8 +1,8 @@
-# CI: reproduce origin repo checks on pull requests and branch pushes.
+# CI: reproduce origin repo checks on pull requests. Main pushes are checked by main.yml.
 # Same jobs as main repo (checks.yaml) so PRs get typecheck, build, tests, docs, playground, e2e.
 # Only runs on forks (if: github.repository != 'likec4/likec4'); no-op on origin.
 
-name: CI (PR & push)
+name: CI (PR)
 
 on:
   pull_request:
@@ -10,16 +10,9 @@ on:
       - opened
       - synchronize
       - reopened
-  push:
-    branches-ignore:
-      - main
-      - 'changeset-release/*'
-      - 'releases/*'
-    tags-ignore:
-      - '**'
 
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 # Caller must allow actions: write so reusable checks jobs can upload/download artifacts (GitHub caps token to caller permissions).
@@ -29,6 +22,6 @@ permissions:
 
 jobs:
   checks:
-    if: github.repository != 'likec4/likec4' && (github.event_name != 'push' || !contains(github.event.head_commit.message, 'ci skip'))
+    if: github.repository != 'likec4/likec4'
     uses: ./.github/workflows/checks.yaml
     secrets: inherit

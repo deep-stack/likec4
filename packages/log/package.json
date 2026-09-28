@@ -1,9 +1,9 @@
 {
-  "name": "@likec4/log",
+  "name": "@deep-stack/likec4-log",
   "description": "Shared interface for logging",
   "license": "MIT",
-  "version": "1.59.4",
-  "bugs": "https://github.com/likec4/likec4/issues",
+  "version": "1.59.4-deepstack.1",
+  "bugs": "https://github.com/deep-stack/likec4/issues",
   "homepage": "https://likec4.dev",
   "author": "Denis Davydkov <denis@davydkov.com>",
   "files": [
@@ -12,7 +12,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/likec4/likec4.git",
+    "url": "git+https://github.com/deep-stack/likec4.git",
     "directory": "packages/log"
   },
   "type": "module",
@@ -28,7 +28,7 @@
     }
   },
   "publishConfig": {
-    "registry": "https://registry.npmjs.org",
+    "registry": "https://npm.pkg.github.com",
     "access": "public",
     "types": "dist/index.d.mts",
     "module": "dist/index.mjs"

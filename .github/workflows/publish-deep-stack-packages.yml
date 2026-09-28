@@ -1,0 +1,61 @@
+name: Publish deep-stack LikeC4 packages
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-deep-stack-packages
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.repository == 'deep-stack/likec4' && contains(github.event.release.tag_name, '-deepstack.')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+    env:
+      RELEASE_TAG: ${{ github.event.release.tag_name }}
+      HUSKY: '0'
+      DO_NOT_TRACK: '1'
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Check release tag and package versions
+        run: node devops/check-fork-release.mjs
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .tool-versions
+          cache: pnpm
+          registry-url: https://npm.pkg.github.com
+          scope: '@deep-stack'
+
+      - name: Install pinned dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build and pack fork packages
+        run: pnpm exec turbo run pack --filter='@deep-stack/likec4*'
+
+      - name: Validate packed dependencies
+        run: node devops/check-fork-release.mjs --packed
+
+      - name: Install browser for validation
+        run: pnpm --dir packages/likec4 exec playwright install --with-deps chromium
+
+      - name: Test packed compiler and viewer
+        run: node devops/smoke-fork-release.mjs
+
+      - name: Publish fork packages
+        run: pnpm -r --filter='@deep-stack/likec4*' publish --no-git-checks --tag latest
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

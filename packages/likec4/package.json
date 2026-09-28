@@ -1,7 +1,7 @@
 {
-  "name": "likec4",
+  "name": "@deep-stack/likec4",
   "description": "Toolchain for your architecture diagrams",
-  "version": "1.59.4",
+  "version": "1.59.4-deepstack.1",
   "license": "MIT",
   "homepage": "https://likec4.dev",
   "author": "Denis Davydkov <denis@davydkov.com>",
@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/likec4/likec4.git",
+    "url": "git+https://github.com/deep-stack/likec4.git",
     "directory": "packages/likec4"
   },
   "keywords": [
@@ -22,9 +22,11 @@
   "engines": {
     "node": ">=22.22.3"
   },
-  "bugs": "https://github.com/likec4/likec4/issues",
+  "bugs": "https://github.com/deep-stack/likec4/issues",
   "type": "module",
-  "bin": "./bin/likec4.mjs",
+  "bin": {
+    "likec4": "./bin/likec4.mjs"
+  },
   "exports": {
     ".": {
       "sources": "./src/index.ts",
@@ -86,7 +88,7 @@
     "./package.json": "./package.json"
   },
   "publishConfig": {
-    "registry": "https://registry.npmjs.org",
+    "registry": "https://npm.pkg.github.com",
     "access": "public",
     "types": "dist/index.d.mts",
     "module": "dist/index.mjs"
@@ -122,7 +124,7 @@
   },
   "dependencies": {
     "@hpcc-js/wasm-graphviz": "catalog:externals",
-    "@likec4/core": "workspace:*",
+    "@likec4/core": "workspace:@deep-stack/likec4-core@*",
     "@likec4/icons": "workspace:*",
     "@vitejs/plugin-react": "catalog:vite",
     "bundle-require": "catalog:externals",
@@ -171,9 +173,9 @@
   },
   "devDependencies": {
     "langium": "catalog:langium",
-    "@likec4/config": "workspace:*",
+    "@likec4/config": "workspace:@deep-stack/likec4-config@*",
     "@likec4/leanix-bridge": "workspace:*",
-    "@likec4/log": "workspace:*",
+    "@likec4/log": "workspace:@deep-stack/likec4-log@*",
     "@likec4/language-server": "workspace:*",
     "@likec4/language-services": "workspace:*",
     "@likec4/mcp": "workspace:*",
@@ -185,7 +187,7 @@
     "@likec4/vite-plugin": "workspace:*",
     "@likec4/react": "workspace:*",
     "@likec4/spa": "workspace:*",
-    "@likec4/generators": "workspace:*",
+    "@likec4/generators": "workspace:@deep-stack/likec4-generators@*",
     "@likec4/style-preset": "workspace:*",
     "@likec4/styles": "workspace:*",
     "@likec4/tsconfig": "workspace:*",

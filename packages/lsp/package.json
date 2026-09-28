@@ -59,7 +59,7 @@
     "@likec4/devops": "workspace:*",
     "@likec4/language-server": "workspace:*",
     "@likec4/layouts": "workspace:*",
-    "@likec4/log": "workspace:*",
+    "@likec4/log": "workspace:@deep-stack/likec4-log@*",
     "@likec4/tsconfig": "workspace:*",
     "@types/node": "catalog:",
     "langium": "catalog:langium",

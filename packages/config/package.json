@@ -1,16 +1,16 @@
 {
-  "name": "@likec4/config",
-  "version": "1.59.4",
+  "name": "@deep-stack/likec4-config",
+  "version": "1.59.4-deepstack.1",
   "license": "MIT",
   "homepage": "https://likec4.dev",
   "author": "Denis Davydkov <denis@davydkov.com>",
   "description": "A configuration package for LikeC4.",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/likec4/likec4.git",
+    "url": "git+https://github.com/deep-stack/likec4.git",
     "directory": "packages/config"
   },
-  "bugs": "https://github.com/likec4/likec4/issues",
+  "bugs": "https://github.com/deep-stack/likec4/issues",
   "scripts": {
     "generate": "tsx --conditions=sources scripts/generate.mts",
     "typecheck": "tsc -b --verbose",
@@ -66,14 +66,14 @@
     "./schema.json": "./schema.json"
   },
   "publishConfig": {
-    "registry": "https://registry.npmjs.org",
+    "registry": "https://npm.pkg.github.com",
     "access": "public",
     "types": "dist/index.d.mts",
     "module": "dist/index.mjs"
   },
   "dependencies": {
-    "@likec4/core": "workspace:*",
-    "@likec4/log": "workspace:*",
+    "@likec4/core": "workspace:@deep-stack/likec4-core@*",
+    "@likec4/log": "workspace:@deep-stack/likec4-log@*",
     "json5": "catalog:utils",
     "zod": "catalog:externals",
     "remeda": "catalog:utils",

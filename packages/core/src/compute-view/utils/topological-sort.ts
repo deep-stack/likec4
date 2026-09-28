@@ -1,7 +1,7 @@
-import type { AnyAux, ComputedEdge, ComputedNode, NodeId } from '@likec4/core/types'
-import { invariant, nonNullable } from '@likec4/core/utils'
-import { Graph, topologicalSort as topsort, willCreateCycle } from '@likec4/core/utils/graphology'
 import { forEach, map, partition, pipe, takeWhile } from 'remeda'
+import type { AnyAux, ComputedEdge, ComputedNode, NodeId } from '../../types/index'
+import { Graph, topologicalSort as topsort, willCreateCycle } from '../../utils/graphology/index'
+import { invariant, nonNullable } from '../../utils/index'
 import { ancestorsOfNode } from './ancestorsOfNode'
 
 /**

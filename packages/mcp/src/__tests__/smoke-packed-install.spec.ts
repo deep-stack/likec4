@@ -9,6 +9,7 @@ import { describe, expect, it } from 'vitest'
 import {
   expectedPackedTarballs,
   localMcpBin,
+  packedDependencies,
   removePackedTarballs,
 } from '../../scripts/smoke-packed-install.mjs'
 
@@ -74,6 +75,26 @@ describe('smoke-packed-install helpers', () => {
     expect(expectedPackedTarballs([
       { dir: privatePacked, name: '@likec4/private-packed', private: true },
     ])).toEqual([])
+  })
+
+  it('installs renamed workspace dependencies under their import aliases', () => {
+    const core = tempPackageDir('renamed-core')
+    const consumer = tempPackageDir('alias-consumer')
+    writeFileSync(join(core, 'package.json'), JSON.stringify({ name: '@fork/core' }))
+    writeFileSync(
+      join(consumer, 'package.json'),
+      JSON.stringify({
+        dependencies: { '@original/core': 'workspace:@fork/core@*' },
+      }),
+    )
+    expect(packedDependencies([
+      { dir: core, name: '@fork/core', private: false },
+      { dir: consumer, name: 'consumer', private: false },
+    ])).toEqual({
+      '@fork/core': `file:${join(core, 'package.tgz')}`,
+      '@original/core': `file:${join(core, 'package.tgz')}`,
+      consumer: `file:${join(consumer, 'package.tgz')}`,
+    })
   })
 
   it('resolves the installed local MCP binary without npx', () => {

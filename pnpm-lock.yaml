@@ -15,7 +15,16 @@ catalogs:
     '@tanstack/ai-client':
       specifier: ^0.8.0
       version: 0.8.0
+    '@tanstack/ai-gemini':
+      specifier: ^0.10.0
+      version: 0.10.0
+    '@tanstack/ai-ollama':
+      specifier: ^0.6.10
+      version: 0.6.10
     '@tanstack/ai-openai':
+      specifier: ^0.8.2
+      version: 0.8.2
+    '@tanstack/ai-openrouter':
       specifier: ^0.8.2
       version: 0.8.2
     '@tanstack/ai-react':
@@ -592,10 +601,10 @@ importers:
         specifier: 'catalog:'
         version: 5.2.8
       '@likec4/config':
-        specifier: workspace:*
+        specifier: workspace:@deep-stack/likec4-config@*
         version: link:../../packages/config
       '@likec4/core':
-        specifier: workspace:*
+        specifier: workspace:@deep-stack/likec4-core@*
         version: link:../../packages/core
       '@likec4/icons':
         specifier: workspace:*
@@ -631,7 +640,7 @@ importers:
         specifier: 0.40.0
         version: 0.40.0
       likec4:
-        specifier: workspace:*
+        specifier: workspace:@deep-stack/likec4@*
         version: link:../../packages/likec4
       react:
         specifier: 19.2.8
@@ -712,13 +721,13 @@ importers:
         specifier: catalog:externals
         version: 1.22.2
       '@likec4/core':
-        specifier: workspace:*
+        specifier: workspace:@deep-stack/likec4-core@*
         version: link:../../packages/core
       '@likec4/diagram':
         specifier: workspace:*
         version: link:../../packages/diagram
       '@likec4/generators':
-        specifier: workspace:*
+        specifier: workspace:@deep-stack/likec4-generators@*
         version: link:../../packages/generators
       '@likec4/icons':
         specifier: workspace:*
@@ -727,7 +736,7 @@ importers:
         specifier: workspace:*
         version: link:../../packages/language-server
       '@likec4/log':
-        specifier: workspace:*
+        specifier: workspace:@deep-stack/likec4-log@*
         version: link:../../packages/log
       '@likec4/style-preset':
         specifier: workspace:*
@@ -980,10 +989,10 @@ importers:
   packages/config:
     dependencies:
       '@likec4/core':
-        specifier: workspace:*
+        specifier: workspace:@deep-stack/likec4-core@*
         version: link:../core
       '@likec4/log':
-        specifier: workspace:*
+        specifier: workspace:@deep-stack/likec4-log@*
         version: link:../log
       bundle-require:
         specifier: catalog:externals
@@ -1186,7 +1195,7 @@ importers:
         specifier: catalog:react
         version: 1.7.6
       '@likec4/core':
-        specifier: workspace:*
+        specifier: workspace:@deep-stack/likec4-core@*
         version: link:../core
       '@likec4/styles':
         specifier: workspace:*
@@ -1322,13 +1331,13 @@ importers:
   packages/generators:
     dependencies:
       '@likec4/config':
-        specifier: workspace:*
+        specifier: workspace:@deep-stack/likec4-config@*
         version: link:../config
       '@likec4/core':
-        specifier: workspace:*
+        specifier: workspace:@deep-stack/likec4-core@*
         version: link:../core
       '@likec4/log':
-        specifier: workspace:*
+        specifier: workspace:@deep-stack/likec4-log@*
         version: link:../log
       immer:
         specifier: catalog:utils
@@ -1419,19 +1428,19 @@ importers:
         specifier: catalog:externals
         version: 1.22.2
       '@likec4/config':
-        specifier: workspace:*
+        specifier: workspace:@deep-stack/likec4-config@*
         version: link:../config
       '@likec4/core':
-        specifier: workspace:*
+        specifier: workspace:@deep-stack/likec4-core@*
         version: link:../core
       '@likec4/generators':
-        specifier: workspace:*
+        specifier: workspace:@deep-stack/likec4-generators@*
         version: link:../generators
       '@likec4/layouts':
         specifier: workspace:*
         version: link:../layouts
       '@likec4/log':
-        specifier: workspace:*
+        specifier: workspace:@deep-stack/likec4-log@*
         version: link:../log
       chokidar:
         specifier: catalog:externals
@@ -1579,13 +1588,13 @@ importers:
   packages/language-services:
     dependencies:
       '@likec4/config':
-        specifier: workspace:*
+        specifier: workspace:@deep-stack/likec4-config@*
         version: link:../config
       '@likec4/core':
-        specifier: workspace:*
+        specifier: workspace:@deep-stack/likec4-core@*
         version: link:../core
       '@likec4/generators':
-        specifier: workspace:*
+        specifier: workspace:@deep-stack/likec4-generators@*
         version: link:../generators
       '@likec4/icons':
         specifier: workspace:*
@@ -1597,7 +1606,7 @@ importers:
         specifier: workspace:*
         version: link:../layouts
       '@likec4/log':
-        specifier: workspace:*
+        specifier: workspace:@deep-stack/likec4-log@*
         version: link:../log
       defu:
         specifier: catalog:utils
@@ -1667,10 +1676,10 @@ importers:
         specifier: catalog:externals
         version: 1.22.2
       '@likec4/core':
-        specifier: workspace:*
+        specifier: workspace:@deep-stack/likec4-core@*
         version: link:../core
       '@likec4/log':
-        specifier: workspace:*
+        specifier: workspace:@deep-stack/likec4-log@*
         version: link:../log
       '@lume/kiwi':
         specifier: catalog:utils
@@ -1758,7 +1767,7 @@ importers:
   packages/leanix-bridge:
     dependencies:
       '@likec4/core':
-        specifier: workspace:*
+        specifier: workspace:@deep-stack/likec4-core@*
         version: link:../core
       remeda:
         specifier: catalog:utils
@@ -1789,7 +1798,7 @@ importers:
         specifier: catalog:externals
         version: 1.22.2
       '@likec4/core':
-        specifier: workspace:*
+        specifier: workspace:@deep-stack/likec4-core@*
         version: link:../core
       '@likec4/icons':
         specifier: workspace:*
@@ -1859,7 +1868,7 @@ importers:
         specifier: 'catalog:'
         version: 5.2.8
       '@likec4/config':
-        specifier: workspace:*
+        specifier: workspace:@deep-stack/likec4-config@*
         version: link:../config
       '@likec4/devops':
         specifier: workspace:*
@@ -1868,7 +1877,7 @@ importers:
         specifier: workspace:*
         version: link:../diagram
       '@likec4/generators':
-        specifier: workspace:*
+        specifier: workspace:@deep-stack/likec4-generators@*
         version: link:../generators
       '@likec4/language-server':
         specifier: workspace:*
@@ -1883,7 +1892,7 @@ importers:
         specifier: workspace:*
         version: link:../leanix-bridge
       '@likec4/log':
-        specifier: workspace:*
+        specifier: workspace:@deep-stack/likec4-log@*
         version: link:../log
       '@likec4/mcp':
         specifier: workspace:*
@@ -2078,7 +2087,7 @@ importers:
   packages/likec4-spa:
     dependencies:
       '@likec4/core':
-        specifier: workspace:*
+        specifier: workspace:@deep-stack/likec4-core@*
         version: link:../core
       immer:
         specifier: catalog:utils
@@ -2100,7 +2109,7 @@ importers:
         specifier: 'catalog:'
         version: 5.2.8
       '@likec4/config':
-        specifier: workspace:*
+        specifier: workspace:@deep-stack/likec4-config@*
         version: link:../config
       '@likec4/devops':
         specifier: workspace:*
@@ -2115,7 +2124,7 @@ importers:
         specifier: workspace:*
         version: link:../layouts
       '@likec4/log':
-        specifier: workspace:*
+        specifier: workspace:@deep-stack/likec4-log@*
         version: link:../log
       '@likec4/styles':
         specifier: workspace:*
@@ -2354,7 +2363,7 @@ importers:
         specifier: workspace:*
         version: link:../layouts
       '@likec4/log':
-        specifier: workspace:*
+        specifier: workspace:@deep-stack/likec4-log@*
         version: link:../log
       '@likec4/tsconfig':
         specifier: workspace:*
@@ -2390,10 +2399,10 @@ importers:
         specifier: catalog:externals
         version: 1.22.2
       '@likec4/config':
-        specifier: workspace:*
+        specifier: workspace:@deep-stack/likec4-config@*
         version: link:../config
       '@likec4/core':
-        specifier: workspace:*
+        specifier: workspace:@deep-stack/likec4-core@*
         version: link:../core
       '@likec4/diagram':
         specifier: workspace:*
@@ -2408,7 +2417,7 @@ importers:
         specifier: workspace:*
         version: link:../layouts
       '@likec4/log':
-        specifier: workspace:*
+        specifier: workspace:@deep-stack/likec4-log@*
         version: link:../log
       '@mantine/core':
         specifier: catalog:mantine
@@ -2505,7 +2514,7 @@ importers:
   packages/react:
     dependencies:
       '@likec4/core':
-        specifier: workspace:*
+        specifier: workspace:@deep-stack/likec4-core@*
         version: link:../core
       immer:
         specifier: catalog:utils
@@ -2607,13 +2616,13 @@ importers:
   packages/vite-plugin:
     dependencies:
       '@likec4/config':
-        specifier: workspace:*
+        specifier: workspace:@deep-stack/likec4-config@*
         version: link:../config
       '@likec4/core':
-        specifier: workspace:*
+        specifier: workspace:@deep-stack/likec4-core@*
         version: link:../core
       '@likec4/generators':
-        specifier: workspace:*
+        specifier: workspace:@deep-stack/likec4-generators@*
         version: link:../generators
       '@likec4/icons':
         specifier: workspace:*
@@ -2625,7 +2634,7 @@ importers:
         specifier: workspace:*
         version: link:../layouts
       '@likec4/log':
-        specifier: workspace:*
+        specifier: workspace:@deep-stack/likec4-log@*
         version: link:../log
       '@tanstack/ai-gemini':
         specifier: catalog:ai
@@ -2768,10 +2777,10 @@ importers:
         specifier: catalog:externals
         version: 1.22.2
       '@likec4/config':
-        specifier: workspace:*
+        specifier: workspace:@deep-stack/likec4-config@*
         version: link:../config
       '@likec4/core':
-        specifier: workspace:*
+        specifier: workspace:@deep-stack/likec4-core@*
         version: link:../core
       '@likec4/language-server':
         specifier: workspace:*
@@ -2783,7 +2792,7 @@ importers:
         specifier: workspace:*
         version: link:../layouts
       '@likec4/log':
-        specifier: workspace:*
+        specifier: workspace:@deep-stack/likec4-log@*
         version: link:../log
       '@likec4/mcp':
         specifier: workspace:*
@@ -2909,7 +2918,7 @@ importers:
         specifier: 'catalog:'
         version: 5.2.8
       '@likec4/core':
-        specifier: workspace:*
+        specifier: workspace:@deep-stack/likec4-core@*
         version: link:../core
       '@likec4/devops':
         specifier: workspace:*
@@ -8468,10 +8477,6 @@ packages:
       typescript:
         optional: true
 
-  iconv-lite@0.7.1:
-    resolution: {integrity: sha512-2Tth85cXwGFHfvRgZWszZSvdo+0Xsqmw8k8ZwxScfcBneNUraK+dxRxRm24nszx80Y0TVio8kKLt5sLE7ZCLlw==}
-    engines: {node: '>=0.10.0'}
-
   iconv-lite@0.7.3:
     resolution: {integrity: sha512-IKXpvIzjnC9XTAUbVBcMfGS0EPaIXtW6v+zr+RRp+hqULEpo0owZax6wyRwPOJbWbzjYspQwusTsfVr0ifh4uQ==}
     engines: {node: '>=0.10.0'}
@@ -10709,10 +10714,6 @@ packages:
   type-fest@4.41.0:
     resolution: {integrity: sha512-TeTSQ6H5YHvpqVwBRcnLDCBnDOHWYu7IvGbHT6N8AOymcr9PJGjc1GTtiWZTYg0NCgYwvnYWEkVChQAr9bjfwA==}
     engines: {node: '>=16'}
-
-  type-is@2.0.1:
-    resolution: {integrity: sha512-OZs6gsjF4vMp32qrCbiVSkrFmXtG/AZhY3t0iAMrMBiAZyV9oALtXO8hsrHbMXF9x6L3grlFuwW2oAz7cav+Gw==}
-    engines: {node: '>= 0.6'}
 
   type-is@2.1.0:
     resolution: {integrity: sha512-faYHw0anBbc/kWF3zFTEnxSFOAGUX9GFbOBthvDdLsIlEoWOFOtS0zgCiQYwIskL9iGXZL3kAXD8OoZ4GmMATA==}
@@ -13644,7 +13645,7 @@ snapshots:
       google-auth-library: 10.6.2(supports-color@10.1.0)
       p-retry: 4.6.2
       protobufjs: 7.5.6
-      ws: 8.21.0
+      ws: 8.21.3
     optionalDependencies:
       '@modelcontextprotocol/sdk': 1.29.0(supports-color@10.1.0)(zod@4.4.3)
     transitivePeerDependencies:
@@ -17038,7 +17039,7 @@ snapshots:
       send: 1.2.1(supports-color@10.1.0)
       serve-static: 2.2.1(supports-color@10.1.0)
       statuses: 2.0.2
-      type-is: 2.0.1
+      type-is: 2.1.0
       vary: 1.1.2
     transitivePeerDependencies:
       - supports-color
@@ -17610,10 +17611,6 @@ snapshots:
   i18next@26.3.0(typescript@6.0.3):
     optionalDependencies:
       typescript: 6.0.3
-
-  iconv-lite@0.7.1:
-    dependencies:
-      safer-buffer: 2.1.2
 
   iconv-lite@0.7.3:
     dependencies:
@@ -19301,7 +19298,7 @@ snapshots:
     dependencies:
       bytes: 3.1.2
       http-errors: 2.0.1
-      iconv-lite: 0.7.1
+      iconv-lite: 0.7.3
       unpipe: 1.0.0
 
   rc9@3.0.0:
@@ -20386,12 +20383,6 @@ snapshots:
       '@turbo/windows-arm64': 2.10.12
 
   type-fest@4.41.0: {}
-
-  type-is@2.0.1:
-    dependencies:
-      content-type: 1.0.5
-      media-typer: 1.1.0
-      mime-types: 3.0.2
 
   type-is@2.1.0:
     dependencies:
