@@ -18,6 +18,7 @@ import type { DecisionBranch } from './decision'
 import type { FqnRef } from './fqnRef'
 import type * as scalar from './scalar'
 import type { TableDefinition, TableRelationship } from './table'
+import type { UmlBinaryRelationship, UmlClassifier } from './uml'
 
 export interface ElementStyle {
   readonly icon?: scalar.Icon
@@ -89,6 +90,7 @@ export interface Element<A extends AnyAux = AnyAux>
   readonly kind: aux.ElementKind<A>
   readonly title: string
   readonly table?: TableDefinition
+  readonly classifier?: UmlClassifier
   readonly style: ElementStyle
 }
 
@@ -123,6 +125,7 @@ export interface Relationship<A extends AnyAux = AnyAux> extends AbstractRelatio
   readonly target: FqnRef.ModelRef<A>
   readonly tableRelation?: TableRelationship
   readonly decisionBranch?: DecisionBranch
+  readonly uml?: UmlBinaryRelationship
   readonly isBidirectional?: boolean
 }
 

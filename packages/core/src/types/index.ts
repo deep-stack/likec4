@@ -65,3 +65,5 @@ export {
 } from './guards'
 
 export * from './table'
+
+export * from './uml'

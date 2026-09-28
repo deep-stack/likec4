@@ -39,4 +39,5 @@ export const compareRelations = <T extends RelationshipLike>(a: T, b: T): number
 export const supportsSelfRelationship = (relation: {
   readonly tableRelation?: unknown
   readonly decisionBranch?: unknown
-}): boolean => !!(relation.tableRelation || relation.decisionBranch)
+  readonly uml?: unknown
+}): boolean => !!(relation.tableRelation || relation.decisionBranch || relation.uml)

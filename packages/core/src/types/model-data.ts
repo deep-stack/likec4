@@ -16,6 +16,7 @@ import type { Element, Relationship } from './model-logical'
 import type { Specification } from './model-spec'
 import type { LikeC4Project } from './project'
 import type * as scalar from './scalar'
+import type { UmlModelExtensions } from './uml'
 import type { ComputedView, LayoutedView, ParsedView } from './view'
 import type { ViewManualLayoutSnapshot } from './view-manual-layout'
 
@@ -31,6 +32,7 @@ interface BaseLikeC4ModelData<A extends Any> {
   [_stage]: A['Stage']
   projectId: aux.ProjectId<A>
   project: LikeC4Project
+  uml?: UmlModelExtensions
   specification: Specification<A>
   elements: Record<aux.ElementId<A>, Element<A>>
   deployments: {

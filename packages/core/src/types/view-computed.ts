@@ -15,6 +15,7 @@ import type {
   Icon,
 } from './scalar'
 import type { TableDefinition, TableRelationship } from './table'
+import type { UmlBinaryRelationship, UmlClassifier, UmlOrigin, UmlPresentation } from './uml'
 import type {
   BaseViewProperties,
   RankValue,
@@ -46,6 +47,9 @@ export interface ComputedNode<A extends AnyAux = AnyAux>
    */
   readonly metadata?: Readonly<Record<string, string | string[] | undefined>> | null
   table?: TableDefinition
+  classifier?: UmlClassifier
+  umlPresentation?: UmlPresentation
+  umlOrigin?: UmlOrigin
   id: scalar.NodeId
   kind: aux.ElementKind<A> | aux.DeploymentKind<A> | '@group'
   parent: scalar.NodeId | null
@@ -86,6 +90,8 @@ export interface ComputedNode<A extends AnyAux = AnyAux>
 export interface ComputedEdge<A extends AnyAux = AnyAux> extends aux.WithOptionalTags<A> {
   tableRelation?: TableRelationship
   decisionBranch?: DecisionBranch
+  uml?: UmlBinaryRelationship
+  umlOrigin?: UmlOrigin
   id: scalar.EdgeId
   parent: scalar.NodeId | null
   source: scalar.NodeId
