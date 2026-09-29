@@ -42,6 +42,7 @@ const selectViewData = selectDiagramContext(s => {
   return ({
     viewId: s.view.id,
     viewTitle: (s.view.title && extractViewTitleFromPath(s.view.title)) ?? 'Untitled View',
+    navigationLabel: s.navigationLabel ?? null,
     isDynamicView: s.view._type === 'dynamic',
     editBtnVisible: hasEditor && noActiveWalkthrough,
     editBtnDisabled: comparingLatest,
@@ -61,6 +62,7 @@ const breadcrumbAnimation = {
 export const NavigationPanelControls = memo(() => {
   const actor = useNavigationActor()
   const {
+    enableLogo,
     enableNavigationButtons,
     enableDynamicViewWalkthrough,
     enableCompareWithLatest,
@@ -73,6 +75,7 @@ export const NavigationPanelControls = memo(() => {
     editBtnVisible,
     isReadOnly,
     viewTitle,
+    navigationLabel,
     isDynamicView,
   } = useDiagramSelector(selectViewData)
 
@@ -151,8 +154,24 @@ export const NavigationPanelControls = memo(() => {
 
   return (
     <>
-      <LogoButton key="logo-button" />
+      {enableLogo && <LogoButton key="logo-button" />}
       {enableNavigationButtons && <NavigationButtons key="nav-buttons" />}
+      {navigationLabel && (
+        <m.div
+          key="navigation-label"
+          layout="position"
+          className={css({
+            fontSize: 'xs',
+            fontWeight: 'medium',
+            lineHeight: '1',
+            whiteSpace: 'nowrap',
+            userSelect: 'none',
+            flexShrink: 0,
+            color: 'likec4.panel.text.dimmed',
+          })}>
+          {navigationLabel}
+        </m.div>
+      )}
 
       <m.div
         key="breadcrumbs"

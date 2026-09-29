@@ -50,31 +50,36 @@ export type LikeC4ColorScheme = 'light' | 'dark'
 
 export type RelationshipBrowserScope = 'global' | 'view'
 
-export type OverrideReactFlowProps = Pick<
-  ReactFlowProps<Types.AnyNode, Types.AnyEdge>,
-  | 'paneClickDistance'
-  | 'nodeClickDistance'
-  | 'selectionKeyCode'
-  | 'panActivationKeyCode'
-  | 'multiSelectionKeyCode'
-  | 'zoomActivationKeyCode'
-  | 'snapToGrid'
-  | 'snapGrid'
-  | 'onlyRenderVisibleElements'
-  | 'nodesDraggable'
-  | 'nodesFocusable'
-  | 'elementsSelectable'
-  | 'selectNodesOnDrag'
-  | 'panOnDrag'
-  | 'preventScrolling'
-  | 'zoomOnScroll'
-  | 'zoomOnPinch'
-  | 'panOnScroll'
-  | 'panOnScrollSpeed'
-  | 'panOnScrollMode'
-  | 'zoomOnDoubleClick'
-  | 'nodeDragThreshold'
-  | 'edgesFocusable'
+// Partial keeps every override optional, including for consumers of the bundled package,
+// where the @xyflow/react types cannot be resolved.
+export type OverrideReactFlowProps = Partial<
+  Pick<
+    ReactFlowProps<Types.AnyNode, Types.AnyEdge>,
+    | 'paneClickDistance'
+    | 'nodeClickDistance'
+    | 'selectionKeyCode'
+    | 'panActivationKeyCode'
+    | 'multiSelectionKeyCode'
+    | 'zoomActivationKeyCode'
+    | 'snapToGrid'
+    | 'snapGrid'
+    | 'onlyRenderVisibleElements'
+    | 'nodesDraggable'
+    | 'nodesFocusable'
+    | 'elementsSelectable'
+    | 'selectNodesOnDrag'
+    | 'panOnDrag'
+    | 'preventScrolling'
+    | 'zoomOnScroll'
+    | 'zoomOnPinch'
+    | 'panOnScroll'
+    | 'panOnScrollSpeed'
+    | 'panOnScrollMode'
+    | 'zoomOnDoubleClick'
+    | 'nodeDragThreshold'
+    | 'edgesFocusable'
+    | 'proOptions'
+  >
 >
 
 export type PaddingUnit = 'px' | '%'
@@ -195,6 +200,18 @@ export interface LikeC4DiagramProperties<A extends Any = Unknown> {
    * @default true if `onNavigateTo` is set
    */
   showNavigationButtons?: undefined | boolean
+
+  /**
+   * Show the LikeC4 logo button in the navigation panel
+   * @default true
+   */
+  showLogo?: undefined | boolean
+
+  /**
+   * Short label shown before the view title in the navigation panel,
+   * for example the kind of diagram
+   */
+  navigationLabel?: string | undefined
 
   /**
    * Display notations in the bottom right corner

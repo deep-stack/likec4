@@ -45,11 +45,14 @@ import {createRoot} from 'react-dom/client';
 import {LikeC4Model} from '@likec4/core/model';
 import {LikeC4ModelProvider, ReactLikeC4} from 'likec4/react';
 import models from './models.json';
-for (const [index, viewId] of [[0, 'request'], [1, ${JSON.stringify(schemaView.id)}]]) {
+// The first viewer uses the embedding options; the second keeps the defaults.
+const embedding = {showLogo: false, navigationLabel: 'Interaction diagram',
+  reactFlowProps: {proOptions: {hideAttribution: true}}};
+for (const [index, viewId, options] of [[0, 'request', embedding], [1, ${JSON.stringify(schemaView.id)}, {}]]) {
   createRoot(document.getElementById('diagram-' + index)).render(
     <LikeC4ModelProvider likec4model={LikeC4Model.fromDump(models[index])}>
       <ReactLikeC4 viewId={viewId} style={{width:'100%',height:600}}
-        injectFontCss={false} fitView enableDynamicViewWalkthrough />
+        injectFontCss={false} fitView enableDynamicViewWalkthrough {...options} />
     </LikeC4ModelProvider>
   );
 }`,
@@ -86,8 +89,17 @@ try {
     schemaView.nodes.filter(node => node.table).length,
   )
   await page.locator('#diagram-1 [role="group"][aria-label^="Table "]').first().focus()
+  // Logo, navigation label and React Flow attribution follow the embedding options.
+  const logo = 'path[fill="#5E98AF"]'
+  assert.equal(await page.locator(`#diagram-0 ${logo}`).count(), 0)
+  assert(await page.locator(`#diagram-1 ${logo}`).count() > 0, 'Logo must remain visible by default')
+  await page.locator('#diagram-0').getByText('Interaction diagram', { exact: true }).waitFor()
+  assert.equal(await page.locator('#diagram-0 .react-flow__attribution').count(), 0)
+  assert.equal(await page.locator('#diagram-1 .react-flow__attribution').count(), 1)
   assert.deepEqual(errors, [], 'Packed viewer must render without browser errors')
-  console.log('Packed compiler, model API, Mermaid export, dynamic viewer and native ER viewer passed')
+  console.log(
+    'Packed compiler, model API, Mermaid export, dynamic viewer, native ER viewer and embedding options passed',
+  )
 } finally {
   await browser?.close()
   await new Promise(resolve => server.close(resolve))
