@@ -94,6 +94,7 @@ export interface Input {
   where: WhereOperator | null
   dynamicViewVariant?: DynamicViewDisplayVariant | undefined
   relationshipBrowserScope?: RelationshipBrowserScope | undefined
+  navigationLabel?: string | undefined
   features?: EnabledFeatures
 }
 

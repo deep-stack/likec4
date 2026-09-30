@@ -87,6 +87,8 @@ export function LikeC4Diagram<A extends Any = Any>({
   nodesSelectable,
   enableNotations = false,
   showNavigationButtons = !!onNavigateTo,
+  showLogo = true,
+  navigationLabel,
   enableDynamicViewWalkthrough = false,
   dynamicViewVariant,
   enableSearch = false,
@@ -188,6 +190,7 @@ export function LikeC4Diagram<A extends Any = Any>({
                 enableElementTags: enableElementTags && hasLikeC4Model,
                 enableCompareWithLatest: enableCompareWithLatest,
                 enableNotes,
+                enableLogo: showLogo,
               }}
             >
               <DiagramEventHandlers
@@ -226,6 +229,7 @@ export function LikeC4Diagram<A extends Any = Any>({
                         where={where ?? null}
                         dynamicViewVariant={dynamicViewVariant}
                         relationshipBrowserScope={relationshipBrowserScope}
+                        navigationLabel={navigationLabel}
                       >
                         <CurrentViewModelProvider>
                           <LikeC4DiagramXYFlow

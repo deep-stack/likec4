@@ -47,6 +47,7 @@ export function DiagramActorProvider({
   children,
   dynamicViewVariant: _defaultVariant,
   relationshipBrowserScope,
+  navigationLabel,
 }: PropsWithChildren<{
   id: string
   view: DiagramView
@@ -62,6 +63,7 @@ export function DiagramActorProvider({
   where?: WhereOperator | null
   dynamicViewVariant?: DynamicViewDisplayVariant | undefined
   relationshipBrowserScope: RelationshipBrowserScope
+  navigationLabel?: string | undefined
 }>) {
   const xystore = useStoreApi<Types.Node, Types.Edge>()
 
@@ -94,6 +96,7 @@ export function DiagramActorProvider({
         features,
         dynamicViewVariant: _defaultVariant,
         relationshipBrowserScope,
+        navigationLabel,
       },
     },
   )
@@ -126,6 +129,7 @@ export function DiagramActorProvider({
           nodesDraggable,
           nodesSelectable,
           relationshipBrowserScope,
+          navigationLabel,
         },
       }),
     [
@@ -141,6 +145,7 @@ export function DiagramActorProvider({
       nodesDraggable,
       nodesSelectable,
       relationshipBrowserScope,
+      navigationLabel,
     ],
   )
 

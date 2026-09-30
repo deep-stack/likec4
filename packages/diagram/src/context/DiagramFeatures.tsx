@@ -29,6 +29,7 @@ const FeatureNames = [
    */
   'Vscode',
   'ElementTags',
+  'Logo',
 ] as const
 export type FeatureName = typeof FeatureNames[number]
 
@@ -66,6 +67,7 @@ export const DefaultFeatures: EnabledFeatures = {
   enableVscode: false,
   enableElementTags: false,
   enableNotes: false,
+  enableLogo: true,
 }
 const DiagramFeaturesContext = createContext<EnabledFeatures>(DefaultFeatures)
 
