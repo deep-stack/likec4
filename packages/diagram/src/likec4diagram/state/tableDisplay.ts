@@ -76,7 +76,7 @@ export function absolutePosition(nodes: Types.Node[], id: string): { x: number; 
   return { x: node.position.x + parent.x, y: node.position.y + parent.y }
 }
 
-/** Orthogonal display route around leaf rectangles; field endpoints stay explicit. */
+/** Smooth display route around leaf rectangles; field endpoints stay explicit. */
 export function tableDisplayPath(
   nodes: Types.Node[],
   edges: Types.Edge[],
@@ -143,5 +143,35 @@ export function tableDisplayPath(
   for (let at = last; at !== -1; at = previous.get(at) ?? -1) {
     route.push({ x: xs[at % xs.length]!, y: ys[Math.floor(at / xs.length)]! })
   }
-  return [start, ...route.reverse(), end].map((p, i) => `${i ? 'L' : 'M'} ${p.x},${p.y}`).join(' ')
+  return smoothTableRoute([start, ...route.reverse(), end])
+}
+
+/** Round bends inside the routing clearance without changing field attachment tangents. */
+export function smoothTableRoute(points: { x: number; y: number }[]): string {
+  const simple: { x: number; y: number }[] = []
+  for (const point of points) {
+    const last = simple.at(-1)
+    if (last && point.x === last.x && point.y === last.y) continue
+    while (simple.length > 1) {
+      const a = simple.at(-2)!, b = simple.at(-1)!
+      if (
+        (b.x - a.x) * (point.y - b.y) !== (b.y - a.y) * (point.x - b.x)
+        || (b.x - a.x) * (point.x - b.x) + (b.y - a.y) * (point.y - b.y) <= 0
+      ) break
+      simple.pop()
+    }
+    simple.push(point)
+  }
+  if (!simple.length) return ''
+  let path = `M ${simple[0]!.x},${simple[0]!.y}`
+  for (let i = 1; i < simple.length - 1; i++) {
+    const a = simple[i - 1]!, b = simple[i]!, c = simple[i + 1]!
+    const before = Math.hypot(b.x - a.x, b.y - a.y), after = Math.hypot(c.x - b.x, c.y - b.y)
+    const radius = Math.min(20, before / 2, after / 2)
+    const enter = { x: b.x + (a.x - b.x) * radius / before, y: b.y + (a.y - b.y) * radius / before }
+    const leave = { x: b.x + (c.x - b.x) * radius / after, y: b.y + (c.y - b.y) * radius / after }
+    path += ` L ${enter.x},${enter.y} Q ${b.x},${b.y} ${leave.x},${leave.y}`
+  }
+  const end = simple.at(-1)!
+  return path + ` L ${end.x},${end.y}`
 }

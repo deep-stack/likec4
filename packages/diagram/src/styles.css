@@ -89,11 +89,6 @@
   border-radius: 5px;
   background: var(--mantine-color-body);
 }
-@media (prefers-reduced-motion: reduce) {
-  .likec4-table-particle {
-    display: none;
-  }
-}
 
 /* View metadata is a modal, not a persistent canvas tool window. */
 dialog.likec4-view-details {

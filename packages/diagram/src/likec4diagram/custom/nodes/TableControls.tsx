@@ -1,6 +1,6 @@
 import { ActionIcon, Button, Group, TextInput, Tooltip } from '@mantine/core'
 import { useReducedMotion } from '@mantine/hooks'
-import { IconPlayerPause, IconPlayerPlay, IconRestore } from '@tabler/icons-react'
+import { IconRestore } from '@tabler/icons-react'
 import { Panel } from '@xyflow/react'
 import { useState } from 'react'
 import { useDiagramActorRef, useDiagramContext } from '../../../hooks/useDiagram'
@@ -10,10 +10,9 @@ export function TableControls() {
   const actor = useDiagramActorRef()
   const [query, setQuery] = useState('')
   const reducedMotion = useReducedMotion()
-  const { hasTables, enabled, preview, nodes } = useDiagramContext(ctx => ({
+  const { hasTables, preview, nodes } = useDiagramContext(ctx => ({
     nodes: ctx.xynodes,
     hasTables: ctx.xynodes.some(n => 'table' in n.data && !!n.data.table),
-    enabled: ctx.tableFlowEnabled,
     preview: ctx.tablePreview?.view === ctx.view.id,
   }))
   if (!hasTables) return null
@@ -84,15 +83,6 @@ export function TableControls() {
             </Button>
           </>
         )}
-        <Tooltip label={enabled ? 'Pause relationship flow' : 'Animate relationship flow'}>
-          <ActionIcon
-            variant="default"
-            aria-label={enabled ? 'Pause relationship flow' : 'Animate relationship flow'}
-            aria-pressed={enabled}
-            onClick={() => actor.send({ type: 'table.toggleFlow' })}>
-            {enabled ? <IconPlayerPause size={16} /> : <IconPlayerPlay size={16} />}
-          </ActionIcon>
-        </Tooltip>
         <Tooltip label="Reset table positions">
           <ActionIcon
             variant="default"

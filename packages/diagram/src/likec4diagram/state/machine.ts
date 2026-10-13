@@ -108,7 +108,6 @@ const _diagramMachine = machine.createMachine({
         tableFocusedNode: event.node ? { node: event.node, view: context.view.id } : null,
       })),
     },
-    'table.toggleFlow': { actions: assign(({ context }) => ({ tableFlowEnabled: !context.tableFlowEnabled })) },
     'table.resetPositions': {
       actions: assign(({ context }) => ({
         xynodes: context.tablePreview?.view === context.view.id

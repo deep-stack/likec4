@@ -1,7 +1,14 @@
 import type { TableDefinition } from '@likec4/core'
 import { describe, expect, it } from 'vitest'
 import type { Types } from '../types'
-import { absolutePosition, requiredFields, tableDisplayLayout, tableDisplayPath, tablePreview } from './tableDisplay'
+import {
+  absolutePosition,
+  requiredFields,
+  smoothTableRoute,
+  tableDisplayLayout,
+  tableDisplayPath,
+  tablePreview,
+} from './tableDisplay'
 
 const table: TableDefinition = {
   fields: Array.from(
@@ -28,6 +35,11 @@ const edge = {
 } as unknown as Types.Edge
 
 describe('interactive table geometry', () => {
+  it('rounds bends after removing redundant points and preserves endpoints', () => {
+    expect(smoothTableRoute([{ x: 0, y: 0 }, { x: 10, y: 0 }, { x: 40, y: 0 }, { x: 40, y: 80 }, { x: 100, y: 80 }]))
+      .toBe('M 0,0 L 20,0 Q 40,0 40,20 L 40,60 Q 40,80 60,80 L 100,80')
+    expect(smoothTableRoute([{ x: 0, y: 0 }, { x: 0, y: 0 }, { x: 10, y: 0 }])).toBe('M 0,0 L 10,0')
+  })
   it('keeps composite endpoints and primary keys while leaving the model intact', () => {
     const before = JSON.stringify(table)
     const preview = tablePreview(table, 'a', requiredFields('a', [edge]), false)

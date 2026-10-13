@@ -1,4 +1,5 @@
 import type { TableEndpointCardinality } from '@likec4/core'
+import { edgePath } from '@likec4/styles/recipes'
 import { useReducedMotion } from '@mantine/hooks'
 import { useId } from 'react'
 import { useDiagramContext } from '../../../hooks/useDiagram'
@@ -38,7 +39,6 @@ export function TableRelationshipEdge(props: Types.EdgeProps<'relationship'>) {
     edges: ctx.xyedges,
     preview: ctx.tablePreview?.view === ctx.view.id ? ctx.tablePreview : null,
     active: activeTable(ctx),
-    motion: ctx.tableFlowEnabled,
   }))
   const absolute = (id: string): { x: number; y: number } => {
     const node = state.nodes.find(n => n.id === id)
@@ -58,6 +58,7 @@ export function TableRelationshipEdge(props: Types.EdgeProps<'relationship'>) {
   return (
     <g
       className="likec4-table-edge"
+      data-edge-active={highlighted}
       data-er-highlighted={String(highlighted)}
       data-er-related={String(related)}
       data-table-edge={props.id}
@@ -65,10 +66,6 @@ export function TableRelationshipEdge(props: Types.EdgeProps<'relationship'>) {
       <defs>
         {relation.sourceCardinality && <Cardinality id={`${ns}-source`} value={relation.sourceCardinality} />}
         {relation.targetCardinality && <Cardinality id={`${ns}-target`} value={relation.targetCardinality} />}
-        <radialGradient id={`${ns}-particle`}>
-          <stop offset="0%" stopColor="currentColor" />
-          <stop offset="100%" stopColor="currentColor" stopOpacity={.4} />
-        </radialGradient>
       </defs>
       {paths.map((saved, index) => {
         const points = translateTablePath(saved, delta(props.source), delta(props.target))
@@ -103,30 +100,21 @@ export function TableRelationshipEdge(props: Types.EdgeProps<'relationship'>) {
               fill="none"
               stroke="currentColor"
               strokeWidth={1.5}
+              strokeOpacity={highlighted && !reducedMotion ? .25 : 1}
               markerStart={relation.sourceCardinality ? `url(#${ns}-source)` : undefined}
               markerEnd={relation.targetCardinality ? `url(#${ns}-target)` : undefined} />
             <path d={d} fill="none" stroke="transparent" strokeWidth={20} className="react-flow__edge-interaction" />
-            {highlighted && state.motion && !reducedMotion &&
-              Array.from(
-                { length: 6 },
-                (_, particle) => (
-                  <ellipse
-                    key={particle}
-                    className="likec4-table-particle"
-                    rx={5}
-                    ry={1.2}
-                    fill={`url(#${ns}-particle)`}>
-                    <animateMotion
-                      begin={`${-particle}s`}
-                      dur="6s"
-                      repeatCount="indefinite"
-                      rotate="auto"
-                      path={d}
-                      calcMode="spline"
-                      keySplines="0.42, 0, 0.58, 1.0" />
-                  </ellipse>
-                ),
-              )}
+            {highlighted && !reducedMotion && (
+              <path
+                className={`${edgePath().path} likec4-table-flow`}
+                d={d}
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2.5}
+                strokeDasharray="8,10"
+                strokeLinecap="round"
+                pointerEvents="none" />
+            )}
           </g>
         )
       })}
