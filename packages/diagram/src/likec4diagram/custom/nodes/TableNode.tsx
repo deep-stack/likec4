@@ -5,6 +5,7 @@ import { DefaultHandles } from '../../../base-primitives/NodeHandles'
 import { TableFields } from '../../../base-primitives/table/TableFields'
 import { useEnabledFeatures } from '../../../context/DiagramFeatures'
 import { useDiagramActorRef, useDiagramContext } from '../../../hooks/useDiagram'
+import { requiredFields } from '../../state/tableDisplay'
 import { activeTable, tableNeighbourhood } from '../../state/tableNeighbourhood'
 import type { Types } from '../../types'
 
@@ -19,7 +20,9 @@ export function TableNode(props: Types.NodeProps<'element'>) {
   const suppressClick = useRef(false)
   const state = useDiagramContext(ctx => ({
     active: activeTable(ctx),
-    edges: ctx.xyedges.filter(edge => !edge.hidden && 'tableRelation' in edge.data && edge.data.tableRelation),
+    revealed: ctx.tableRevealedField?.node === props.id ? ctx.tableRevealedField.field : undefined,
+    preview: ctx.tablePreview?.view === ctx.view.id ? ctx.tablePreview : null,
+    edges: ctx.xyedges.filter(edge => 'tableRelation' in edge.data && edge.data.tableRelation),
   }))
   const related = !state.active || tableNeighbourhood(state.active, state.edges).nodes.has(props.id)
   const foreignFields = new Set(
@@ -31,9 +34,11 @@ export function TableNode(props: Types.NodeProps<'element'>) {
   )
   return (
     <ElementNodeContainer
+      animateHover
       nodeProps={{ ...props, selectable: false }}
       className="likec4-table"
-      data-er-related={String(related)}>
+      data-er-related={String(related)}
+      data-er-highlighted={String(!!state.active && related)}>
       <div
         className="nopan"
         tabIndex={0}
@@ -91,7 +96,19 @@ export function TableNode(props: Types.NodeProps<'element'>) {
           drag.current = null
           actor.send({ type: 'xyflow.applyChanges', nodes: [{ id: props.id, type: 'position', dragging: false }] })
         }}>
-        <TableFields table={props.data.table!} title={props.data.title} foreignFields={foreignFields} />
+        <TableFields
+          table={props.data.table!}
+          title={props.data.title}
+          foreignFields={foreignFields}
+          revealed={state.revealed}
+          preview={state.preview ?
+            {
+              required: requiredFields(props.id, state.edges),
+              expanded: !!state.preview.expanded[props.id],
+              toggle: () =>
+                actor.send({ type: 'table.expand', node: props.data.id, expanded: !state.preview?.expanded[props.id] }),
+            } :
+            undefined} />
       </div>
       <DefaultHandles direction="LR" />
     </ElementNodeContainer>

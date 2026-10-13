@@ -4,7 +4,8 @@ import { hstack } from '@likec4/styles/patterns'
 import {
   UnstyledButton,
 } from '@mantine/core'
-import { IconChevronRight } from '@tabler/icons-react'
+import { IconChevronDown, IconChevronRight } from '@tabler/icons-react'
+import { useSelector } from '@xstate/react'
 import { AnimatePresence, LayoutGroup } from 'motion/react'
 import * as m from 'motion/react-m'
 import { memo } from 'react'
@@ -12,6 +13,7 @@ import { isTruthy } from 'remeda'
 import { useEnabledFeatures } from '../context/DiagramFeatures'
 import { useOptionalCurrentViewModel } from '../hooks/useCurrentViewModel'
 import { selectDiagramContext, useDiagramSelector } from '../hooks/useDiagram'
+import { useOptionalLikeC4Model } from '../hooks/useLikeC4Model'
 import { deriveToggledFeatures } from '../likec4diagram/state/machine.setup'
 import {
   LayoutWarning,
@@ -61,6 +63,9 @@ const breadcrumbAnimation = {
 
 export const NavigationPanelControls = memo(() => {
   const actor = useNavigationActor()
+  const menuOpen = useSelector(actor.actorRef, s => s.matches('active'))
+  const model = useOptionalLikeC4Model()
+  const selectable = model ? [...model.views()].length > 1 : false
   const {
     enableLogo,
     enableNavigationButtons,
@@ -138,9 +143,15 @@ export const NavigationPanelControls = memo(() => {
         breadcrumbTitle({ truncate: true }),
         css({
           userSelect: 'none',
+          _hover: { backgroundColor: '[var(--mantine-color-default-hover)]' },
+          _focusVisible: { outline: '[2px solid currentColor]', outlineOffset: '[2px]' },
         }),
       )}
-      title={viewTitle}
+      title={selectable ? `${viewTitle} — choose a view` : viewTitle}
+      aria-haspopup={selectable ? 'menu' : undefined}
+      aria-expanded={selectable ? menuOpen : undefined}
+      data-view-selector={selectable ? 'true' : undefined}
+      style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}
       onMouseEnter={() => actor.send({ type: 'breadcrumbs.mouseEnter.viewtitle' })}
       onMouseLeave={() => actor.send({ type: 'breadcrumbs.mouseLeave.viewtitle' })}
       onClick={e => {
@@ -149,6 +160,7 @@ export const NavigationPanelControls = memo(() => {
       }}
     >
       {viewTitle}
+      {selectable && <IconChevronDown size={16} aria-hidden style={{ flexShrink: 0 }} />}
     </UnstyledButton>
   )
 

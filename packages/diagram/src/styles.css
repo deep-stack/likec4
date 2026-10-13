@@ -11,11 +11,11 @@
   background: var(--mantine-color-body);
   color: var(--mantine-color-text);
 }
-.likec4-table[data-er-related="false"] {
-  opacity: 0.2;
-}
+.likec4-table[data-er-highlighted="true"],
+.likec4-table[data-likec4-hovered="true"],
 .likec4-table:focus-within {
   outline-width: 2px;
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--likec4-palette-stroke) 25%, transparent);
 }
 .likec4-table [role="group"] {
   outline: none;
@@ -89,8 +89,33 @@
   border-radius: 5px;
   background: var(--mantine-color-body);
 }
-@media (prefers-reduced-motion: reduce) {
-  .likec4-table-particle {
-    display: none;
-  }
+
+/* View metadata is a modal, not a persistent canvas tool window. */
+dialog.likec4-view-details {
+  inset: 0;
+  margin: auto;
+  width: min(640px, calc(100vw - 32px));
+  height: min(640px, calc(100dvh - 32px));
+  max-height: calc(100dvh - 32px);
+  border-radius: 8px;
+  padding: 6px;
+}
+.likec4-view-details > .likec4-overlay-body {
+  display: flex;
+  flex-direction: column;
+  border-radius: 4px;
+}
+.likec4-view-details-heading {
+  flex: none;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--mantine-color-default-border);
+}
+.likec4-view-details-content {
+  overflow-wrap: anywhere;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  padding: 16px;
+  overflow: auto;
 }

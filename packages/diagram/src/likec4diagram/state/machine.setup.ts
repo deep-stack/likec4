@@ -104,7 +104,8 @@ export type ToggledFeatures = {
 
 export interface Context extends Input {
   tableFocusedNode: { node: NodeId; view: ViewId } | null
-  tableFlowEnabled: boolean
+  tableRevealedField: { node: NodeId; field: string } | null
+  tablePreview: { view: ViewId; base: Types.Node[]; expanded: Record<string, boolean> } | null
   relationshipBrowserScope: RelationshipBrowserScope
   xynodes: Types.Node[]
   xyedges: Types.Edge[]
@@ -170,7 +171,8 @@ export interface Context extends Input {
 export function Context({ input }: { input: Input }): Context {
   return {
     ...input,
-    tableFlowEnabled: true,
+    tableRevealedField: null,
+    tablePreview: null,
     tableFocusedNode: null,
     fitView: input.fitView ?? true,
     relationshipBrowserScope: input.relationshipBrowserScope ?? 'view',
@@ -214,7 +216,11 @@ export function Context({ input }: { input: Input }): Context {
 }
 
 export type Events =
-  | { type: 'table.toggleFlow' }
+  | { type: 'interaction.restore'; viewport: Viewport; manual: boolean }
+  | { type: 'table.preview'; expanded?: Record<string, boolean> }
+  | { type: 'table.expand'; node?: NodeId; expanded: boolean }
+  | { type: 'table.highlight'; node: NodeId; field: string }
+  | { type: 'table.reveal'; node: NodeId; field: string }
   | { type: 'table.focus'; node: NodeId | null }
   | { type: 'table.resetPositions' }
   | HotKeyEvent

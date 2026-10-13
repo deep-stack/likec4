@@ -1,6 +1,6 @@
 import { applyEdgeChanges, applyNodeChanges } from '@xyflow/react'
 import type { ActorRef, SnapshotFrom, StateValueFrom } from 'xstate'
-import { assign, stopChild } from 'xstate/actions'
+import { assign, raise, stopChild } from 'xstate/actions'
 import type { BaseEditorActorRef } from '../../editor/actor/setup'
 import type { NavigationPanelActorRef } from '../../navigationpanel/actor'
 import type { OverlaysActorRef } from '../../overlays/overlaysActor'
@@ -31,6 +31,7 @@ import {
 import { initializing, isReady } from './machine.state.initializing'
 import { navigating } from './machine.state.navigating'
 import { ready } from './machine.state.ready'
+import { absolutePosition, tableDisplayLayout } from './tableDisplay'
 
 const _diagramMachine = machine.createMachine({
   initial: 'initializing',
@@ -45,21 +46,79 @@ const _diagramMachine = machine.createMachine({
     },
   },
   on: {
+    'table.preview': {
+      guard: ({ context }) => context.xynodes.some(node => 'table' in node.data && node.data.table),
+      actions: assign(({ context, event }) => {
+        const base = context.tablePreview?.view === context.view.id ? context.tablePreview.base : context.xynodes
+        const expanded = event.expanded ?? {}
+        return {
+          tablePreview: { view: context.view.id, base, expanded },
+          xynodes: tableDisplayLayout(base, context.xyedges, expanded),
+        }
+      }),
+    },
+    'interaction.restore': {
+      actions: [
+        cancelFitDiagram(),
+        assign(({ event }) => ({ viewport: event.viewport, viewportChangedManually: event.manual })),
+        ({ context, event }) => {
+          void context.xyflow?.setViewport(event.viewport, { duration: 0 })
+        },
+      ],
+    },
+    'table.expand': {
+      actions: assign(({ context, event }) => {
+        const preview = context.tablePreview
+        if (!preview || preview.view !== context.view.id) return {}
+        const expanded = { ...preview.expanded }
+        for (const node of preview.base) {
+          if ((!event.node || node.id === event.node) && 'table' in node.data && node.data.table) {
+            expanded[node.id] = event.expanded
+          }
+        }
+        const nodes = tableDisplayLayout(preview.base, context.xyedges, expanded)
+        if (event.node) {
+          const before = absolutePosition(context.xynodes, event.node)
+          const after = absolutePosition(nodes, event.node)
+          for (const node of nodes) {
+            if (!node.parentId) {
+              node.position = { x: node.position.x + before.x - after.x, y: node.position.y + before.y - after.y }
+            }
+          }
+        }
+        return {
+          tablePreview: { ...preview, expanded },
+          xynodes: nodes,
+          viewportChangedManually: true,
+          tableRevealedField: null,
+        }
+      }),
+    },
+    'table.reveal': {
+      actions: [
+        raise(({ event }) => ({ type: 'table.expand', node: event.node, expanded: true })),
+        raise(({ event }) => ({ type: 'table.highlight', node: event.node, field: event.field })),
+      ],
+    },
+    'table.highlight': {
+      actions: assign(({ event }) => ({ tableRevealedField: { node: event.node, field: event.field } })),
+    },
     'table.focus': {
       actions: assign(({ context, event }) => ({
         tableFocusedNode: event.node ? { node: event.node, view: context.view.id } : null,
       })),
     },
-    'table.toggleFlow': { actions: assign(({ context }) => ({ tableFlowEnabled: !context.tableFlowEnabled })) },
     'table.resetPositions': {
       actions: assign(({ context }) => ({
-        xynodes: context.xynodes.map(node => {
-          if (!('table' in node.data) || !node.data.table) return node
-          const saved = context.view.nodes.find(n => n.id === node.id)
-          if (!saved) return node
-          const parent = saved.parent ? context.view.nodes.find(n => n.id === saved.parent) : null
-          return { ...node, position: { x: saved.x - (parent?.x ?? 0), y: saved.y - (parent?.y ?? 0) } }
-        }),
+        xynodes: context.tablePreview?.view === context.view.id
+          ? tableDisplayLayout(context.tablePreview.base, context.xyedges, context.tablePreview.expanded)
+          : context.xynodes.map(node => {
+            if (!('table' in node.data) || !node.data.table) return node
+            const saved = context.view.nodes.find(n => n.id === node.id)
+            if (!saved) return node
+            const parent = saved.parent ? context.view.nodes.find(n => n.id === saved.parent) : null
+            return { ...node, position: { x: saved.x - (parent?.x ?? 0), y: saved.y - (parent?.y ?? 0) } }
+          }),
       })),
     },
     'update.nodeData': {
@@ -109,10 +168,14 @@ const _diagramMachine = machine.createMachine({
       }),
     },
     'xyflow.viewportMoved': {
-      actions: assign(({ event, context }) => ({
-        viewportChangedManually: context.viewportChangedManually || event.manually,
-        viewport: event.viewport,
-      })),
+      actions: machine.enqueueActions(({ context, event, enqueue }) => {
+        if (event.type !== 'xyflow.viewportMoved') return
+        if (event.manually) enqueue(cancelFitDiagram())
+        enqueue.assign({
+          viewportChangedManually: context.viewportChangedManually || event.manually,
+          viewport: event.viewport,
+        })
+      }),
     },
     'destroy': {
       target: '.final',
