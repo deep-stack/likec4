@@ -37,7 +37,8 @@ export function TableNode(props: Types.NodeProps<'element'>) {
       animateHover
       nodeProps={{ ...props, selectable: false }}
       className="likec4-table"
-      data-er-related={String(related)}>
+      data-er-related={String(related)}
+      data-er-highlighted={String(!!state.active && related)}>
       <div
         className="nopan"
         tabIndex={0}

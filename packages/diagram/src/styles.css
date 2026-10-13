@@ -11,6 +11,7 @@
   background: var(--mantine-color-body);
   color: var(--mantine-color-text);
 }
+.likec4-table[data-er-highlighted="true"],
 .likec4-table[data-likec4-hovered="true"],
 .likec4-table:focus-within {
   outline-width: 2px;
