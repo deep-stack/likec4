@@ -34,6 +34,7 @@ export function TableNode(props: Types.NodeProps<'element'>) {
   )
   return (
     <ElementNodeContainer
+      animateHover
       nodeProps={{ ...props, selectable: false }}
       className="likec4-table"
       data-er-related={String(related)}>

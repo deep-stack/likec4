@@ -1,5 +1,6 @@
 import type { TableDefinition } from '@likec4/core'
 import { tableGeometry } from '@likec4/core/geometry'
+import { ElementHoverScale } from '../../base/const'
 import type { Types } from '../types'
 
 /** Presentation only: the complete table definition is never changed. */
@@ -85,28 +86,33 @@ export function tableDisplayPath(
   sourceField: string,
   targetField: string,
 ): string | null {
+  function visualBox(node: Types.Node) {
+    const pos = absolutePosition(nodes, node.id)
+    const width = node.width ?? node.measured?.width ?? node.initialWidth
+    const height = node.height ?? node.measured?.height ?? node.initialHeight
+    const scale = node.data.hovered ? ElementHoverScale : 1
+    return {
+      x: pos.x - width * (scale - 1) / 2,
+      y: pos.y - height * (scale - 1) / 2,
+      width: width * scale,
+      height: height * scale,
+      scale,
+    }
+  }
   function endpoint(id: string, field: string, right: boolean) {
     const node = nodes.find(n => n.id === id)
     if (!node || !('table' in node.data) || !node.data.table) return null
     const geometry = tablePreview(node.data.table, node.data.title, requiredFields(id, edges), !!expanded[id])
     const row = geometry.rows.find(r => r.id === field)
     if (!row) return null
-    const pos = absolutePosition(nodes, id)
-    return {
-      x: pos.x + (right ? node.width ?? node.measured?.width ?? node.initialWidth ?? geometry.width : 0),
-      y: pos.y + row.y + row.height / 2,
-    }
+    const box = visualBox(node)
+    return { x: box.x + (right ? box.width : 0), y: box.y + (row.y + row.height / 2) * box.scale }
   }
   const start = endpoint(source, sourceField, true), end = endpoint(target, targetField, false)
   if (!start || !end) return null
   const boxes = nodes.filter(n => !nodes.some(child => child.parentId === n.id)).map(n => {
-    const pos = absolutePosition(nodes, n.id)
-    return {
-      left: pos.x - 12,
-      right: pos.x + (n.width ?? n.measured?.width ?? 0) + 12,
-      top: pos.y - 12,
-      bottom: pos.y + (n.height ?? n.measured?.height ?? 0) + 12,
-    }
+    const box = visualBox(n)
+    return { left: box.x - 12, right: box.x + box.width + 12, top: box.y - 12, bottom: box.y + box.height + 12 }
   })
   const from = { x: start.x + 20, y: start.y }, to = { x: end.x - 20, y: end.y }
   const xs = [...new Set([from.x, to.x, ...boxes.flatMap(b => [b.left, b.right])])].sort((a, b) => a - b)

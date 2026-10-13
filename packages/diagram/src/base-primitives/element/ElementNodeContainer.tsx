@@ -4,6 +4,7 @@ import { elementNode } from '@likec4/styles/recipes'
 import type { MotionNodeLayoutOptions, MotionStyle, Variants } from 'motion/react'
 import * as m from 'motion/react-m'
 import { type PropsWithChildren, forwardRef } from 'react'
+import { ElementHoverScale } from '../../base/const'
 import type { BaseNodePropsWithData } from '../../base/types'
 
 type RequiredData = {
@@ -15,6 +16,7 @@ type RequiredData = {
 type ElementNodeContainerProps = PropsWithChildren<
   & {
     nodeProps: BaseNodePropsWithData<RequiredData>
+    animateHover?: boolean | undefined
     className?: string | undefined
     style?: MotionStyle | undefined
     [key: `data-${string}`]: string | undefined
@@ -27,7 +29,7 @@ const variants = {
     scale: 1,
   },
   hovered: {
-    scale: 1.05,
+    scale: ElementHoverScale,
   },
   selected: {
     scale: 1.02,
@@ -52,6 +54,7 @@ export const ElementNodeContainer = forwardRef<HTMLDivElement, ElementNodeContai
     },
   },
   className,
+  animateHover = false,
   style,
   children,
   ...rest
@@ -84,8 +87,8 @@ export const ElementNodeContainer = forwardRef<HTMLDivElement, ElementNodeContai
       )}
       variants={variants}
       initial={false}
+      {...(selectable || animateHover) && { animate: variant }}
       {...selectable && {
-        animate: variant,
         whileTap: 'tap',
       }}
       data-likec4-hovered={isHovered}

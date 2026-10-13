@@ -9,6 +9,8 @@ export const ZIndexes = {
   Max: 30,
 } as const
 
+export const ElementHoverScale = 1.05
+
 export const MinZoom = 0.05
 export const MaxZoom = 3
 

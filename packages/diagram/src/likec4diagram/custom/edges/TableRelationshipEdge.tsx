@@ -77,11 +77,11 @@ export function TableRelationshipEdge(props: Types.EdgeProps<'relationship'>) {
             points.slice(1 + segment * 3, 4 + segment * 3).map(p => p.join(',')).join(' ')
           }`).join(' ')
         const pair = relation.pairs[index]
-        const d = state.preview && pair
+        const d = pair
           ? tableDisplayPath(
             state.nodes,
             state.edges,
-            state.preview.expanded,
+            state.preview?.expanded ?? Object.fromEntries(state.nodes.map(n => [n.id, true])),
             props.source,
             props.target,
             pair.source,
