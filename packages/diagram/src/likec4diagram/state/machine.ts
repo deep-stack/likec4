@@ -170,6 +170,7 @@ const _diagramMachine = machine.createMachine({
     },
     'xyflow.viewportMoved': {
       actions: machine.enqueueActions(({ context, event, enqueue }) => {
+        if (event.type !== 'xyflow.viewportMoved') return
         if (event.manually) enqueue(cancelFitDiagram())
         enqueue.assign({
           viewportChangedManually: context.viewportChangedManually || event.manually,
