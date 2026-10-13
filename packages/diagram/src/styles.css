@@ -116,6 +116,7 @@ dialog.likec4-view-details {
   border-bottom: 1px solid var(--mantine-color-default-border);
 }
 .likec4-view-details-content {
+  overflow-wrap: anywhere;
   display: flex;
   flex-direction: column;
   flex: 1;
