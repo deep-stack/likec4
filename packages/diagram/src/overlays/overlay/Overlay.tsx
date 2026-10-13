@@ -23,6 +23,7 @@ const backdropOpacity = '--_opacity'
 const cssVarLevel = '--_level'
 
 export type OverlayProps = PropsWithChildren<{
+  'aria-label'?: string
   fullscreen?: boolean | undefined
   withBackdrop?: boolean | undefined
   overlayLevel?: number

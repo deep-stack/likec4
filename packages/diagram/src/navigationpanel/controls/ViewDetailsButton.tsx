@@ -2,6 +2,7 @@ import { cx } from '@likec4/styles/css'
 import { Box, HStack } from '@likec4/styles/jsx'
 import { hstack } from '@likec4/styles/patterns'
 import {
+  CloseButton,
   UnstyledButton,
 } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
@@ -10,11 +11,9 @@ import {
   IconLink,
 } from '@tabler/icons-react'
 import * as m from 'motion/react-m'
-import { useRef } from 'react'
-import { clamp } from 'remeda'
-import { FloatingWindow } from '../../components/FloatingWindow'
-import { useRootContainer } from '../../context'
+import { useEffect, useRef } from 'react'
 import { selectDiagramContext, useDiagramSelector } from '../../hooks/useDiagram'
+import { Overlay } from '../../overlays/overlay/Overlay'
 import { ViewDetailsWindow } from '../windows/ViewDetailsWindow'
 
 const selector = selectDiagramContext(({ view }) => {
@@ -29,41 +28,23 @@ type ViewDetailsButtonProps = {
 }
 
 export function ViewDetailsButton({ onOpen }: ViewDetailsButtonProps) {
-  const { ref: rootRef } = useRootContainer()
   const [opened, handlers] = useDisclosure(false)
   const data = useDiagramSelector(selector)
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const close = () => {
+    handlers.close()
+    // Wait until the modal is removed and the trigger is no longer inert.
+    requestAnimationFrame(() => triggerRef.current?.focus())
+  }
 
-  const initialsRef = useRef({
-    dimensions: {
-      initialWidth: 200,
-      initialHeight: 200,
-    },
-    initialPosition: {
-      top: 65,
-      left: 32,
-    },
-  })
+  // A different view should never inherit an open details panel.
+  useEffect(() => {
+    handlers.close()
+  }, [data.id])
 
   const toggle = () => {
-    if (opened) {
-      handlers.close()
-    } else {
-      const rootElement = rootRef.current
-      if (rootElement) {
-        const viewport = rootElement.getBoundingClientRect()
-        const panelRect = rootElement.querySelector('[data-panel="navigation"]')?.getBoundingClientRect()
-
-        let height = viewport.height - 80
-        // Bottom-left aligned to navigation panel
-        if (panelRect) {
-          initialsRef.current.initialPosition.top = panelRect.bottom + 10
-          initialsRef.current.initialPosition.left = panelRect.left + 55 // to avoid overlapping with editor panel
-          height = viewport.height - (panelRect.top - viewport.top + panelRect.height) - 32
-        }
-
-        initialsRef.current.dimensions.initialHeight = Math.max(100, height)
-        initialsRef.current.dimensions.initialWidth = clamp(viewport.width * 0.3, { min: 250, max: 500 })
-      }
+    if (opened) close()
+    else {
       handlers.open()
       onOpen()
     }
@@ -71,20 +52,36 @@ export function ViewDetailsButton({ onOpen }: ViewDetailsButtonProps) {
 
   return (
     <>
-      <ViewDetailsCardTrigger linksCount={data.links} onClick={toggle} opened={opened} />
+      <ViewDetailsCardTrigger triggerRef={triggerRef} linksCount={data.links} onClick={toggle} opened={opened} />
       {opened && (
-        <FloatingWindow windowId={'view-details'} {...initialsRef.current} onClose={handlers.close}>
-          <ViewDetailsWindow />
-        </FloatingWindow>
+        <Overlay className="likec4-view-details" aria-label="View details" onClose={close} openDelay={0}>
+          <HStack justify="space-between" className="likec4-view-details-heading">
+            <Box fontWeight="semibold">View details</Box>
+            <CloseButton aria-label="Close view details" onClick={close} data-autofocus />
+          </HStack>
+          <div className="likec4-view-details-content">
+            <ViewDetailsWindow />
+          </div>
+        </Overlay>
       )}
     </>
   )
 }
 
 const ViewDetailsCardTrigger = (
-  { linksCount, onClick, opened }: { linksCount: number; onClick: () => void; opened: boolean },
+  { linksCount, onClick, opened, triggerRef }: {
+    linksCount: number
+    onClick: () => void
+    opened: boolean
+    triggerRef: React.Ref<HTMLButtonElement>
+  },
 ) => (
   <UnstyledButton
+    ref={triggerRef}
+    aria-label="View details"
+    aria-haspopup="dialog"
+    aria-expanded={opened}
+    title="View details"
     component={m.button}
     layout="position"
     aria-selected={opened}
@@ -101,10 +98,7 @@ const ViewDetailsCardTrigger = (
       hstack({
         gap: '2',
         layerStyle: 'likec4.panel.action',
-        display: {
-          base: 'none',
-          '@/xs': 'flex',
-        },
+        display: 'flex',
         _selected: {
           backgroundColor: {
             base: 'primary.body',
