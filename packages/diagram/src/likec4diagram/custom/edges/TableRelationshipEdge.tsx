@@ -3,6 +3,7 @@ import { useReducedMotion } from '@mantine/hooks'
 import { useId } from 'react'
 import { useDiagramContext } from '../../../hooks/useDiagram'
 import { translateTablePath } from '../../../utils/table-path'
+import { tableDisplayPath } from '../../state/tableDisplay'
 import { activeTable } from '../../state/tableNeighbourhood'
 import type { Types } from '../../types'
 
@@ -34,6 +35,8 @@ export function TableRelationshipEdge(props: Types.EdgeProps<'relationship'>) {
   const reducedMotion = useReducedMotion()
   const state = useDiagramContext(ctx => ({
     nodes: ctx.xynodes,
+    edges: ctx.xyedges,
+    preview: ctx.tablePreview?.view === ctx.view.id ? ctx.tablePreview : null,
     active: activeTable(ctx),
     motion: ctx.tableFlowEnabled,
   }))
@@ -69,10 +72,22 @@ export function TableRelationshipEdge(props: Types.EdgeProps<'relationship'>) {
       </defs>
       {paths.map((saved, index) => {
         const points = translateTablePath(saved, delta(props.source), delta(props.target))
-        const d = `M ${points[0]!.join(',')} ` + Array.from({ length: (points.length - 1) / 3 }, (_, segment) =>
+        const fallback = `M ${points[0]!.join(',')} ` + Array.from({ length: (points.length - 1) / 3 }, (_, segment) =>
           `C ${
             points.slice(1 + segment * 3, 4 + segment * 3).map(p => p.join(',')).join(' ')
           }`).join(' ')
+        const pair = relation.pairs[index]
+        const d = state.preview && pair
+          ? tableDisplayPath(
+            state.nodes,
+            state.edges,
+            state.preview.expanded,
+            props.source,
+            props.target,
+            pair.source,
+            pair.target,
+          ) ?? fallback
+          : fallback
         const label = (v: TableEndpointCardinality | undefined) =>
           v ? `${v.min}..${v.max === 'many' ? 'many' : v.max}` : 'unknown'
         return (

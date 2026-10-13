@@ -19,6 +19,7 @@ import type { SearchActorRef } from '../../search/searchActor'
 import { pickViewBounds } from '../../utils/view-bounds'
 import type { Types } from '../types'
 import type { Context } from './machine.setup'
+import { absolutePosition } from './tableDisplay'
 import type { DiagramActorRef, NodeWithData, System } from './types'
 
 export const findNodeByModelFqn = <T extends NodeWithData>(
@@ -78,9 +79,26 @@ export function findDiagramEdge(ctx: Context, xyedgeId: string): DiagramEdge | n
  * If {@link nextView} is provided, returns the bounds of the next view.
  */
 export function viewBounds(
-  ctx: Pick<Context, 'view' | 'dynamicViewVariant'>,
+  ctx: Pick<Context, 'view' | 'dynamicViewVariant'> & Partial<Pick<Context, 'tablePreview' | 'xynodes'>>,
   nextView?: DiagramView,
 ): BBox {
+  if (!nextView && ctx.tablePreview?.view === ctx.view.id && ctx.xynodes?.length) {
+    const nodes = ctx.xynodes.filter(n => !n.hidden)
+    if (nodes.length) {
+      const boxes = nodes.map(n => ({
+        ...absolutePosition(nodes, n.id),
+        width: n.width ?? n.measured?.width ?? 0,
+        height: n.height ?? n.measured?.height ?? 0,
+      }))
+      const x = Math.min(...boxes.map(n => n.x)) - 24, y = Math.min(...boxes.map(n => n.y)) - 24
+      return {
+        x,
+        y,
+        width: Math.max(...boxes.map(n => n.x + n.width)) - x + 24,
+        height: Math.max(...boxes.map(n => n.y + n.height)) - y + 24,
+      }
+    }
+  }
   const view = nextView ?? ctx.view
   return pickViewBounds(view, ctx.dynamicViewVariant)
 }

@@ -19,6 +19,7 @@ import { isEmpty } from 'remeda'
 import type { Simplify } from 'type-fest'
 import { BaseXYFlow } from '../base/BaseXYFlow'
 import { IS_SERVER } from '../base/const'
+import { getKeyboardZoomAction } from '../base/keyboardZoom'
 import { useDiagramEventHandlers } from '../context'
 import { useRootContainer } from '../context/RootContainerContext'
 import {
@@ -341,7 +342,23 @@ export function LikeC4DiagramXYFlow({
       {...props}
       {...safeReactFlowProps}
       nodesDraggable={nodesDraggable}
-      nodesSelectable={nodesSelectable}>
+      nodesSelectable={nodesSelectable}
+      onKeyDown={event => {
+        if (!props.zoomable || event.defaultPrevented) return
+        const action = getKeyboardZoomAction(event.nativeEvent)
+        if (!action) return
+        if (action === 'reset') {
+          event.preventDefault()
+          diagram.fitDiagram()
+        } else {
+          const context = diagram.actor.getSnapshot().context
+          diagram.send({
+            type: 'xyflow.viewportMoved',
+            viewport: context.xyflow?.getViewport() ?? context.viewport,
+            manually: true,
+          })
+        }
+      }}>
       {enableControls && (
         <Controls
           fitViewPadding={props.fitViewPadding}
@@ -357,16 +374,30 @@ export function LikeC4DiagramXYFlow({
 
 const Controls = (
   { fitViewPadding, minZoom, maxZoom }: Pick<typeof selectXYProps.Out, 'fitViewPadding' | 'minZoom' | 'maxZoom'>,
-) => (
-  <XYFlowControls
-    showInteractive={false}
-    fitViewOptions={{
-      padding: fitViewPadding,
-      minZoom,
-      // Fit-to-view never scales up beyond 1, even if `maxZoom` allows it
-      maxZoom: Math.min(maxZoom, 1),
-      duration: 350,
-    }}
-    position="bottom-left"
-  />
-)
+) => {
+  const diagram = useDiagram()
+  const manualZoom = () => {
+    const context = diagram.actor.getSnapshot().context
+    diagram.send({
+      type: 'xyflow.viewportMoved',
+      viewport: context.xyflow?.getViewport() ?? context.viewport,
+      manually: true,
+    })
+  }
+  return (
+    <XYFlowControls
+      onZoomIn={manualZoom}
+      onZoomOut={manualZoom}
+      onFitView={() => diagram.fitDiagram()}
+      showInteractive={false}
+      fitViewOptions={{
+        padding: fitViewPadding,
+        minZoom,
+        // Fit-to-view never scales up beyond 1, even if `maxZoom` allows it
+        maxZoom: Math.min(maxZoom, 1),
+        duration: 350,
+      }}
+      position="bottom-left"
+    />
+  )
+}
