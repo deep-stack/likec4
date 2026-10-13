@@ -11,11 +11,10 @@
   background: var(--mantine-color-body);
   color: var(--mantine-color-text);
 }
-.likec4-table[data-er-related="false"] {
-  opacity: 0.2;
-}
+.likec4-table[data-likec4-hovered="true"],
 .likec4-table:focus-within {
   outline-width: 2px;
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--likec4-palette-stroke) 25%, transparent);
 }
 .likec4-table [role="group"] {
   outline: none;

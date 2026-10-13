@@ -61,7 +61,7 @@ export function TableRelationshipEdge(props: Types.EdgeProps<'relationship'>) {
       data-er-highlighted={String(highlighted)}
       data-er-related={String(related)}
       data-table-edge={props.id}
-      opacity={props.data.dimmed ? .15 : related ? 1 : .15}>
+      opacity={props.data.dimmed ? .15 : 1}>
       <defs>
         {relation.sourceCardinality && <Cardinality id={`${ns}-source`} value={relation.sourceCardinality} />}
         {relation.targetCardinality && <Cardinality id={`${ns}-target`} value={relation.targetCardinality} />}
