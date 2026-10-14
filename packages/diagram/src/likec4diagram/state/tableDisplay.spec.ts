@@ -40,6 +40,15 @@ describe('interactive table geometry', () => {
       .toBe('M 0,0 L 20,0 Q 40,0 40,20 L 40,60 Q 40,80 60,80 L 100,80')
     expect(smoothTableRoute([{ x: 0, y: 0 }, { x: 0, y: 0 }, { x: 10, y: 0 }])).toBe('M 0,0 L 10,0')
   })
+  it('uses a continuous cubic between unobstructed rows and detours around intervening tables', () => {
+    const nodes = [node('a', 0, 0), node('b', 1000, 400)]
+    const curve = tableDisplayPath(nodes, [edge], {}, 'a', 'b', 'f19', 'f17')!
+    expect(curve).toContain(' C ')
+    expect(curve).not.toMatch(/ [LQ] /)
+    const blocked = tableDisplayPath([...nodes, node('block', 450, 0)], [edge], {}, 'a', 'b', 'f19', 'f17')!
+    expect(blocked).not.toBe(curve)
+    expect(blocked).toContain(' Q ')
+  })
   it('keeps composite endpoints and primary keys while leaving the model intact', () => {
     const before = JSON.stringify(table)
     const preview = tablePreview(table, 'a', requiredFields('a', [edge]), false)

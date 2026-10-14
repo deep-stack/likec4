@@ -114,6 +114,19 @@ export function tableDisplayPath(
     const box = visualBox(n)
     return { left: box.x - 12, right: box.x + box.width + 12, top: box.y - 12, bottom: box.y + box.height + 12 }
   })
+  // Prefer a continuous cubic, like normal relationship splines. Only use the
+  // obstacle router when a table actually blocks that curve (including self links).
+  if (end.x > start.x) {
+    const reach = (end.x - start.x) / 2
+    const controls = [start, { x: start.x + reach, y: start.y }, { x: end.x - reach, y: end.y }, end]
+    const obstacles = nodes.filter(n =>
+      n.id !== source && n.id !== target && !nodes.some(child => child.parentId === n.id)
+    )
+      .map(n => visualBox(n))
+    if (obstacles.every(box => clearTableCurve(controls, box))) {
+      return `M ${start.x},${start.y} C ${start.x + reach},${start.y} ${end.x - reach},${end.y} ${end.x},${end.y}`
+    }
+  }
   const from = { x: start.x + 20, y: start.y }, to = { x: end.x - 20, y: end.y }
   const xs = [...new Set([from.x, to.x, ...boxes.flatMap(b => [b.left, b.right])])].sort((a, b) => a - b)
   const ys = [...new Set([from.y, to.y, ...boxes.flatMap(b => [b.top, b.bottom])])].sort((a, b) => a - b)
@@ -174,4 +187,27 @@ export function smoothTableRoute(points: { x: number; y: number }[]): string {
   }
   const end = simple.at(-1)!
   return path + ` L ${end.x},${end.y}`
+}
+
+/** Convex-hull subdivision checks the whole curve, not a few sampled points. */
+function clearTableCurve(
+  points: { x: number; y: number }[],
+  box: { x: number; y: number; width: number; height: number },
+  depth = 0,
+): boolean {
+  if (
+    Math.max(...points.map(p => p.x)) < box.x - 12
+    || Math.min(...points.map(p => p.x)) > box.x + box.width + 12
+    || Math.max(...points.map(p => p.y)) < box.y - 12
+    || Math.min(...points.map(p => p.y)) > box.y + box.height + 12
+  ) return true
+  if (depth === 10) return false
+  const left = [points[0]!], right = [points.at(-1)!]
+  let level = points
+  while (level.length > 1) {
+    level = level.slice(1).map((p, i) => ({ x: (level[i]!.x + p.x) / 2, y: (level[i]!.y + p.y) / 2 }))
+    left.push(level[0]!)
+    right.unshift(level.at(-1)!)
+  }
+  return clearTableCurve(left, box, depth + 1) && clearTableCurve(right, box, depth + 1)
 }
