@@ -111,7 +111,16 @@ export function tableDisplayPath(
   const start = endpoint(source, sourceField, true), end = endpoint(target, targetField, source === target)
   if (!start || !end) return null
   if (source === target) {
-    const reach = Math.max(80, Math.abs(end.y - start.y) / 2)
+    // Expanding a table increases the vertical span, not the loop width.
+    // Keep the loop in the available gutter beside the table.
+    const neighbours = nodes.filter(n => n.id !== source && !nodes.some(child => child.parentId === n.id))
+      .map(visualBox)
+      .filter(box =>
+        box.x > start.x && box.y < Math.max(start.y, end.y)
+        && box.y + box.height > Math.min(start.y, end.y)
+      )
+    const gap = Math.min(Infinity, ...neighbours.map(box => box.x - start.x))
+    const reach = Math.min(80, Math.max(0, gap - 16))
     return `M ${start.x},${start.y} C ${start.x + reach},${start.y} ${end.x + reach},${end.y} ${end.x},${end.y}`
   }
   // Free-flowing field relationships: do not constrain the curve to table borders.

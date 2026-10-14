@@ -48,13 +48,15 @@ describe('interactive table geometry', () => {
       for (const hovered of [false, true]) {
         const base = node('a', 40, 40)
         base.data.hovered = hovered
-        const nodes = tableDisplayLayout([base], [self], { a: expanded })
+        const nodes = tableDisplayLayout([base, node('neighbour', 480, 40)], [self], { a: expanded })
         const path = tableDisplayPath(nodes, [self], { a: expanded }, 'a', 'a', 'f0', 'f17')!
         const values = path.match(/-?\d+(?:\.\d+)?/g)!.map(Number)
         const [sx, sy, c1x, c1y, c2x, c2y, tx, ty] = values
         expect(sx).toBe(tx)
         expect(c1x).toBeGreaterThan(sx!)
         expect(c2x).toBeGreaterThan(tx!)
+        expect(c1x! - sx!).toBeLessThanOrEqual(80)
+        expect(c2x).toBeLessThan(480)
         expect(c1y).toBe(sy)
         expect(c2y).toBe(ty)
         expect(ty).toBeGreaterThan(sy!)
