@@ -42,6 +42,25 @@ describe('interactive table geometry', () => {
     const blocked = tableDisplayPath([...nodes, node('block', 450, 0)], [edge], {}, 'a', 'b', 'f19', 'f17')!
     expect(blocked).toBe(curve)
   })
+  it('keeps self-reference curves outside the right edge when compact, expanded or hovered', () => {
+    const self = { ...edge, source: 'a', target: 'a' }
+    for (const expanded of [false, true]) {
+      for (const hovered of [false, true]) {
+        const base = node('a', 40, 40)
+        base.data.hovered = hovered
+        const nodes = tableDisplayLayout([base], [self], { a: expanded })
+        const path = tableDisplayPath(nodes, [self], { a: expanded }, 'a', 'a', 'f0', 'f17')!
+        const values = path.match(/-?\d+(?:\.\d+)?/g)!.map(Number)
+        const [sx, sy, c1x, c1y, c2x, c2y, tx, ty] = values
+        expect(sx).toBe(tx)
+        expect(c1x).toBeGreaterThan(sx!)
+        expect(c2x).toBeGreaterThan(tx!)
+        expect(c1y).toBe(sy)
+        expect(c2y).toBe(ty)
+        expect(ty).toBeGreaterThan(sy!)
+      }
+    }
+  })
   it('keeps composite endpoints and primary keys while leaving the model intact', () => {
     const before = JSON.stringify(table)
     const preview = tablePreview(table, 'a', requiredFields('a', [edge]), false)

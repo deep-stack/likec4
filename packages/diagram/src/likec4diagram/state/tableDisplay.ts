@@ -108,8 +108,12 @@ export function tableDisplayPath(
     const box = visualBox(node)
     return { x: box.x + (right ? box.width : 0), y: box.y + (row.y + row.height / 2) * box.scale }
   }
-  const start = endpoint(source, sourceField, true), end = endpoint(target, targetField, false)
+  const start = endpoint(source, sourceField, true), end = endpoint(target, targetField, source === target)
   if (!start || !end) return null
+  if (source === target) {
+    const reach = Math.max(80, Math.abs(end.y - start.y) / 2)
+    return `M ${start.x},${start.y} C ${start.x + reach},${start.y} ${end.x + reach},${end.y} ${end.x},${end.y}`
+  }
   // Free-flowing field relationships: do not constrain the curve to table borders.
   const reach = Math.max(60, Math.abs(end.x - start.x) / 2, Math.abs(end.y - start.y) / 3)
   return `M ${start.x},${start.y} C ${start.x + reach},${start.y} ${end.x - reach},${end.y} ${end.x},${end.y}`
