@@ -289,6 +289,7 @@ export namespace Types {
     >
     & {
       tableRelation?: DiagramEdge['tableRelation']
+      tableNodeBounds?: { source: import('@likec4/core/geometry').BBox; target: import('@likec4/core/geometry').BBox }
       umlNodeBounds?: { source: import('@likec4/core/geometry').BBox; target: import('@likec4/core/geometry').BBox }
       uml?: DiagramEdge['uml']
       umlEndLabels?: DiagramEdge['umlEndLabels']

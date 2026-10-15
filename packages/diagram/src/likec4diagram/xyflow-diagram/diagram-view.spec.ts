@@ -181,3 +181,17 @@ describe('diagramToXY accessibility', () => {
     )
   })
 })
+
+describe('table association layout', () => {
+  it('retains original bounds for ordinary links touching a table', () => {
+    const table = testNode('orders', { table: { fields: [] }, shape: 'table' })
+    const service = testNode('service', { x: 700 })
+    const { xyedges } = diagramToXY({
+      view: testView([table, service], [testEdge('uses', service, table)]),
+      currentViewId: undefined,
+      where: null,
+    })
+    const edge = xyedges[0]!
+    expect('tableNodeBounds' in edge.data && edge.data.tableNodeBounds).toEqual({ source: service, target: table })
+  })
+})

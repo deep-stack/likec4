@@ -4,7 +4,6 @@ import type { Types } from '../types'
 import {
   absolutePosition,
   requiredFields,
-  smoothTableRoute,
   tableDisplayLayout,
   tableDisplayPath,
   tablePreview,
@@ -35,10 +34,34 @@ const edge = {
 } as unknown as Types.Edge
 
 describe('interactive table geometry', () => {
-  it('rounds bends after removing redundant points and preserves endpoints', () => {
-    expect(smoothTableRoute([{ x: 0, y: 0 }, { x: 10, y: 0 }, { x: 40, y: 0 }, { x: 40, y: 80 }, { x: 100, y: 80 }]))
-      .toBe('M 0,0 L 20,0 Q 40,0 40,20 L 40,60 Q 40,80 60,80 L 100,80')
-    expect(smoothTableRoute([{ x: 0, y: 0 }, { x: 0, y: 0 }, { x: 10, y: 0 }])).toBe('M 0,0 L 10,0')
+  it('uses a continuous cubic between unobstructed rows without hugging intervening tables', () => {
+    const nodes = [node('a', 0, 0), node('b', 1000, 400)]
+    const curve = tableDisplayPath(nodes, [edge], {}, 'a', 'b', 'f19', 'f17')!
+    expect(curve).toContain(' C ')
+    expect(curve).not.toMatch(/ [LQ] /)
+    const blocked = tableDisplayPath([...nodes, node('block', 450, 0)], [edge], {}, 'a', 'b', 'f19', 'f17')!
+    expect(blocked).toBe(curve)
+  })
+  it('keeps self-reference curves outside the right edge when compact, expanded or hovered', () => {
+    const self = { ...edge, source: 'a', target: 'a' }
+    for (const expanded of [false, true]) {
+      for (const hovered of [false, true]) {
+        const base = node('a', 40, 40)
+        base.data.hovered = hovered
+        const nodes = tableDisplayLayout([base, node('neighbour', 480, 40)], [self], { a: expanded })
+        const path = tableDisplayPath(nodes, [self], { a: expanded }, 'a', 'a', 'f0', 'f17')!
+        const values = path.match(/-?\d+(?:\.\d+)?/g)!.map(Number)
+        const [sx, sy, c1x, c1y, c2x, c2y, tx, ty] = values
+        expect(sx).toBe(tx)
+        expect(c1x).toBeGreaterThan(sx!)
+        expect(c2x).toBeGreaterThan(tx!)
+        expect(c1x! - sx!).toBeLessThanOrEqual(80)
+        expect(c2x).toBeLessThan(480)
+        expect(c1y).toBe(sy)
+        expect(c2y).toBe(ty)
+        expect(ty).toBeGreaterThan(sy!)
+      }
+    }
   })
   it('keeps composite endpoints and primary keys while leaving the model intact', () => {
     const before = JSON.stringify(table)

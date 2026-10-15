@@ -76,7 +76,7 @@ export function absolutePosition(nodes: Types.Node[], id: string): { x: number; 
   return { x: node.position.x + parent.x, y: node.position.y + parent.y }
 }
 
-/** Smooth display route around leaf rectangles; field endpoints stay explicit. */
+/** Flowing cubic relationship with horizontal tangents at both field endpoints. */
 export function tableDisplayPath(
   nodes: Types.Node[],
   edges: Types.Edge[],
@@ -108,70 +108,22 @@ export function tableDisplayPath(
     const box = visualBox(node)
     return { x: box.x + (right ? box.width : 0), y: box.y + (row.y + row.height / 2) * box.scale }
   }
-  const start = endpoint(source, sourceField, true), end = endpoint(target, targetField, false)
+  const start = endpoint(source, sourceField, true), end = endpoint(target, targetField, source === target)
   if (!start || !end) return null
-  const boxes = nodes.filter(n => !nodes.some(child => child.parentId === n.id)).map(n => {
-    const box = visualBox(n)
-    return { left: box.x - 12, right: box.x + box.width + 12, top: box.y - 12, bottom: box.y + box.height + 12 }
-  })
-  const from = { x: start.x + 20, y: start.y }, to = { x: end.x - 20, y: end.y }
-  const xs = [...new Set([from.x, to.x, ...boxes.flatMap(b => [b.left, b.right])])].sort((a, b) => a - b)
-  const ys = [...new Set([from.y, to.y, ...boxes.flatMap(b => [b.top, b.bottom])])].sort((a, b) => a - b)
-  const key = (x: number, y: number) => y * xs.length + x
-  const first = key(xs.indexOf(from.x), ys.indexOf(from.y)), last = key(xs.indexOf(to.x), ys.indexOf(to.y))
-  const previous = new Map<number, number>([[first, -1]]), queue = [first]
-  for (let i = 0; i < queue.length && !previous.has(last); i++) {
-    const current = queue[i]!, x = current % xs.length, y = Math.floor(current / xs.length)
-    for (const [nx, ny] of [[x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]]) {
-      if (nx === undefined || ny === undefined || nx < 0 || ny < 0 || nx >= xs.length || ny >= ys.length) continue
-      const next = key(nx, ny)
-      if (previous.has(next)) continue
-      const ax = xs[x]!, ay = ys[y]!, bx = xs[nx]!, by = ys[ny]!
-      const blocked = boxes.some(b =>
-        ax === bx
-          ? ax > b.left && ax < b.right && Math.max(ay, by) > b.top && Math.min(ay, by) < b.bottom
-          : ay > b.top && ay < b.bottom && Math.max(ax, bx) > b.left && Math.min(ax, bx) < b.right
+  if (source === target) {
+    // Expanding a table increases the vertical span, not the loop width.
+    // Keep the loop in the available gutter beside the table.
+    const neighbours = nodes.filter(n => n.id !== source && !nodes.some(child => child.parentId === n.id))
+      .map(visualBox)
+      .filter(box =>
+        box.x > start.x && box.y < Math.max(start.y, end.y)
+        && box.y + box.height > Math.min(start.y, end.y)
       )
-      if (!blocked) {
-        previous.set(next, current)
-        queue.push(next)
-      }
-    }
+    const gap = Math.min(Infinity, ...neighbours.map(box => box.x - start.x))
+    const reach = Math.min(80, Math.max(0, gap - 16))
+    return `M ${start.x},${start.y} C ${start.x + reach},${start.y} ${end.x + reach},${end.y} ${end.x},${end.y}`
   }
-  if (!previous.has(last)) return null
-  const route = []
-  for (let at = last; at !== -1; at = previous.get(at) ?? -1) {
-    route.push({ x: xs[at % xs.length]!, y: ys[Math.floor(at / xs.length)]! })
-  }
-  return smoothTableRoute([start, ...route.reverse(), end])
-}
-
-/** Round bends inside the routing clearance without changing field attachment tangents. */
-export function smoothTableRoute(points: { x: number; y: number }[]): string {
-  const simple: { x: number; y: number }[] = []
-  for (const point of points) {
-    const last = simple.at(-1)
-    if (last && point.x === last.x && point.y === last.y) continue
-    while (simple.length > 1) {
-      const a = simple.at(-2)!, b = simple.at(-1)!
-      if (
-        (b.x - a.x) * (point.y - b.y) !== (b.y - a.y) * (point.x - b.x)
-        || (b.x - a.x) * (point.x - b.x) + (b.y - a.y) * (point.y - b.y) <= 0
-      ) break
-      simple.pop()
-    }
-    simple.push(point)
-  }
-  if (!simple.length) return ''
-  let path = `M ${simple[0]!.x},${simple[0]!.y}`
-  for (let i = 1; i < simple.length - 1; i++) {
-    const a = simple[i - 1]!, b = simple[i]!, c = simple[i + 1]!
-    const before = Math.hypot(b.x - a.x, b.y - a.y), after = Math.hypot(c.x - b.x, c.y - b.y)
-    const radius = Math.min(20, before / 2, after / 2)
-    const enter = { x: b.x + (a.x - b.x) * radius / before, y: b.y + (a.y - b.y) * radius / before }
-    const leave = { x: b.x + (c.x - b.x) * radius / after, y: b.y + (c.y - b.y) * radius / after }
-    path += ` L ${enter.x},${enter.y} Q ${b.x},${b.y} ${leave.x},${leave.y}`
-  }
-  const end = simple.at(-1)!
-  return path + ` L ${end.x},${end.y}`
+  // Free-flowing field relationships: do not constrain the curve to table borders.
+  const reach = Math.max(60, Math.abs(end.x - start.x) / 2, Math.abs(end.y - start.y) / 3)
+  return `M ${start.x},${start.y} C ${start.x + reach},${start.y} ${end.x - reach},${end.y} ${end.x},${end.y}`
 }

@@ -351,6 +351,9 @@ export function diagramToXY(opts: {
           umlNodeBounds: { source: nodeById(source), target: nodeById(target) },
           ...(edge.umlOrigin && { umlOrigin: edge.umlOrigin }),
         }),
+        ...(!edge.tableRelation && (nodeById(source).table || nodeById(target).table) && {
+          tableNodeBounds: { source: nodeById(source), target: nodeById(target) },
+        }),
         ...(edge.tablePaths && { tablePaths: edge.tablePaths }),
         color: edge.color ?? 'gray',
         line: edge.line ?? 'dashed',
