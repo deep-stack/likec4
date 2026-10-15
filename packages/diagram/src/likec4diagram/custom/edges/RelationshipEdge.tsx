@@ -129,12 +129,12 @@ const ArchitectureRelationshipEdge = memoEdge<Types.EdgeProps<'relationship'>>((
 
   useRafEffect(() => {
     const path = svgPathRef.current
-    if (!path || !isControlPointDragging) return
+    if (!path || (!isControlPointDragging && !data.tableNodeBounds)) return
     // Move the label together with the edge, preserving its offset from the edge center
     const center = getEdgeCenter(path)
     const offset = labelOffsetRef.current
     setLabelPos({ x: center.x + offset.x, y: center.y + offset.y })
-  }, [edgePath, isControlPointDragging])
+  }, [edgePath, isControlPointDragging, data.tableNodeBounds])
 
   const updateEdgeData = useCallbackRef((controlPoints: XYPosition[]) => {
     // Persist the label at the new edge center plus its captured offset
@@ -338,7 +338,9 @@ const ArchitectureRelationshipEdge = memoEdge<Types.EdgeProps<'relationship'>>((
         {labelBBox && (
           <EdgeLabelContainer
             edgeProps={props}
-            labelPosition={isControlPointDragging || isLabelDragging ? labelPos : { x: labelX, y: labelY }}
+            labelPosition={isControlPointDragging || isLabelDragging || data.tableNodeBounds
+              ? labelPos
+              : { x: labelX, y: labelY }}
             {...enabledEditing && {
               onPointerDown: onLabelPointerDown,
             }}

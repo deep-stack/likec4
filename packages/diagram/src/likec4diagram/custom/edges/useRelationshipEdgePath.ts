@@ -45,15 +45,25 @@ export function useRelationshipEdgePath({
     sourceNodeHeight,
     targetNodeWidth,
     targetNodeHeight,
+    sourceLeft,
+    sourceTop,
+    targetLeft,
+    targetTop,
   ] = useXYStore(
     useCallback(({ nodeLookup }) => {
-      const sourceNode = getNodeDimensions(nonNullable(nodeLookup.get(source), `source node ${source} not found`))
-      const targetNode = getNodeDimensions(nonNullable(nodeLookup.get(target), `target node ${target} not found`))
+      const sourceInternal = nonNullable(nodeLookup.get(source), `source node ${source} not found`)
+      const targetInternal = nonNullable(nodeLookup.get(target), `target node ${target} not found`)
+      const sourceNode = getNodeDimensions(sourceInternal)
+      const targetNode = getNodeDimensions(targetInternal)
       return [
         Math.ceil(sourceNode.width),
         Math.ceil(sourceNode.height),
         Math.ceil(targetNode.width),
         Math.ceil(targetNode.height),
+        sourceInternal.internals.positionAbsolute.x,
+        sourceInternal.internals.positionAbsolute.y,
+        targetInternal.internals.positionAbsolute.x,
+        targetInternal.internals.positionAbsolute.y,
       ] as const
     }, [source, target]),
     shallowEqual,
@@ -62,22 +72,23 @@ export function useRelationshipEdgePath({
   const isModified = isTruthy(data.controlPoints) || isControlPointDragging
 
   if (!isModified) {
-    if (data.umlNodeBounds) {
+    const originalBounds = data.tableNodeBounds ?? data.umlNodeBounds
+    if (originalBounds) {
       const sourceBounds = {
-        x: sourceX - sourceNodeWidth / 2,
-        y: sourceY - sourceNodeHeight / 2,
+        x: data.tableNodeBounds ? sourceLeft : sourceX - sourceNodeWidth / 2,
+        y: data.tableNodeBounds ? sourceTop : sourceY - sourceNodeHeight / 2,
         width: sourceNodeWidth,
         height: sourceNodeHeight,
       }
       const targetBounds = {
-        x: targetX - targetNodeWidth / 2,
-        y: targetY - targetNodeHeight / 2,
+        x: data.tableNodeBounds ? targetLeft : targetX - targetNodeWidth / 2,
+        y: data.tableNodeBounds ? targetTop : targetY - targetNodeHeight / 2,
         width: targetNodeWidth,
         height: targetNodeHeight,
       }
       const [a, b, nextA, nextB] = data.dir === 'back'
-        ? [data.umlNodeBounds.target, data.umlNodeBounds.source, targetBounds, sourceBounds]
-        : [data.umlNodeBounds.source, data.umlNodeBounds.target, sourceBounds, targetBounds]
+        ? [originalBounds.target, originalBounds.source, targetBounds, sourceBounds]
+        : [originalBounds.source, originalBounds.target, sourceBounds, targetBounds]
       return bezierPath(moveUmlSpline(data.points, a, b, nextA, nextB))
     }
     return bezierPath(data.points)
