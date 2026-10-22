@@ -47,7 +47,7 @@ import {
   checkSpecificationRule,
   checkTag,
 } from './specification'
-import { checkStateTransition } from './state'
+import { checkStateElement, checkStateTransition } from './state'
 import { checkTable, checkTableRelation } from './table'
 import { checkUmlModel, checkUmlSyntax } from './uml'
 import { viewChecks, viewOrderChecks } from './view'
@@ -187,7 +187,7 @@ export function registerValidationChecks(services: LikeC4Services) {
     StepSeries: stepSeries(services),
     SubflowStep: subflowStep(services),
     LikeC4View: viewChecks(services),
-    Element: [checkElement(services), checkDecisionElement(services)],
+    Element: [checkElement(services), checkDecisionElement(services), checkStateElement(services)],
     TableProperty: checkTable(),
     TableRelationProperty: checkTableRelation(services),
     DecisionBranchProperty: checkDecisionBranch(),

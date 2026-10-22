@@ -66,3 +66,75 @@ describe('state transitions', () => {
     expect(errors).toEqual([])
   })
 })
+
+const stateSpec = `specification {
+  element initial { style { shape initial } }
+  element final { style { shape final } }
+  element state { style { shape state } }
+  element box
+}`
+
+describe('state warnings', () => {
+  test('warns about an initial state with incoming transitions', async ({ t, expect }) => {
+    const result = await t.validate(`${stateSpec}
+      model { start = initial a = state
+        start -> a
+        a -> start { transition { trigger 'reset' } } }`)
+    expect(result.errors).toEqual([])
+    expect(result.warnings).toContain('An initial state cannot have incoming transitions')
+  })
+
+  test('warns about an initial state with more than one way out', async ({ t, expect }) => {
+    const result = await t.validate(`${stateSpec}
+      model { start = initial a = state b = state
+        start -> a
+        start -> b }`)
+    expect(result.errors).toEqual([])
+    expect(result.warnings).toContain('An initial state has exactly one outgoing transition')
+  })
+
+  test('warns about a trigger or guard on the way out of an initial state', async ({ t, expect }) => {
+    const result = await t.validate(`${stateSpec}
+      model { start = initial a = state
+        start -> a { transition { guard 'ready' } } }`)
+    expect(result.warnings).toContain('The transition from an initial state has no trigger or guard')
+  })
+
+  test('warns about a final state with outgoing transitions', async ({ t, expect }) => {
+    const result = await t.validate(`${stateSpec}
+      model { a = state end = final
+        a -> end
+        end -> a { transition { trigger 'restart' } } }`)
+    expect(result.errors).toEqual([])
+    expect(result.warnings).toContain('A final state cannot have outgoing transitions')
+  })
+
+  test('warns about an unnamed transition between two states', async ({ t, expect }) => {
+    const result = await t.validate(`${stateSpec}
+      model { a = state b = state
+        a -> b }`)
+    expect(result.errors).toEqual([])
+    expect(result.warnings).toContain('Name the trigger, guard or effect of this transition')
+  })
+
+  test('accepts a well-formed lifecycle without warnings', async ({ t, expect }) => {
+    const result = await t.validate(`${stateSpec}
+      model { start = initial queued = state running = state done = state end = final
+        start -> queued
+        queued -> running { transition { trigger 'worker starts' } }
+        running -> running { transition { trigger 'heartbeat' effect 'extend lease' } }
+        running -> queued 'error'
+        running -> done { transition { trigger 'capture saved' } }
+        done -> end }`)
+    expect(result.errors).toEqual([])
+    expect(result.warnings).toEqual([])
+  })
+
+  test('does not apply state warnings to ordinary elements', async ({ t, expect }) => {
+    const result = await t.validate(`${stateSpec}
+      model { a = box b = box
+        a -> b
+        b -> a }`)
+    expect(result.warnings).toEqual([])
+  })
+})
