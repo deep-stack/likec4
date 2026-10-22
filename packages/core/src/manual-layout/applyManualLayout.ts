@@ -537,6 +537,11 @@ function applyEdgesManualLayout(
       } else {
         delete draft.decisionBranch
       }
+      if (next.stateTransition) {
+        draft.stateTransition = { ...next.stateTransition }
+      } else {
+        delete draft.stateTransition
+      }
 
       if (changed(edge.notes, next.notes)) {
         // If notes was added/removed - consider it drifted

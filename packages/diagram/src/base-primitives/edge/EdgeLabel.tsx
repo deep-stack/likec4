@@ -1,10 +1,10 @@
-import type { DiagramEdge } from '@likec4/core/types'
+import { type DiagramEdge, stateTransitionLabelParts } from '@likec4/core/types'
 import { cx } from '@likec4/styles/css'
 import { Box } from '@likec4/styles/jsx'
 import { edgeLabel } from '@likec4/styles/recipes'
 import type { HTMLMotionProps } from 'motion/react'
 import * as m from 'motion/react-m'
-import { type ReactNode, forwardRef } from 'react'
+import { type ReactNode, forwardRef, Fragment } from 'react'
 import { isTruthy } from 'remeda'
 import type { UndefinedOnPartialDeep } from 'type-fest'
 import type { BaseEdgePropsWithData } from '../../base/types'
@@ -14,6 +14,7 @@ type Data = UndefinedOnPartialDeep<
     DiagramEdge,
     | 'label'
     | 'technology'
+    | 'stateTransition'
   >
 >
 
@@ -34,6 +35,7 @@ export const EdgeLabel = forwardRef<HTMLDivElement, EdgeLabelProps>((
       data: {
         label,
         technology,
+        stateTransition,
         hovered: isHovered = false,
       },
       selected = false,
@@ -80,7 +82,7 @@ export const EdgeLabel = forwardRef<HTMLDivElement, EdgeLabelProps>((
             <Box
               lineClamp={5}
               className={'likec4-edge-label__text'}>
-              {label}
+              {stateTransition ? <TransitionLabel transition={stateTransition} /> : label}
             </Box>
           )}
           {isTruthy(technology) && (
@@ -95,3 +97,13 @@ export const EdgeLabel = forwardRef<HTMLDivElement, EdgeLabelProps>((
   )
 })
 EdgeLabel.displayName = 'EdgeLabel'
+
+/** `trigger [guard] / effect`, with the guard set apart. */
+function TransitionLabel({ transition }: { transition: Parameters<typeof stateTransitionLabelParts>[0] }) {
+  return stateTransitionLabelParts(transition).map((part, index) => (
+    <Fragment key={part.kind}>
+      {index > 0 && ' '}
+      <span className={part.kind === 'guard' ? 'likec4-edge-label__guard' : undefined}>{part.text}</span>
+    </Fragment>
+  ))
+}

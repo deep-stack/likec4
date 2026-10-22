@@ -167,6 +167,19 @@ type ShapeSvgProps = {
 }
 function ShapeSvg({ shape, w, h, size = 'md' }: ShapeSvgProps) {
   switch (shape) {
+    case 'state':
+      return <rect width={w} height={h} rx={16} />
+    case 'initial':
+      return <circle cx={w / 2} cy={h / 2} r={Math.min(w, h) / 2} className="likec4-pseudo-state" />
+    case 'final': {
+      const r = Math.min(w, h) / 2
+      return (
+        <g className="likec4-pseudo-state">
+          <circle cx={w / 2} cy={h / 2} r={r - 1} fill="none" strokeWidth={2} />
+          <circle cx={w / 2} cy={h / 2} r={r * 0.62} />
+        </g>
+      )
+    }
     case 'diamond':
       return <path d={`M ${w / 2} 0 L ${w} ${h / 2} L ${w / 2} ${h} L 0 ${h / 2} Z`} />
     case 'pill':
@@ -310,6 +323,13 @@ function ShapeSvg({ shape, w, h, size = 'md' }: ShapeSvgProps) {
 function ShapeSvgOutline({ shape, w, h }: ShapeSvgProps) {
   let svg
   switch (shape) {
+    case 'state':
+      svg = <rect x={-3} y={-3} width={w + 6} height={h + 6} rx={19} />
+      break
+    case 'initial':
+    case 'final':
+      svg = <circle cx={w / 2} cy={h / 2} r={Math.min(w, h) / 2 + 4} />
+      break
     case 'diamond':
       svg = <path d={`M ${w / 2} -4 L ${w + 4} ${h / 2} L ${w / 2} ${h + 4} L -4 ${h / 2} Z`} />
       break

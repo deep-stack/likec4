@@ -17,6 +17,7 @@ import type { AnyAux } from './_aux'
 import type { DecisionBranch } from './decision'
 import type { FqnRef } from './fqnRef'
 import type * as scalar from './scalar'
+import type { StateTransition } from './state'
 import type { TableDefinition, TableRelationship } from './table'
 import type { UmlBinaryRelationship, UmlClassifier } from './uml'
 
@@ -125,6 +126,7 @@ export interface Relationship<A extends AnyAux = AnyAux> extends AbstractRelatio
   readonly target: FqnRef.ModelRef<A>
   readonly tableRelation?: TableRelationship
   readonly decisionBranch?: DecisionBranch
+  readonly stateTransition?: StateTransition
   readonly uml?: UmlBinaryRelationship
   readonly isBidirectional?: boolean
 }

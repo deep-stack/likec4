@@ -14,6 +14,7 @@ import type * as scalar from './scalar'
 import type {
   Icon,
 } from './scalar'
+import type { StateTransition } from './state'
 import type { TableDefinition, TableRelationship } from './table'
 import type { UmlBinaryRelationship, UmlClassifier, UmlOrigin, UmlPresentation } from './uml'
 import type {
@@ -92,6 +93,7 @@ export interface ComputedEdge<A extends AnyAux = AnyAux> extends aux.WithOptiona
   umlAttachment?: { sourceMember?: string; targetMember?: string }
   tableRelation?: TableRelationship
   decisionBranch?: DecisionBranch
+  stateTransition?: StateTransition
   uml?: UmlBinaryRelationship
   umlOrigin?: UmlOrigin
   id: scalar.EdgeId

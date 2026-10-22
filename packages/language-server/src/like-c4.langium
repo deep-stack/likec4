@@ -275,6 +275,7 @@ RelationProperty:
   UmlRelationshipProperty |
   TableRelationProperty |
   DecisionBranchProperty |
+  StateTransitionProperty |
   RelationStringProperty |
   RelationNavigateToProperty |
   RelationStyleProperty |
@@ -1138,6 +1139,9 @@ ThemeColor returns string:
   'amber';
 
 ElementShape returns string:
+  'state' |
+  'initial' |
+  'final' |
   'diamond' |
   'pill' |
   'table' |
@@ -1200,7 +1204,8 @@ Id returns string:
   // Allow reserved keywords as Id
   'element' | 'model' | 'group' | 'node' | 'deployment' | 'instance' | 'relationship' |
   'tableRelation' | 'column' | 'pair' | 'primaryKey' | 'unique' | 'nullable' |
-  'sourceCardinality' | 'targetCardinality' | 'one' | 'zeroOrOne' | 'many' | 'zeroOrMany' | 'branch';
+  'sourceCardinality' | 'targetCardinality' | 'one' | 'zeroOrOne' | 'many' | 'zeroOrMany' | 'branch' |
+  'transition' | 'trigger' | 'guard' | 'effect' | 'state' | 'initial' | 'final';
 
 HashId returns string:
   Hash Id;
@@ -1283,6 +1288,10 @@ TableCardinality: key=('sourceCardinality' | 'targetCardinality') value=('one' |
 TableFieldId returns string: Id | String | 'kind' | 'title' | 'description' | 'source' | 'target';
 
 DecisionBranchProperty: key='branch' value=String ';'?;
+
+StateTransitionProperty: key='transition' '{' parts+=StateTransitionPart* '}';
+
+StateTransitionPart: key=('trigger' | 'guard' | 'effect') value=String ';'?;
 // Structured UML blocks share lexical properties; semantic validation checks context.
 ClassifierProperty: key='classifier' '{' props+=UmlProperty* '}';
 UmlRelationshipProperty: key='uml' '{' props+=UmlProperty* '}';

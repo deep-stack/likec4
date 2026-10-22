@@ -40,4 +40,5 @@ export const supportsSelfRelationship = (relation: {
   readonly tableRelation?: unknown
   readonly decisionBranch?: unknown
   readonly uml?: unknown
-}): boolean => !!(relation.tableRelation || relation.decisionBranch || relation.uml)
+  readonly stateTransition?: unknown
+}): boolean => !!(relation.tableRelation || relation.decisionBranch || relation.uml || relation.stateTransition)

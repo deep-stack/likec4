@@ -83,6 +83,9 @@ describe('LikeC4CompletionProvider', () => {
       text,
       index: 6,
       expectedItems: [
+        'state',
+        'initial',
+        'final',
         'diamond',
         'pill',
         'table',
@@ -181,6 +184,8 @@ describe('LikeC4CompletionProvider', () => {
         'top',
         'tableRelation',
         'targetCardinality',
+        'transition',
+        'trigger',
       ],
     })
     // sys = <|>s<|>ystem {

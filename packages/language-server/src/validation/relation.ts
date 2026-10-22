@@ -57,6 +57,7 @@ export const relationChecks = (services: LikeC4Services): ValidationCheck<ast.Re
         tableRelation: el.body?.props.find(ast.isTableRelationProperty),
         decisionBranch: el.body?.props.find(ast.isDecisionBranchProperty),
         uml: el.body?.props.find(ast.isUmlRelationshipProperty),
+        stateTransition: el.body?.props.find(ast.isStateTransitionProperty),
       }))
     ) {
       accept('error', 'Invalid parent-child relationship', {

@@ -89,6 +89,9 @@ export const relationship = z.object({
   id: relationshipId.optional(),
   title: z.string().nullish(),
   decisionBranch: z.object({ label: z.string() }).optional(),
+  stateTransition: z
+    .object({ trigger: z.string().optional(), guard: z.string().optional(), effect: z.string().optional() })
+    .optional(),
   uml: z.custom<UmlBinaryRelationship>().optional(),
   tableRelation: z.object({
     pairs: z.array(z.object({ source: z.string(), target: z.string() })).min(1).readonly(),

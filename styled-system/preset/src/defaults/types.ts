@@ -43,6 +43,9 @@ export const ElementShapes = [
   'table',
   'diamond',
   'pill',
+  'state',
+  'initial',
+  'final',
 ] as const
 
 export type ElementShape = typeof ElementShapes[number]

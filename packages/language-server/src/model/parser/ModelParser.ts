@@ -254,6 +254,7 @@ export function ModelParser<TBase extends WithExpressionV2>(B: TBase) {
       const uml = parseUmlRelationship(astNode.body?.props.find(ast.isUmlRelationshipProperty))
       const tableRelation = parseTableRelation(astNode.body?.props.find(ast.isTableRelationProperty))
       const branch = astNode.body?.props.find(ast.isDecisionBranchProperty)
+      const transition = astNode.body?.props.find(ast.isStateTransitionProperty)
       const styleProp = astNode.body?.props.find(ast.isRelationStyleProperty)
       const id = stringHash(
         this.docUri,
@@ -278,6 +279,9 @@ export function ModelParser<TBase extends WithExpressionV2>(B: TBase) {
         ...toRelationshipStyle(styleProp?.props, isValid),
         ...(tableRelation && { tableRelation }),
         ...(branch && { decisionBranch: { label: branch.value } }),
+        ...(transition && {
+          stateTransition: mapToObj(transition.parts, part => [part.key, part.value] as const),
+        }),
         ...(uml && { uml, id: uml.id as c4.RelationId }),
       })
     }

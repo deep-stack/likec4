@@ -1,4 +1,4 @@
-import type { DiagramEdge } from '../types'
+import { type DiagramEdge, stateTransitionLabel } from '../types'
 
 /** Match a saved route after generated edge ids change. */
 export function matchEdgeWithoutId(saved: DiagramEdge, latest: DiagramEdge): boolean {
@@ -9,4 +9,6 @@ export function matchEdgeWithoutId(saved: DiagramEdge, latest: DiagramEdge): boo
     && saved.source === latest.source
     && saved.target === latest.target
     && saved.decisionBranch?.label === latest.decisionBranch?.label
+    && (saved.stateTransition ? stateTransitionLabel(saved.stateTransition) : null)
+      === (latest.stateTransition ? stateTransitionLabel(latest.stateTransition) : null)
 }
