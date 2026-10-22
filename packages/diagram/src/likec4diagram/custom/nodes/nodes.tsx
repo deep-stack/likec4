@@ -31,6 +31,7 @@ import { CompoundActions } from './CompoundActions'
 import { DeploymentElementActions, ElementActions } from './ElementActions'
 import { NodeDrifts } from './NodeDrifts'
 import { NodeNotes } from './NodeNotes'
+import { PseudoStateNode } from './PseudoStateNode'
 import { TableNode } from './TableNode'
 import { CompoundDeploymentToolbar, CompoundElementToolbar } from './toolbar/CompoundToolbar'
 import { DeploymentElementToolbar, ElementToolbar } from './toolbar/ElementToolbar'
@@ -100,6 +101,9 @@ export function CompoundDetailsButtonWithHandler(
  * Renders an element node.
  */
 export function ElementNode(props: Types.NodeProps<'element'>) {
+  if (props.data.shape === 'initial' || props.data.shape === 'final') {
+    return <PseudoStateNode {...props} />
+  }
   return props.data.table ? <TableNode {...props} /> : <ArchitectureElementNode {...props} />
 }
 

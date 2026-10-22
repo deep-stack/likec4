@@ -466,6 +466,29 @@ export abstract class DotPrinter<V extends ViewToPrint> {
       })
     }
     switch (element.shape) {
+      // UML pseudo-states: small fixed circles that never show text
+      case 'initial':
+      case 'final': {
+        const size = pxToInch(element.shape === 'initial' ? 22 : 26)
+        node.attributes.apply({
+          [_.shape]: element.shape === 'initial' ? 'circle' : 'doublecircle',
+          [_.fixedsize]: true,
+          [_.width]: size,
+          [_.height]: size,
+          [_.margin]: 0,
+          [_.label]: '',
+        })
+        break
+      }
+      case 'state': {
+        node.attributes.apply({
+          [_.shape]: 'box',
+          [_.style]: 'rounded,filled',
+          [_.width]: pxToInch(160),
+          [_.height]: pxToInch(56),
+        })
+        break
+      }
       case 'diamond': {
         node.attributes.set(_.shape, 'diamond')
         break

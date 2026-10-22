@@ -1139,6 +1139,9 @@ ThemeColor returns string:
   'amber';
 
 ElementShape returns string:
+  'state' |
+  'initial' |
+  'final' |
   'diamond' |
   'pill' |
   'table' |
@@ -1202,7 +1205,7 @@ Id returns string:
   'element' | 'model' | 'group' | 'node' | 'deployment' | 'instance' | 'relationship' |
   'tableRelation' | 'column' | 'pair' | 'primaryKey' | 'unique' | 'nullable' |
   'sourceCardinality' | 'targetCardinality' | 'one' | 'zeroOrOne' | 'many' | 'zeroOrMany' | 'branch' |
-  'transition' | 'trigger' | 'guard' | 'effect';
+  'transition' | 'trigger' | 'guard' | 'effect' | 'state' | 'initial' | 'final';
 
 HashId returns string:
   Hash Id;

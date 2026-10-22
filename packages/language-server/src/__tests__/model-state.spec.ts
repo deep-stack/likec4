@@ -50,4 +50,19 @@ describe('state transitions', () => {
       }`)
     expect(errors).toEqual([])
   })
+
+  test('accepts the state shapes and still accepts their names as identifiers', async ({ t, expect }) => {
+    const { errors } = await t.validate(`specification {
+        element initial { style { shape initial } }
+        element final { style { shape final } }
+        element state { style { shape state } } }
+      model {
+        initial = initial
+        state = state
+        final = final
+        initial -> state
+        state -> final
+      }`)
+    expect(errors).toEqual([])
+  })
 })
