@@ -11,6 +11,7 @@ const parts = defineParts({
   contents: { selector: '& .likec4-edge-label__contents' },
   label: { selector: '& .likec4-edge-label__text' },
   technology: { selector: '& .likec4-edge-label__technology' },
+  guard: { selector: '& .likec4-edge-label__guard' },
 })
 
 export const edgeLabel = defineRecipe({
@@ -66,6 +67,10 @@ export const edgeLabel = defineRecipe({
       fontSize: '14px',
       lineHeight: '1.2',
       margin: '0',
+    },
+    guard: {
+      // Amber, mixed with the label's own text colour so it reads on light and dark labels
+      color: `color-mix(in oklab, var(--xy-edge-label-color), #f59e0b 70%)`,
     },
     technology: {
       textAlign: 'center',

@@ -10,8 +10,11 @@ export type StateTransitionLabelPart = {
   readonly text: string
 }
 
+/** A transition whose parts may also be explicitly undefined, as in diagram data. */
+type AnyStateTransition = { readonly [K in keyof StateTransition]?: string | undefined }
+
 /** The parts of a transition's label, in UML order, without blank ones. */
-export function stateTransitionLabelParts(transition: StateTransition): StateTransitionLabelPart[] {
+export function stateTransitionLabelParts(transition: AnyStateTransition): StateTransitionLabelPart[] {
   const parts: StateTransitionLabelPart[] = []
   const trigger = transition.trigger?.trim()
   const guard = transition.guard?.trim()
@@ -23,7 +26,7 @@ export function stateTransitionLabelParts(transition: StateTransition): StateTra
 }
 
 /** A transition's label, `trigger [guard] / effect`, or null when it has no parts. */
-export function stateTransitionLabel(transition: StateTransition): string | null {
+export function stateTransitionLabel(transition: AnyStateTransition): string | null {
   const parts = stateTransitionLabelParts(transition)
   return parts.length > 0 ? parts.map(part => part.text).join(' ') : null
 }

@@ -346,6 +346,7 @@ export function diagramToXY(opts: {
         labelXY: null,
         points: edge.points,
         ...(edge.tableRelation && { tableRelation: edge.tableRelation }),
+        ...(edge.stateTransition && { stateTransition: edge.stateTransition }),
         ...(edge.uml && { uml: edge.uml, umlEndLabels: edge.umlEndLabels }),
         ...((edge.uml || edge.umlOrigin || nodeById(source).classifier || nodeById(target).classifier) && {
           umlNodeBounds: { source: nodeById(source), target: nodeById(target) },
