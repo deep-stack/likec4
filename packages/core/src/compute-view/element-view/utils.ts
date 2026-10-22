@@ -5,7 +5,9 @@ import {
   type ComputedEdge,
   type ComputedNode,
   type scalar,
+  type StateTransition,
   exact,
+  stateTransitionLabel,
 } from '../../types'
 import { umlRelationshipPresentation } from '../../uml/presentation'
 import { invariant } from '../../utils'
@@ -20,6 +22,10 @@ export const NoFilter = <T>(x: T[] | readonly T[]): T[] => x as T[]
 
 const hashEdgeId = (source: scalar.NodeId, target: scalar.NodeId, relId: scalar.RelationId): scalar.EdgeId =>
   stringHash(`model:${source}:${target}:${relId}`) as scalar.EdgeId
+
+/** A state transition's own label, which wins over the relationship's title. */
+const transitionLabel = (relationship: { readonly stateTransition?: StateTransition } | undefined) =>
+  relationship?.stateTransition ? stateTransitionLabel(relationship.stateTransition) : null
 
 export function toComputedEdges<A extends AnyAux>(
   connections: ReadonlyArray<ConnectionModel<A>>,
@@ -44,13 +50,15 @@ export function toComputedEdges<A extends AnyAux>(
       relations.length > 1 &&
       (shouldExpand ||
         directRelsList.some(r =>
-          r.$relationship.tableRelation || r.$relationship.decisionBranch || r.$relationship.uml
+          r.$relationship.tableRelation || r.$relationship.decisionBranch || r.$relationship.uml ||
+          r.$relationship.stateTransition
         ))
     ) {
       const [expanded, merged] = pipe(
         relations,
         partition(r =>
-          !!((r.$relationship.tableRelation || r.$relationship.decisionBranch || r.$relationship.uml) &&
+          !!((r.$relationship.tableRelation || r.$relationship.decisionBranch || r.$relationship.uml ||
+            r.$relationship.stateTransition) &&
             r.source.id === source && r.target.id === target) ||
           !!shouldExpand?.(r, conn)
         ),
@@ -74,12 +82,15 @@ export function toComputedEdges<A extends AnyAux>(
             parent: conn.boundary?.id as scalar.NodeId ?? null,
             source: source as scalar.NodeId,
             target: target as scalar.NodeId,
-            label: rel.$relationship.decisionBranch?.label ?? title ?? null,
+            label: (rel.source.id === source && rel.target.id === target ? transitionLabel(rel.$relationship) : null) ??
+              rel.$relationship.decisionBranch?.label ?? title ?? null,
             relations: [rel.id],
             ...(rel.$relationship.tableRelation && rel.source.id === source && rel.target.id === target &&
               { tableRelation: rel.$relationship.tableRelation }),
             ...(rel.$relationship.decisionBranch && rel.source.id === source && rel.target.id === target &&
               { decisionBranch: rel.$relationship.decisionBranch }),
+            ...(rel.$relationship.stateTransition && rel.source.id === source && rel.target.id === target &&
+              { stateTransition: rel.$relationship.stateTransition }),
             color,
             line,
             head,
@@ -140,13 +151,16 @@ export function toComputedEdges<A extends AnyAux>(
       source: source as scalar.NodeId,
       target: target as scalar.NodeId,
       label: relations.length === 1 ?
-        only(directRelsList)?.$relationship.decisionBranch?.label ?? title ?? null :
+        transitionLabel(only(directRelsList)?.$relationship) ??
+          only(directRelsList)?.$relationship.decisionBranch?.label ?? title ?? null :
         title ?? null,
       relations: relations.map((r) => r.id),
       ...(relations.length === 1 && only(directRelsList)?.$relationship.tableRelation &&
         { tableRelation: only(directRelsList)!.$relationship.tableRelation }),
       ...(relations.length === 1 && only(directRelsList)?.$relationship.decisionBranch &&
         { decisionBranch: only(directRelsList)!.$relationship.decisionBranch }),
+      ...(relations.length === 1 && only(directRelsList)?.$relationship.stateTransition &&
+        { stateTransition: only(directRelsList)!.$relationship.stateTransition }),
       color,
       line,
       head,

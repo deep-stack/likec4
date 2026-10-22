@@ -22,6 +22,7 @@ import type {
   ThemeColor as Color,
 } from '../types'
 import type { DecisionBranch } from '../types/decision'
+import type { StateTransition } from '../types/state'
 import type { TableDefinition, TableRelationship } from '../types/table'
 import type { UmlBinaryRelationship, UmlClassifier } from '../types/uml'
 import type { Builder } from './Builder'
@@ -195,6 +196,7 @@ export interface Types<
   NewRelationshipProps: NewRelationProps<RelationshipKind, Tag, Metadata<MetadataKey>> & {
     tableRelation?: TableRelationship
     decisionBranch?: DecisionBranch
+    stateTransition?: StateTransition
     uml?: UmlBinaryRelationship
   }
   NewDeploymentRelationshipProps: NewRelationProps<RelationshipKind, Tag, Metadata<MetadataKey>>

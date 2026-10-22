@@ -119,6 +119,7 @@ export interface ParsedAstExtendRelation {
 export interface ParsedAstRelation {
   tableRelation?: c4.TableRelationship
   decisionBranch?: c4.DecisionBranch
+  stateTransition?: c4.StateTransition
   uml?: c4.UmlBinaryRelationship
   id: c4.RelationId
   astPath: string

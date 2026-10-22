@@ -172,7 +172,8 @@ function hasRelationStyle(rel: schemas.model.relationship.Data): boolean {
 
 function hasRelationProps(rel: schemas.model.relationship.Data): boolean {
   return !!(
-    rel.uml || rel.tableRelation || rel.decisionBranch || rel.description || rel.summary || rel.technology
+    rel.uml || rel.tableRelation || rel.decisionBranch || rel.stateTransition || rel.description || rel.summary ||
+    rel.technology
     || (rel.tags && rel.tags.length > 0)
     || (rel.links && rel.links.length > 0)
     || !isEmptyish(rel.metadata)
@@ -196,6 +197,17 @@ export const relationship = zodOp(schemas.model.relationship)(
         select(
           r => r.decisionBranch,
           print(branch => `branch ${JSON.stringify(branch.label)}`),
+        ),
+        select(
+          r => r.stateTransition,
+          print(transition =>
+            `transition { ${
+              (['trigger', 'guard', 'effect'] as const)
+                .filter(key => transition[key] !== undefined)
+                .map(key => `${key} ${JSON.stringify(transition[key])}`)
+                .join(' ')
+            } }`
+          ),
         ),
         select(
           r => r.uml,
