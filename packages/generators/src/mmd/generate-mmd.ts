@@ -25,6 +25,13 @@ const toSingleQuotes = (str: string): string => str.replace(/\\?"/g, `'`)
 const mmdshape = ({ shape, title }: Node): string => {
   const label = `label: ${JSON.stringify(title)}`
   switch (shape) {
+    // UML pseudo-states have no text
+    case 'initial':
+      return `@{ shape: sm-circ }`
+    case 'final':
+      return `@{ shape: fr-circ }`
+    case 'state':
+      return `@{ shape: rounded, ${label} }`
     case 'diamond':
       return `@{ shape: diamond, ${label} }`
     case 'pill':

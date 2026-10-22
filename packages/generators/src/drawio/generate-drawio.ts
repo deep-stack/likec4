@@ -240,6 +240,12 @@ function drawioShape(shape: Node['shape']): string {
       return 'shape=rhombus;perimeter=rhombusPerimeter;'
     case 'pill':
       return 'shape=rectangle;rounded=1;arcSize=50;'
+    case 'state':
+      return 'shape=rectangle;rounded=1;arcSize=30;'
+    case 'initial':
+      return 'shape=ellipse;perimeter=ellipsePerimeter;'
+    case 'final':
+      return 'shape=doubleEllipse;perimeter=ellipsePerimeter;'
     case 'person':
       return 'shape=actor;'
     case 'rectangle':

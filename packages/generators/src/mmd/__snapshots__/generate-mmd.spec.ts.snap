@@ -18,6 +18,9 @@ graph LR
     Root.El10@{ shape: rectangle, label: "Element with \\n\\"component\\" shape" }
     Root.El11@{ shape: diamond, label: "Element with \\n\\"diamond\\" shape" }
     Root.El12@{ shape: stadium, label: "Element with \\n\\"pill\\" shape" }
+    Root.El13@{ shape: rounded, label: "Element with \\n\\"state\\" shape" }
+    Root.El14@{ shape: sm-circ }
+    Root.El15@{ shape: fr-circ }
   end
   Root.El1 -. "\`With 'Label'\`" .-> Root.El2
   Root.El3 -. "\`With
