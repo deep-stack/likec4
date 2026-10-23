@@ -7,6 +7,7 @@ import {
   tableDisplayLayout,
   tableDisplayPath,
   tablePreview,
+  tableToggle,
 } from './tableDisplay'
 
 const table: TableDefinition = {
@@ -104,5 +105,26 @@ describe('interactive table geometry', () => {
     expect(nodes[0]!.height).toBeLessThan(2000)
     expect(nodes[0]!.height).toBeGreaterThan(nodes[2]!.position.y + nodes[2]!.height!)
     expect(absolutePosition(nodes, 'b').y).toBe(nodes[0]!.position.y + nodes[2]!.position.y)
+  })
+})
+
+describe('read-only table toggle', () => {
+  const small = { fields: table.fields.slice(0, 4) }
+  function context(nodes: Types.Node[], expanded: Record<string, boolean> | null) {
+    return {
+      xynodes: nodes,
+      xyedges: [],
+      view: { id: 'schema' },
+      tablePreview: expanded && { view: 'schema', base: nodes, expanded },
+    } as unknown as Parameters<typeof tableToggle>[0]
+  }
+  it('shows only while previews hide fields, and collapses once every such table is expanded', () => {
+    const full = node('small', 0, 0)
+    full.data = { ...full.data, table: small } as Types.Node['data']
+    expect(tableToggle(context([full], {})).visible).toBe(false)
+    expect(tableToggle(context([node('a', 0, 0), node('b', 400, 0)], null)).visible).toBe(false)
+    const nodes = [node('a', 0, 0), node('b', 400, 0), full]
+    expect(tableToggle(context(nodes, { a: true }))).toEqual({ visible: true, expanded: false })
+    expect(tableToggle(context(nodes, { a: true, b: true }))).toEqual({ visible: true, expanded: true })
   })
 })

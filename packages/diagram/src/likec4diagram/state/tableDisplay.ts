@@ -2,6 +2,7 @@ import type { TableDefinition } from '@likec4/core'
 import { tableGeometry } from '@likec4/core/geometry'
 import { ElementHoverScale } from '../../base/const'
 import type { Types } from '../types'
+import type { Context } from './machine.setup'
 
 /** Presentation only: the complete table definition is never changed. */
 export function tablePreview(table: TableDefinition, title: string, required: ReadonlySet<string>, expanded: boolean) {
@@ -14,6 +15,21 @@ export function tablePreview(table: TableDefinition, title: string, required: Re
   const geometry = tableGeometry({ ...table, fields }, title)
   const hidden = table.fields.length - visible.size
   return { ...geometry, height: geometry.height + (hidden > 0 ? 36 : 0), fields, hidden }
+}
+
+/**
+ * The single expansion toggle of read-only diagrams: shown while previews hide fields of some table,
+ * and expanded once every such table is.
+ */
+export function tableToggle(context: Pick<Context, 'xynodes' | 'xyedges' | 'view' | 'tablePreview'>) {
+  const collapsible = context.xynodes.filter(node =>
+    'table' in node.data && !!node.data.table &&
+    tablePreview(node.data.table, node.data.title, requiredFields(node.id, context.xyedges), false).hidden > 0
+  )
+  return {
+    visible: context.tablePreview?.view === context.view.id && collapsible.length > 0,
+    expanded: collapsible.length > 0 && collapsible.every(node => !!context.tablePreview?.expanded[node.id]),
+  }
 }
 
 export function requiredFields(id: string, edges: Types.Edge[]): Set<string> {

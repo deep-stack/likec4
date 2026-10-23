@@ -89,6 +89,9 @@ try {
     schemaView.nodes.filter(node => node.table).length,
   )
   await page.locator('#diagram-1 [role="group"][aria-label^="Table "]').first().focus()
+  // Read-only tables cannot be moved, so there is no position reset; without previews, no expansion toggle either.
+  assert.equal(await page.locator('#diagram-1 [aria-label="Reset table positions"]').count(), 0)
+  assert.equal(await page.locator('#diagram-1 .likec4-table-controls').count(), 0)
   // Logo, navigation label and React Flow attribution follow the embedding options.
   const logo = 'path[fill="#5E98AF"]'
   assert.equal(await page.locator(`#diagram-0 ${logo}`).count(), 0)
