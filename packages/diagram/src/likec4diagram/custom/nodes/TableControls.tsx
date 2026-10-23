@@ -3,13 +3,16 @@ import { useReducedMotion } from '@mantine/hooks'
 import { IconRestore } from '@tabler/icons-react'
 import { Panel } from '@xyflow/react'
 import { useState } from 'react'
+import { useEnabledFeatures } from '../../../context/DiagramFeatures'
 import { useDiagramActorRef, useDiagramContext } from '../../../hooks/useDiagram'
-import { absolutePosition, requiredFields, tablePreview } from '../../state/tableDisplay'
+import { absolutePosition, requiredFields, tablePreview, tableToggle } from '../../state/tableDisplay'
 
 export function TableControls() {
   const actor = useDiagramActorRef()
   const [query, setQuery] = useState('')
   const reducedMotion = useReducedMotion()
+  const readOnly = useEnabledFeatures().enableReadOnly
+  const toggle = useDiagramContext(tableToggle)
   const { hasTables, preview, nodes } = useDiagramContext(ctx => ({
     nodes: ctx.xynodes,
     hasTables: ctx.xynodes.some(n => 'table' in n.data && !!n.data.table),
@@ -66,32 +69,47 @@ export function TableControls() {
             onChange={event => setQuery(event.currentTarget.value)} />
         </div>
       )}
-      <Group gap={4} className="likec4-table-controls">
-        {preview && (
-          <>
+      {readOnly
+        ? toggle.visible && (
+          // Read-only tables cannot be moved: one toggle expands or collapses them all.
+          <Group gap={4} className="likec4-table-controls">
             <Button
               size="compact-xs"
               variant="default"
-              onClick={() => actor.send({ type: 'table.expand', expanded: true })}>
-              Expand all tables
+              aria-label={toggle.expanded ? 'Collapse all tables' : 'Expand all tables'}
+              onClick={() => actor.send({ type: 'table.expand', expanded: !toggle.expanded })}>
+              {toggle.expanded ? 'Collapse all' : 'Expand all'}
             </Button>
-            <Button
-              size="compact-xs"
-              variant="default"
-              onClick={() => actor.send({ type: 'table.expand', expanded: false })}>
-              Collapse all tables
-            </Button>
-          </>
+          </Group>
+        )
+        : (
+          <Group gap={4} className="likec4-table-controls">
+            {preview && (
+              <>
+                <Button
+                  size="compact-xs"
+                  variant="default"
+                  onClick={() => actor.send({ type: 'table.expand', expanded: true })}>
+                  Expand all tables
+                </Button>
+                <Button
+                  size="compact-xs"
+                  variant="default"
+                  onClick={() => actor.send({ type: 'table.expand', expanded: false })}>
+                  Collapse all tables
+                </Button>
+              </>
+            )}
+            <Tooltip label="Reset table positions">
+              <ActionIcon
+                variant="default"
+                aria-label="Reset table positions"
+                onClick={() => actor.send({ type: 'table.resetPositions' })}>
+                <IconRestore size={16} />
+              </ActionIcon>
+            </Tooltip>
+          </Group>
         )}
-        <Tooltip label="Reset table positions">
-          <ActionIcon
-            variant="default"
-            aria-label="Reset table positions"
-            onClick={() => actor.send({ type: 'table.resetPositions' })}>
-            <IconRestore size={16} />
-          </ActionIcon>
-        </Tooltip>
-      </Group>
     </Panel>
   )
 }

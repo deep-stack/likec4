@@ -45,12 +45,16 @@ import {createRoot} from 'react-dom/client';
 import {LikeC4Model} from '@likec4/core/model';
 import {LikeC4ModelProvider, ReactLikeC4} from 'likec4/react';
 import models from './models.json';
-// The first viewer uses the embedding options; the second keeps the defaults.
+// The first viewer uses the embedding options; the second keeps the defaults. The last two show the
+// first's view as sequences, so two walkthroughs run on one page.
 const embedding = {showLogo: false, navigationLabel: 'Interaction diagram',
   reactFlowProps: {proOptions: {hideAttribution: true}}};
-for (const [index, viewId, options] of [[0, 'request', embedding], [1, ${JSON.stringify(schemaView.id)}, {}]]) {
-  createRoot(document.getElementById('diagram-' + index)).render(
-    <LikeC4ModelProvider likec4model={LikeC4Model.fromDump(models[index])}>
+const viewers = [[0, 'request', embedding], [1, ${JSON.stringify(schemaView.id)}, {}],
+  [0, 'request', {dynamicViewVariant: 'sequence'}], [0, 'request', {dynamicViewVariant: 'sequence'}]];
+for (const [index, [model, viewId, options]] of viewers.entries()) {
+  // Several roots on one page need their own id prefixes, as React requires.
+  createRoot(document.getElementById('diagram-' + index), {identifierPrefix: 'diagram-' + index + '-'}).render(
+    <LikeC4ModelProvider likec4model={LikeC4Model.fromDump(models[model])}>
       <ReactLikeC4 viewId={viewId} style={{width:'100%',height:600}}
         injectFontCss={false} fitView enableDynamicViewWalkthrough {...options} />
     </LikeC4ModelProvider>
@@ -70,7 +74,9 @@ const server = createServer(async (req, res) => {
     res.end(await readFile('viewer.js'))
   } else {
     res.setHeader('Content-Type', 'text/html')
-    res.end('<!doctype html><div id="diagram-0"></div><div id="diagram-1"></div><script src="/viewer.js"></script>')
+    res.end(
+      '<!doctype html><div id="diagram-0"></div><div id="diagram-1"></div><div id="diagram-2"></div><div id="diagram-3"></div><script src="/viewer.js"></script>',
+    )
   }
 })
 await new Promise(resolve => server.listen(0, '127.0.0.1', resolve))
@@ -89,6 +95,9 @@ try {
     schemaView.nodes.filter(node => node.table).length,
   )
   await page.locator('#diagram-1 [role="group"][aria-label^="Table "]').first().focus()
+  // Read-only tables cannot be moved, so there is no position reset; without previews, no expansion toggle either.
+  assert.equal(await page.locator('#diagram-1 [aria-label="Reset table positions"]').count(), 0)
+  assert.equal(await page.locator('#diagram-1 .likec4-table-controls').count(), 0)
   // Logo, navigation label and React Flow attribution follow the embedding options.
   const logo = 'path[fill="#5E98AF"]'
   assert.equal(await page.locator(`#diagram-0 ${logo}`).count(), 0)
@@ -96,9 +105,24 @@ try {
   await page.locator('#diagram-0').getByText('Interaction diagram', { exact: true }).waitFor()
   assert.equal(await page.locator('#diagram-0 .react-flow__attribution').count(), 0)
   assert.equal(await page.locator('#diagram-1 .react-flow__attribution').count(), 1)
+  // Each running walkthrough keeps its own highlights: the outline's active step shares one animation
+  // id in every diagram, so starting the second must not hide the first's.
+  for (const diagram of ['#diagram-2', '#diagram-3']) {
+    await page.locator(diagram).getByRole('button', { name: 'Start', exact: true }).click()
+    // The step's label on the diagram, then its badge in the outline.
+    await page.locator(diagram).getByText('1', { exact: true }).nth(1).waitFor()
+  }
+  const firstStep = page.locator('#diagram-2').getByText('1', { exact: true })
+  assert.equal(await firstStep.count(), 2, 'The step label and its outline badge')
+  for (let check = 0; check < 10; check++) {
+    for (const step of await firstStep.all()) {
+      assert(await step.isVisible(), 'A walkthrough must not hide another diagram\'s active step')
+    }
+    await page.waitForTimeout(100)
+  }
   assert.deepEqual(errors, [], 'Packed viewer must render without browser errors')
   console.log(
-    'Packed compiler, model API, Mermaid export, dynamic viewer, native ER viewer and embedding options passed',
+    'Packed compiler, model API, Mermaid export, dynamic viewer, native ER viewer, embedding options and independent walkthroughs passed',
   )
 } finally {
   await browser?.close()

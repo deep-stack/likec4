@@ -23,6 +23,7 @@ import { AnimatePresence, m } from 'motion/react'
 import { memo, useState } from 'react'
 import { ceil, isNonNullish } from 'remeda'
 import { ElementShape } from '../../../base-primitives'
+import { useEnabledFeatures } from '../../../context/DiagramFeatures'
 import { selectDiagramContext, useDiagramSelector, useMantinePortalProps } from '../../../hooks'
 import { useDiagram, useDiagramContext } from '../../../hooks/useDiagram'
 import { useXYStore } from '../../../hooks/useXYFlow'
@@ -128,10 +129,14 @@ export const NotationPanel = memo(() => {
     id,
     notations,
   } = useDiagramSelector(selector)
-  const [isCollapsed, setCollapsed] = useLocalStorage({
+  const [remembered, setRemembered] = useLocalStorage({
     key: 'notation-webview-collapsed',
     defaultValue: true,
   })
+  // A read-only diagram's legend starts closed and opens on its own, not with every other diagram's.
+  const [own, setOwn] = useState(true)
+  const readOnly = useEnabledFeatures().enableReadOnly
+  const [isCollapsed, setCollapsed] = readOnly ? [own, setOwn] : [remembered, setRemembered]
   const hasNotations = notations.length > 0
   const portalProps = useMantinePortalProps()
 
@@ -156,6 +161,7 @@ export const NotationPanel = memo(() => {
               size={'lg'}
               variant="default"
               className={styles.icon}
+              aria-label="Show diagram legend"
               onClick={() => setCollapsed(false)}
             >
               <IconHelpCircle stroke={1.5} />
@@ -199,6 +205,7 @@ export const NotationPanel = memo(() => {
                     alignSelf: 'center',
                     opacity: 0.7,
                   }}
+                  aria-label="Hide diagram legend"
                   onClick={() => setCollapsed(true)}
                 >
                   <IconArrowDownRight stroke={2} />
