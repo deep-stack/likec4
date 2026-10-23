@@ -1,5 +1,6 @@
 import { cx } from '@likec4/styles/css'
 import { useStore } from '@nanostores/react'
+import { LayoutGroup } from 'motion/react'
 import { atom } from 'nanostores'
 import { type PropsWithChildren, useMemo, useRef, useState } from 'react'
 import { RootContainerContextProvider } from '../context/RootContainerContext'
@@ -40,7 +41,10 @@ export function RootContainer({
         ['data-likec4-reduced-graphics']: true,
       })}>
       <RootContainerContextProvider value={ctx}>
-        {children}
+        {/* Shared layout animations are matched by id across the page: each diagram's stay its own. */}
+        <LayoutGroup id={id} inherit={false}>
+          {children}
+        </LayoutGroup>
       </RootContainerContextProvider>
     </div>
   )
