@@ -73,6 +73,7 @@ export const NavigationPanelControls = memo(() => {
     enableCompareWithLatest,
     enableSearch,
     enableVscode,
+    enableViewDetails,
   } = useEnabledFeatures()
   const viewModel = useOptionalCurrentViewModel()
   const {
@@ -210,7 +211,7 @@ export const NavigationPanelControls = memo(() => {
           flexWrap: 'nowrap',
           flexGrow: 0,
         })}>
-        <ViewDetailsButton key="details" onOpen={() => actor.closeDropdown()} />
+        {enableViewDetails && <ViewDetailsButton key="details" onOpen={() => actor.closeDropdown()} />}
         {enableVscode && <OpenSource key="open-source" />}
         {editBtnVisible && <ToggleReadonly key="toggle-readonly" disabled={editBtnDisabled} isReadOnly={isReadOnly} />}
         {enableDynamicViewWalkthrough && isDynamicView && <DynamicViewControls key="dynamic-view-controls" />}
