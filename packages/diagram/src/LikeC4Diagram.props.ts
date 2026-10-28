@@ -291,6 +291,13 @@ export interface LikeC4DiagramProperties<A extends Any = Unknown> {
   enableNotes?: boolean | undefined
 
   /**
+   * Show the "View details" button, which opens the view's title, links and description
+   *
+   * @default true
+   */
+  enableViewDetails?: boolean | undefined
+
+  /**
    * Improve performance by hiding certain elements and reducing visual effects (disable mix-blend, shadows, animations)
    * Enable it if you have a large or static view
    * - `auto` - will be `true` if view has more then 3000 * 2000 pixels
