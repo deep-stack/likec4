@@ -12,6 +12,8 @@ export function TableFields({ table, title, foreignFields, preview, revealed }: 
 }) {
   const shown = preview ? tablePreview(table, title, preview.required, preview.expanded) : null
   const geometry = shown ?? tableGeometry(table, title)
+  // The badge column is as wide for a preview as for the whole table, so it lines up when expanded.
+  const badgeWidth = tableGeometry(table, title).badgeWidth
   return (
     <>
       <div className="likec4-table-header" style={{ height: geometry.headerHeight }}>
@@ -29,6 +31,7 @@ export function TableFields({ table, title, foreignFields, preview, revealed }: 
             key={field.id}
             className="likec4-table-row"
             data-field={field.id}
+            data-badge={field.badge ? (field.badge.tone ?? 'default') : undefined}
             style={{
               height: row.height,
               outline: revealed === field.id ? '2px solid orange' : undefined,
@@ -36,6 +39,11 @@ export function TableFields({ table, title, foreignFields, preview, revealed }: 
             }}>
             <span className="likec4-table-key" title={key || 'No supplied key constraint'}>{key}</span>
             <span className="likec4-table-name" title={field.title}>{field.title}</span>
+            {badgeWidth > 0 && (
+              <span className="likec4-table-badge-slot" style={{ width: badgeWidth }}>
+                {field.badge && <span className="likec4-table-badge">{field.badge.text}</span>}
+              </span>
+            )}
             <span className="likec4-table-type" title={field.type}>{field.type}</span>
             {field.nullable !== undefined && (
               <span

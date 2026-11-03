@@ -42,6 +42,7 @@ export const element = z
         title: z.string(),
         type: z.string(),
         nullable: z.boolean().optional(),
+        badge: z.object({ text: z.string(), tone: z.literal('warning').optional() }).optional(),
         keys: z.array(z.enum(['primary', 'unique'])).readonly().optional(),
       })).readonly(),
     }).optional(),

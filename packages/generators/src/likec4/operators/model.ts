@@ -107,6 +107,10 @@ ${
               field.keys?.includes('primary') ? ' primaryKey' : ''
             }${field.keys?.includes('unique') ? ' unique' : ''}${
               field.nullable !== undefined ? ` nullable ${field.nullable}` : ''
+            }${
+              field.badge
+                ? ` badge ${JSON.stringify(field.badge.text)}${field.badge.tone ? ` ${field.badge.tone}` : ''}`
+                : ''
             } }`
           ).join('\n')
         }

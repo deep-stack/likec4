@@ -71,6 +71,33 @@
   color: var(--mantine-color-dimmed);
   font: 11px ui-monospace, monospace;
 }
+/* A field with a badge: its row is tinted with a coloured edge, and the badge sits in its own column.
+   Embedding apps can set --likec4-table-badge-color and --likec4-table-badge-warning-color. */
+.likec4-table-row[data-badge] {
+  --likec4-table-badge: var(--likec4-table-badge-color, var(--mantine-color-blue-filled));
+  background: color-mix(in srgb, var(--likec4-table-badge) 8%, var(--mantine-color-body));
+  box-shadow: inset 3px 0 0 var(--likec4-table-badge);
+}
+.likec4-table-row[data-badge="warning"] {
+  --likec4-table-badge: var(--likec4-table-badge-warning-color, var(--mantine-color-yellow-filled));
+}
+.likec4-table-badge-slot {
+  flex-shrink: 0;
+  display: flex;
+}
+.likec4-table-badge {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 7px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--likec4-table-badge) 40%, transparent);
+  background: color-mix(in srgb, var(--likec4-table-badge) 12%, var(--mantine-color-body));
+  color: color-mix(in srgb, var(--likec4-table-badge) 80%, var(--mantine-color-text));
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.6;
+}
 .likec4-table .react-flow__handle {
   opacity: 0;
   pointer-events: none;

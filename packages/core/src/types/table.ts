@@ -5,6 +5,12 @@ export interface TableField {
   readonly type: string
   readonly nullable?: boolean
   readonly keys?: readonly ('primary' | 'unique')[]
+  /** A short label drawn as a chip on the row, which it highlights; `warning` draws it in the warning colour. */
+  readonly badge?: TableFieldBadge
+}
+export interface TableFieldBadge {
+  readonly text: string
+  readonly tone?: 'warning'
 }
 export interface TableDefinition {
   readonly fields: readonly TableField[]

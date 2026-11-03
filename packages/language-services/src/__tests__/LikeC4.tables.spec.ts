@@ -4,7 +4,7 @@ import { fromSource } from '../node/index'
 it('round trips table fields, composite references and unknown metadata through DSL', async () => {
   const source = `specification { element record { style { shape table } } }
 model {
- a = record { table { column id 'uuid' { primaryKey nullable false } column "record kind" 'text' { title 'Kind <&>' unique } } }
+ a = record { table { column id 'uuid' { primaryKey nullable false } column "record kind" 'text' { title 'Kind <&>' unique badge 'health, special' warning } column email 'text' { badge 'contact' } } }
  b = record { table { column id 'uuid' column "record kind" 'text' } }
  a -> b { tableRelation { pair id -> id pair "record kind" -> "record kind" sourceCardinality one targetCardinality zeroOrMany } }
  b -> b { tableRelation { pair id -> "record kind" } }
