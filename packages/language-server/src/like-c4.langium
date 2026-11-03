@@ -1203,7 +1203,7 @@ Id returns string:
   RankValue |
   // Allow reserved keywords as Id
   'element' | 'model' | 'group' | 'node' | 'deployment' | 'instance' | 'relationship' |
-  'tableRelation' | 'column' | 'pair' | 'primaryKey' | 'unique' | 'nullable' |
+  'tableRelation' | 'column' | 'pair' | 'primaryKey' | 'unique' | 'nullable' | 'badge' | 'warning' |
   'sourceCardinality' | 'targetCardinality' | 'one' | 'zeroOrOne' | 'many' | 'zeroOrMany' | 'branch' |
   'transition' | 'trigger' | 'guard' | 'effect' | 'state' | 'initial' | 'final';
 
@@ -1276,10 +1276,11 @@ terminal Hex: /[a-fA-F0-9]{3,}(?![-_g-zG-Z])/;
 
 TableProperty: key='table' '{' fields+=TableField* '}';
 TableField: 'column' name=TableFieldId type=String ('{' props+=TableFieldProperty* '}')?;
-TableFieldProperty: TableFieldTitle | TableFieldKey | TableFieldNullable;
+TableFieldProperty: TableFieldTitle | TableFieldKey | TableFieldNullable | TableFieldBadge;
 TableFieldTitle: key='title' value=String;
 TableFieldKey: key=('primaryKey' | 'unique');
 TableFieldNullable: key='nullable' value=BOOLEAN;
+TableFieldBadge: key='badge' value=String tone='warning'?;
 TableRelationProperty: key='tableRelation' '{' props+=TableRelationEntry* '}';
 TableRelationEntry: TableFieldPair | TableCardinality;
 TableFieldPair: 'pair' source=TableFieldId '->' target=TableFieldId;

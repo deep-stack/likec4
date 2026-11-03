@@ -9,12 +9,14 @@ export function parseTable(node: ast.TableProperty | undefined): TableDefinition
         p.key === 'primaryKey' ? 'primary' as const : 'unique' as const
       )
       const nullable = field.props.find(ast.isTableFieldNullable)
+      const badge = field.props.find(ast.isTableFieldBadge)
       return {
         id: field.name,
         title: field.props.find(ast.isTableFieldTitle)?.value ?? field.name,
         type: field.type,
         ...(keys.length > 0 && { keys }),
         ...(nullable && { nullable: nullable.value }),
+        ...(badge && { badge: { text: badge.value, ...(badge.tone && { tone: badge.tone }) } }),
       }
     }),
   }

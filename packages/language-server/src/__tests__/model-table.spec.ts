@@ -3,7 +3,7 @@ import { testFileScope as test } from '../test'
 
 const source = `specification { element record }
 model {
- requests = record { style { shape table } table { column id 'text' { primaryKey } column tenant 'uuid' { unique } } }
+ requests = record { style { shape table } table { column id 'text' { primaryKey } column tenant 'uuid' { unique } column email 'text' { badge 'contact' } column allergies 'text' { badge 'health, special' warning } } }
  attempts = record { style { shape table } table { column id 'bigint' { primaryKey } column request_id 'text' { nullable false } } }
  requests -> attempts { tableRelation { pair id -> request_id sourceCardinality one targetCardinality zeroOrMany } }
 }
@@ -16,6 +16,8 @@ describe('ER table data', () => {
     expect(model.elements['requests']?.table?.fields).toEqual([
       { id: 'id', title: 'id', type: 'text', keys: ['primary'] },
       { id: 'tenant', title: 'tenant', type: 'uuid', keys: ['unique'] },
+      { id: 'email', title: 'email', type: 'text', badge: { text: 'contact' } },
+      { id: 'allergies', title: 'allergies', type: 'text', badge: { text: 'health, special', tone: 'warning' } },
     ])
     expect(Object.values(model.relations)[0]?.tableRelation).toEqual({
       pairs: [{ source: 'id', target: 'request_id' }],
@@ -54,7 +56,7 @@ test('preserves parallel field mappings and a self-reference in computed views',
   expect(formattedError).toBe('')
   const model = await t.buildModel()
   const view = model.views['records']!
-  expect(view.nodes.find(n => n.id === 'requests')?.table?.fields).toHaveLength(2)
+  expect(view.nodes.find(n => n.id === 'requests')?.table?.fields).toHaveLength(4)
   expect(view.edges).toHaveLength(3)
   expect(view.edges.map(e => e.tableRelation?.pairs)).toEqual(expect.arrayContaining([
     [{ source: 'id', target: 'request_id' }],

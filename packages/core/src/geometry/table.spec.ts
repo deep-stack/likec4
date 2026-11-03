@@ -15,4 +15,12 @@ describe('table geometry', () => {
       ['field1', 94],
     ])
   })
+  it('widens a table for its badges only when a field has one', () => {
+    const fields = [{ id: 'email', title: 'customer_email_address_for_receipts', type: 'text' }]
+    const plain = tableGeometry({ fields }, 'Customers')
+    const badged = tableGeometry({ fields: [{ ...fields[0]!, badge: { text: 'health, special' } }] }, 'Customers')
+    expect(plain.badgeWidth).toBe(0)
+    expect(badged.badgeWidth).toBeGreaterThan(0)
+    expect(badged.width).toBeGreaterThanOrEqual(plain.width + badged.badgeWidth)
+  })
 })
