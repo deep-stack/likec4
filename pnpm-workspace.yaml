@@ -155,7 +155,7 @@ catalogs:
     "@babel/core": ^7.29.7
     babel-plugin-react-compiler: ^1.0.0
     clsx: ^2.1.1
-    motion: ^12.43.0
+    motion: ^14.6.0
     nanostores: 1.5.3
     react: 19.2.8
     react-dom: 19.2.8
