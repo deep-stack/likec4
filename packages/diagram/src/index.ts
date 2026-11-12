@@ -5,6 +5,11 @@
 //
 // Portions of this file have been modified by NVIDIA CORPORATION & AFFILIATES.
 
+export {
+  type ElementDetailsExtras,
+  ElementDetailsExtrasProvider,
+  type ElementDetailsSubject,
+} from './context/ElementDetailsExtras'
 export { DefaultIconRenderer, IconRendererProvider } from './context/IconRenderer'
 
 export { MaxZoom, MinZoom } from './base/const'
