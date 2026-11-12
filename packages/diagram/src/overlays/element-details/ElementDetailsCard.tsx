@@ -50,7 +50,7 @@ import { clamp, entries, isNullish, map, only, partition, pipe } from 'remeda'
 import { Markdown } from '../../base-primitives'
 import { ElementTag } from '../../base-primitives/element/ElementTags'
 import { Link } from '../../components/Link'
-import { DiagramFeatures, IconRenderer, IfEnabled } from '../../context'
+import { DiagramFeatures, IconRenderer, IfEnabled, useElementDetailsExtras } from '../../context'
 import { useCallbackRef, useUpdateEffect } from '../../hooks'
 import { useCurrentViewModel } from '../../hooks/useCurrentViewModel'
 import { useDiagram } from '../../hooks/useDiagram'
@@ -126,6 +126,9 @@ export function ElementDetailsCard({
   const nodeModel = fromNode ? viewModel.findNode(fromNode) : viewModel.findNodeWithElement(fqn)
 
   const elementModel = viewModel.$model.element(fqn)
+  // What the app that embeds the diagram adds to the details.
+  const extras = useElementDetailsExtras()
+  const subject = { id: fqn, nodeId: fromNode ?? null, title: elementModel.title }
 
   const [viewsOf, otherViews] = pipe(
     [...elementModel.views()],
@@ -348,6 +351,11 @@ export function ElementDetailsCard({
                   tags={elementModel.tags}
                   onClick={tag => diagram.openSearch(`#${tag}`)} />
               </div>
+              {extras?.actions && (
+                <HStack gap={'xs'} flexWrap="nowrap" style={{ alignSelf: 'flex-start' }}>
+                  {extras.actions(subject)}
+                </HStack>
+              )}
               <ActionIconGroup
                 style={{
                   alignSelf: 'flex-start',
