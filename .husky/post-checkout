@@ -4,7 +4,7 @@ rm -f `find . -type f -name '*.tsbuildinfo'`
 
 # This notifies the user if the yarn.lock file has changed.
 CHANGED=$(git diff "$1" "$2" --stat -- ./pnpm-lock.yaml | wc -l)
-if (( CHANGED > 0 )); then
+if [ "$CHANGED" -gt 0 ]; then
     echo
     echo "🚨 🚨 🚨 pnpm-lock.yaml has changed! 🚨 🚨 🚨 "
     echo "run 'pnpm install' to get the latest!"

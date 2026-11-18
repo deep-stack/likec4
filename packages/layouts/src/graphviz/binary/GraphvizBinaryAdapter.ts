@@ -4,7 +4,7 @@ import spawn, { SubprocessError } from 'nano-spawn'
 import os from 'node:os'
 import { isEmpty, randomString } from 'remeda'
 import which from 'which'
-import type { GraphvizPort } from '../GraphvizLayoter'
+import type { GraphvizPort, LayoutEngine } from '../GraphvizLayoter'
 import type { DotSource } from '../types'
 
 const rootLogger = mainLogger.getChild(['graphviz', 'binary'])
@@ -100,11 +100,11 @@ export class GraphvizBinaryAdapter implements GraphvizPort {
     return dot
   }
 
-  async layoutJson(dot: DotSource): Promise<string> {
+  async layoutJson(dot: DotSource, engine: LayoutEngine = 'dot'): Promise<string> {
     const logger = rootLogger.getChild(['layoutJson', randomString(4)])
     let result: string | undefined
     try {
-      const dotcmd = await spawn(this.dotpath, ['-Tjson', '-y'], {
+      const dotcmd = await spawn(this.dotpath, ['-Tjson', '-y', `-K${engine}`], {
         timeout: 10_000,
         stdin: {
           string: dot,

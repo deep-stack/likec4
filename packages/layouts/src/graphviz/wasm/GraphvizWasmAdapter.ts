@@ -3,7 +3,7 @@ import { delay } from '@likec4/core/utils'
 import { loggable, rootLogger } from '@likec4/log'
 import pLimit from 'p-limit'
 import { randomString } from 'remeda'
-import type { GraphvizPort } from '../GraphvizLayoter'
+import type { GraphvizPort, LayoutEngine } from '../GraphvizLayoter'
 import type { DotSource } from '../types'
 
 // limit to 1 concurrency to avoid wasm loading issues
@@ -80,10 +80,10 @@ export class GraphvizWasmAdapter implements GraphvizPort {
     })
   }
 
-  async layoutJson(dot: DotSource): Promise<string> {
+  async layoutJson(dot: DotSource, engine: LayoutEngine = 'dot'): Promise<string> {
     return await this.attempt(`layout`, dot, async () => {
       const graphviz = await Graphviz.load()
-      return graphviz.layout(dot, 'json', undefined, {
+      return graphviz.layout(dot, 'json', engine, {
         yInvert: true,
       })
     })
