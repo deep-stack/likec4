@@ -79,6 +79,9 @@ function normalizeDot(dot: DotSource): DotSource {
     .join('\n') as DotSource
 }
 
+/** A view with more edges than this tries only its best rearrangement: each try routes every edge again. */
+const MANY_EDGES = 40
+
 /** A node by its DOT name, in the graph or in any of its subgraphs, such as a group's cluster. */
 function findNode(graph: GraphBaseModel, name: string): NodeModel | undefined {
   return graph.getNode(name) ?? graph.subgraphs.map(subgraph => findNode(subgraph, name)).find(Boolean)
@@ -263,7 +266,9 @@ export class GraphvizLayouter implements Disposable {
       .replace(/\brankdir\s*=\s*"?[A-Z]{2}"?/, 'rankdir="TB"')
     const objects = json.objects ?? []
     try {
-      for (const positions of placements) {
+      // Each try routes every edge again; a view with many edges tries only its best placement.
+      const tries = view.edges.length > MANY_EDGES ? 1 : placements.length
+      for (const positions of placements.slice(0, tries)) {
         const graph = fromDot(source)
         for (const box of diagram.nodes) {
           if (groups.has(box.id)) {
