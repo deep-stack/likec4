@@ -11,6 +11,7 @@ import {
   ElementShape,
   ElementTags as ElementTagsPrimitive,
 } from '../../../base-primitives'
+import { TableFields } from '../../../base-primitives/table/TableFields'
 import { useEnabledFeatures } from '../../../context/DiagramFeatures'
 import { useCallbackRef } from '../../../hooks'
 import { useDiagram } from '../../../hooks/useDiagram'
@@ -48,6 +49,9 @@ const ElementDetailsButtonWithHandler = (
 
 export function ElementNode(props: RelationshipsBrowserTypes.NodeProps<'element'>) {
   const { enableElementTags } = useEnabledFeatures()
+  if (props.data.table) {
+    return <TableElementNode {...props} />
+  }
   return (
     <ElementNodeContainer key={props.id} layoutId={props.id} nodeProps={props}>
       <ElementShape {...props} />
@@ -55,6 +59,28 @@ export function ElementNode(props: RelationshipsBrowserTypes.NodeProps<'element'
       {enableElementTags && <ElementTags {...props} />}
       <ElementDetailsButtonWithHandler {...props} />
       <ElementActions {...props} />
+      <ElementPorts {...props} />
+    </ElementNodeContainer>
+  )
+}
+
+/** A table, as its preview: its keys and the fields its relationships here join, and as many more as fit. */
+function TableElementNode(props: RelationshipsBrowserTypes.NodeProps<'element'>) {
+  const { table, tableFields, title } = props.data
+  const joined = new Set(tableFields ?? [])
+  return (
+    <ElementNodeContainer key={props.id} layoutId={props.id} nodeProps={props} className="likec4-table">
+      {/* The rows stack in a block, as in the diagram; the node's own container lays its children out in a row. */}
+      <div style={{ width: '100%', alignSelf: 'flex-start' }}>
+        <TableFields
+          table={table!}
+          title={title}
+          foreignFields={new Set(
+            table!.fields.filter(f => joined.has(f.id) && !f.keys?.includes('primary')).map(f => f.id),
+          )}
+          preview={{ required: joined, expanded: false }} />
+      </div>
+      <ElementDetailsButtonWithHandler {...props} />
       <ElementPorts {...props} />
     </ElementNodeContainer>
   )

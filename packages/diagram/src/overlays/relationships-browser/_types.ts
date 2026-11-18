@@ -8,6 +8,7 @@ import type {
   RelationId,
   RelationshipArrowType,
   RelationshipLineType,
+  TableDefinition,
   ViewId,
 } from '@likec4/core/types'
 import type { FunctionComponent } from 'react'
@@ -57,6 +58,9 @@ export namespace RelationshipsBrowserTypes {
       icon: string | null
       ports: Ports
       existsInCurrentView: boolean
+      /** A table, drawn as its preview, and the fields its relationships here join. */
+      table?: TableDefinition | undefined
+      tableFields?: string[] | undefined
     }
   >
 

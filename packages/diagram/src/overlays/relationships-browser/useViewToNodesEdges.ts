@@ -143,6 +143,7 @@ export function viewToNodesEdge(
               style: node.style,
               existsInCurrentView: node.existsInCurrentView,
               tags: node.tags,
+              ...(node.table && { table: node.table, tableFields: node.tableFields ?? [] }),
               ...navigateTo,
             },
           },
