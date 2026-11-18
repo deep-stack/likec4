@@ -8,7 +8,8 @@ export function TableFields({ table, title, foreignFields, preview, revealed }: 
   title: string
   revealed?: string | undefined
   foreignFields: ReadonlySet<string>
-  preview?: { required: ReadonlySet<string>; expanded: boolean; toggle: () => void } | undefined
+  /** A preview shows the required fields and as many more as fit. Without toggle, it says how many it leaves out. */
+  preview?: { required: ReadonlySet<string>; expanded: boolean; toggle?: (() => void) | undefined } | undefined
 }) {
   const shown = preview ? tablePreview(table, title, preview.required, preview.expanded) : null
   const geometry = shown ?? tableGeometry(table, title)
@@ -65,7 +66,21 @@ export function TableFields({ table, title, foreignFields, preview, revealed }: 
           </div>
         )
       })}
-      {preview && shown && shown.hidden > 0 && (
+      {preview && !preview.toggle && shown && shown.hidden > 0 && (
+        <div
+          className="likec4-table-more"
+          style={{
+            height: 36,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderTop: '1px solid currentColor',
+            opacity: 0.8,
+          }}>
+          {`${shown.hidden} more fields`}
+        </div>
+      )}
+      {preview?.toggle && shown && shown.hidden > 0 && (
         <button
           type="button"
           className="nodrag nopan likec4-table-expand"
@@ -83,7 +98,7 @@ export function TableFields({ table, title, foreignFields, preview, revealed }: 
           onPointerDown={event => event.stopPropagation()}
           onClick={event => {
             event.stopPropagation()
-            preview.toggle()
+            preview.toggle?.()
           }}>
           {preview.expanded ? 'Show fewer fields' : `+ Show ${shown.hidden} more fields`}
         </button>
