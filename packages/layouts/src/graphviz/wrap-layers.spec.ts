@@ -12,8 +12,8 @@ const tall = [
 
 describe('wrapLayers', () => {
   it('splits a long rank into rows that keep Graphviz order, and opens larger', () => {
-    const wrapped = wrapLayers(tall, 'LR')
-    expect(wrapped).not.toBeNull()
+    const [wrapped] = wrapLayers(tall, 'LR')
+    expect(wrapped).toBeDefined()
     const places = [...wrapped!.entries()]
     const columns = new Set(places.filter(([id]) => id.startsWith('a')).map(([, p]) => p.x))
     expect(columns.size).toBeGreaterThan(1)
@@ -25,8 +25,8 @@ describe('wrapLayers', () => {
     expect(frameZoom(width, height)).toBeGreaterThan(frameZoom(920, 12 * 240 - 60) * 1.15)
   })
 
-  it('keeps a layout that already fits the frame', () => {
+  it('keeps a layout that already reads well', () => {
     const chain = [box('a', 0, 0), box('b', 600, 0), box('c', 1200, 0)]
-    expect(wrapLayers(chain, 'LR')).toBeNull()
+    expect(wrapLayers(chain, 'LR')).toEqual([])
   })
 })

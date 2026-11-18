@@ -13,7 +13,7 @@ import type { ComputedProjectsView, LayoutedProjectsView } from '@likec4/core/co
 import { nonexhaustive } from '@likec4/core/utils'
 import { loggable, rootLogger as mainLogger, wrapError } from '@likec4/log'
 import { randomString } from 'remeda'
-import { attribute as _, fromDot, toDot } from 'ts-graphviz'
+import { type GraphBaseModel, type NodeModel, attribute as _, fromDot, toDot } from 'ts-graphviz'
 import { calcSequenceLayout } from '../sequence'
 import type { AILayoutHints } from './ai/types'
 import { AiLayoutViewPrinter } from './AiLayoutPrinter'
@@ -22,6 +22,8 @@ import { GraphClusterSpace } from './DotPrinter'
 import { DynamicViewPrinter } from './DynamicViewPrinter'
 import { ElementViewPrinter } from './ElementViewPrinter'
 import { parseGraphvizJson, parseGraphvizJsonOfProjectsView } from './GraphvizParser'
+import { layoutQuality } from './layout-quality'
+import { packGroups } from './pack-groups'
 import { ProjectsViewPrinter } from './ProjectsViewPrinter'
 import type { DotSource } from './types'
 import type { GraphvizJson } from './types-dot'
@@ -75,6 +77,58 @@ function normalizeDot(dot: DotSource): DotSource {
     .split('\n')
     .filter((l) => !(l.includes('margin') && l.includes(`${GraphClusterSpace}`))) // see DotPrinter.ts#L175
     .join('\n') as DotSource
+}
+
+/** A node by its DOT name, in the graph or in any of its subgraphs, such as a group's cluster. */
+function findNode(graph: GraphBaseModel, name: string): NodeModel | undefined {
+  return graph.getNode(name) ?? graph.subgraphs.map(subgraph => findNode(subgraph, name)).find(Boolean)
+}
+
+/** A node's box in Graphviz JSON coordinates (points, y down): its edges, from its centre and size in inches. */
+function nodeBox(object: GraphvizJson.GvNodeObject) {
+  const [x, y] = object.pos.split(',').map(Number) as [number, number]
+  const halfWidth = (parseFloat(object.width) * 72) / 2
+  const halfHeight = (parseFloat(object.height) * 72) / 2
+  return { left: x - halfWidth, top: y - halfHeight, right: x + halfWidth, bottom: y + halfHeight }
+}
+
+/**
+ * Graphviz's nop engine routes edges between nodes it keeps in place, but draws no box for a group. Gives each group
+ * of the routed layout the box it had around its members, moved with them, and moves its title along. Returns false
+ * when a group or member is missing.
+ */
+function boxGroups(original: GraphvizJson, routed: GraphvizJson, view: ComputedView): boolean {
+  const find = (json: GraphvizJson, id: string) => (json.objects ?? []).find(o => o.likec4_id === id)
+  for (const group of view.nodes.filter(node => node.children.length > 0)) {
+    const before = find(original, group.id)
+    const after = find(routed, group.id)
+    if (!before || !after || !('bb' in before) || 'pos' in after) {
+      return false
+    }
+    const members = (json: GraphvizJson) =>
+      group.children.map(id => find(json, id)).map(o => (o && 'pos' in o ? nodeBox(o) : null))
+    const was = members(original)
+    const now = members(routed)
+    if (was.some(box => !box) || now.some(box => !box)) {
+      return false
+    }
+    const extent = (boxes: Array<ReturnType<typeof nodeBox> | null>) => ({
+      left: Math.min(...boxes.map(b => b!.left)),
+      top: Math.min(...boxes.map(b => b!.top)),
+      right: Math.max(...boxes.map(b => b!.right)),
+      bottom: Math.max(...boxes.map(b => b!.bottom)),
+    })
+    const [llx, lly, urx, ury] = before.bb.split(',').map(Number) as [number, number, number, number]
+    const old = extent(was)
+    const moved = extent(now)
+    const dx = moved.left - old.left
+    const dy = moved.top - old.top
+    after.bb = [llx + dx, lly + dy, urx + dx, ury + dy].join(',')
+    if (before._ldraw_) {
+      after._ldraw_ = before._ldraw_.map(op => (op.op === 'T' ? { ...op, pt: [op.pt[0] + dx, op.pt[1] + dy] } : op))
+    }
+  }
+  return true
 }
 
 export class GraphvizLayouter implements Disposable {
@@ -144,10 +198,10 @@ export class GraphvizLayouter implements Disposable {
       const { view } = params
       const json = await this.dotToJson(dot)
       let diagram = parseGraphvizJson(json, view)
-      const wrapped = await this.wrapLongLayers(dot, json, diagram, view)
-      if (wrapped) {
-        dot = wrapped.dot
-        diagram = parseGraphvizJson(wrapped.json, view)
+      const rearranged = await this.rearrange(dot, json, diagram, view)
+      if (rearranged) {
+        dot = rearranged.dot
+        diagram = parseGraphvizJson(rearranged.json, view)
       }
 
       if (isDynamicView(diagram)) {
@@ -170,53 +224,78 @@ export class GraphvizLayouter implements Disposable {
   }
 
   /**
-   * Splits the long ranks of an element view into shorter lines, when that makes the diagram open larger in its frame
-   * (see {@link wrapLayers}), and routes the edges again for the new places. Views with groups, tables, classes or
-   * rank constraints keep the layout Graphviz chose.
+   * Rearranges a left-to-right element view that opens too small to read, when that makes it open larger: a view of
+   * groups gets its groups in columns (see {@link packGroups}), and a view without groups gets its long ranks split into
+   * shorter lines (see {@link wrapLayers}). The edges are routed again for the new places, and a placement is kept only
+   * when it has no more overlapping edge labels and no more edges across nodes than Graphviz's layout.
+   *
+   * Top-to-bottom views, which read in order, keep the layout Graphviz chose, as do views with tables, classes, rank
+   * constraints, groups inside groups, nodes outside groups beside groups, or edges that end at a group.
    */
-  protected async wrapLongLayers(
+  protected async rearrange(
     dot: DotSource,
     json: GraphvizJson,
     diagram: DiagramView,
     view: ComputedView,
   ): Promise<{ dot: DotSource; json: GraphvizJson } | null> {
+    const groups = new Set(view.nodes.filter(node => node.children.length > 0).map(node => node.id))
     const eligible = isElementView(view)
+      && (view.autoLayout.direction === 'LR' || view.autoLayout.direction === 'RL')
       && view.edges.length > 0
       && !view.ranks?.length
-      && view.nodes.every(node => node.children.length === 0 && !node.table && !node.classifier)
+      && view.nodes.every(node => !node.table && !node.classifier)
+      && view.edges.every(edge => !groups.has(edge.source) && !groups.has(edge.target))
     if (!eligible) {
       return null
     }
-    const positions = wrapLayers(diagram.nodes, view.autoLayout.direction)
-    if (!positions) {
+    const placements = groups.size > 0
+      ? packGroups(diagram.nodes)
+      : wrapLayers(diagram.nodes, view.autoLayout.direction)
+    if (placements.length === 0) {
       return null
     }
-    const logger = this.newScopedLogger('wrap')
+    const logger = this.newScopedLogger('rearrange')
+    const before = layoutQuality(diagram.nodes, diagram.edges)
+    // The printer names dot as the graph's layout, which would override the engine asked for, and a rank direction,
+    // which Graphviz would apply again to positions that already have it; top to bottom applies none.
+    const source = dot
+      .replace(/\blayout\s*=\s*"?dot"?/, 'layout="nop"')
+      .replace(/\brankdir\s*=\s*"?[A-Z]{2}"?/, 'rankdir="TB"')
+    const objects = json.objects ?? []
     try {
-      // The printer names dot as the graph's layout, which would override the engine asked for, and a rank direction,
-      // which Graphviz would apply again to positions that already have it; top to bottom applies none.
-      const graph = fromDot(
-        dot.replace(/\blayout\s*=\s*"?dot"?/, 'layout="nop"').replace(/\brankdir\s*=\s*"?[A-Z]{2}"?/, 'rankdir="TB"'),
-      )
-      const objects = json.objects ?? []
-      for (const box of diagram.nodes) {
-        const place = positions.get(box.id)
-        const object = objects.find(o => o.likec4_id === box.id)
-        const node = place && object && 'pos' in object ? graph.getNode(object.name) : undefined
-        if (!place || !node) {
+      for (const positions of placements) {
+        const graph = fromDot(source)
+        for (const box of diagram.nodes) {
+          if (groups.has(box.id)) {
+            continue
+          }
+          const place = positions.get(box.id)
+          const object = objects.find(o => o.likec4_id === box.id)
+          const node = place && object && 'pos' in object ? findNode(graph, object.name) : undefined
+          if (!place || !node) {
+            return null
+          }
+          // Graphviz places by the centre, in points, with y up.
+          const x = pxToPoints(place.x + box.width / 2)
+          const y = -pxToPoints(place.y + box.height / 2)
+          node.attributes.set(_.pos, `${x},${y}!`)
+        }
+        const pinned = toDot(graph) as DotSource
+        const routed = await this.dotToJson(pinned, 'nop')
+        if (groups.size > 0 && !boxGroups(json, routed, view)) {
           return null
         }
-        // Graphviz places by the centre, in points, with y up.
-        const x = pxToPoints(place.x + box.width / 2)
-        const y = -pxToPoints(place.y + box.height / 2)
-        node.attributes.set(_.pos, `${x},${y}!`)
+        const result = parseGraphvizJson(routed, view)
+        const after = layoutQuality(result.nodes, result.edges)
+        if (after.labelOverlaps <= before.labelOverlaps && after.edgesOverNodes <= before.edgesOverNodes) {
+          return { dot: pinned, json: routed }
+        }
+        logger.debug`rearranged placement of ${view.id} is more cluttered, trying the next one`
       }
-      const pinned = toDot(graph) as DotSource
-      return { dot: pinned, json: await this.dotToJson(pinned, 'nop') }
     } catch (error) {
-      logger.warn(`Error while wrapping long ranks: ${view.id}`, { error })
-      return null
+      logger.warn(`Error while rearranging: ${view.id}`, { error })
     }
+    return null
   }
 
   async aiLayout<A extends AnyAux>(

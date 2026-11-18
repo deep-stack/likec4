@@ -24,6 +24,14 @@ const PADDING = 24
 const COLUMN_GAP = 60
 /** Wrapping must make the diagram open at least this much larger, so small changes do not flip the layout. */
 const MIN_GAIN = 1.15
+/** A diagram that opens at this zoom or larger reads well, and keeps the layout Graphviz chose. */
+export const READABLE_ZOOM = 0.5
+/** Extra space between the rows of a wrapped rank, for the edges that pass between them and their labels. */
+const ROW_ROOM = 48
+/** A candidate this close to the largest one is as good, and wins when it wraps fewer ranks. */
+const CLOSE_ENOUGH = 0.9
+/** How many candidates to offer, largest first. */
+const CANDIDATES = 3
 
 /**
  * The zoom at which a diagram of this size fits the frame. The frame is as wide as given and as tall as the diagram's
@@ -36,19 +44,20 @@ export function frameZoom(width: number, height: number, frame: WrapFrame = DEFA
 
 /**
  * Graphviz puts every node of a rank on one line, so a rank of many nodes makes a long, thin diagram that opens too
- * small to read. This splits each long rank into a few shorter lines side by side, keeping Graphviz's order row by
- * row, so nodes stay level with the nodes they connect to.
+ * small to read. This splits long ranks into a few shorter lines side by side, keeping Graphviz's order row by row,
+ * so nodes stay level with the nodes they connect to.
  *
- * Returns the new top-left position of each node, or null when wrapping does not make the diagram open at least 15%
- * larger in the frame.
+ * Returns up to three placements, best first: each gives the new top-left position of every node and makes the
+ * diagram open at least 15% larger in the frame. A placement that wraps fewer ranks comes first when it opens almost
+ * as large. Returns none when the diagram already reads well.
  */
 export function wrapLayers(
   boxes: readonly Box[],
   direction: Direction,
   frame: WrapFrame = DEFAULT_WRAP_FRAME,
-): Map<NodeId, { x: number; y: number }> | null {
+): Array<Map<NodeId, { x: number; y: number }>> {
   if (boxes.length < 3) {
-    return null
+    return []
   }
   // Work along the ranks (u) and across them (v), whatever the direction.
   const across = direction === 'LR' || direction === 'RL'
@@ -78,7 +87,7 @@ export function wrapLayers(
   }
   const longest = Math.max(...layers.map(layer => layer.length))
   if (longest < 3) {
-    return null
+    return []
   }
 
   // Keep the space Graphviz left between ranks, where edge labels are, and between nodes in a rank.
@@ -95,11 +104,15 @@ export function wrapLayers(
   const place = (rows: number) => {
     const placed = new Map<NodeId, { u: number; v: number; uSize: number; vSize: number }>()
     let u = 0
+    let wrapped = 0
     layers.forEach((layer, index) => {
       const columns = Math.ceil(layer.length / rows)
       const cellU = Math.max(...layer.map(n => n.uSize))
       const cellV = Math.max(...layer.map(n => n.vSize))
-      const gap = crossGap(layer)
+      const gap = crossGap(layer) + (columns > 1 ? ROW_ROOM : 0)
+      if (columns > 1) {
+        wrapped++
+      }
       const height = Math.ceil(layer.length / columns) * (cellV + gap) - gap
       layer.forEach((node, i) => {
         // Row by row: the first nodes in Graphviz's order fill the first row.
@@ -120,7 +133,7 @@ export function wrapLayers(
     const sizeU = Math.max(...values.map(p => p.u + p.uSize)) - minU
     const sizeV = Math.max(...values.map(p => p.v + p.vSize)) - minV
     const [width, height] = across ? [sizeU, sizeV] : [sizeV, sizeU]
-    return { placed, minU, minV, zoom: frameZoom(width, height, frame) }
+    return { placed, minU, minV, wrapped, zoom: frameZoom(width, height, frame) }
   }
 
   const original = (() => {
@@ -131,23 +144,24 @@ export function wrapLayers(
     return frameZoom(width, height, frame)
   })()
 
-  let best: ReturnType<typeof place> | null = null
-  for (let rows = longest; rows >= 1; rows--) {
-    const candidate = place(rows)
-    if (!best || candidate.zoom > best.zoom) {
-      best = candidate
-    }
+  if (original >= READABLE_ZOOM) {
+    return []
   }
-  if (!best || best.zoom < original * MIN_GAIN) {
-    return null
-  }
+  const placements = Array.from({ length: longest - 1 }, (_, i) => place(longest - 1 - i))
+    .filter(candidate => candidate.wrapped > 0 && candidate.zoom >= original * MIN_GAIN)
+  const best = Math.max(0, ...placements.map(p => p.zoom))
+  const close = (p: (typeof placements)[number]) => p.zoom >= best * CLOSE_ENOUGH
+  placements.sort((a, b) => Number(close(b)) - Number(close(a)) || a.wrapped - b.wrapped || b.zoom - a.zoom)
+
   const reversed = direction === 'RL' || direction === 'BT'
-  const sizeU = Math.max(...[...best.placed.values()].map(p => p.u + p.uSize)) - best.minU
-  const result = new Map<NodeId, { x: number; y: number }>()
-  for (const [id, p] of best.placed) {
-    const u = reversed ? sizeU - (p.u - best.minU) - p.uSize : p.u - best.minU
-    const v = p.v - best.minV
-    result.set(id, across ? { x: u, y: v } : { x: v, y: u })
-  }
-  return result
+  return placements.slice(0, CANDIDATES).map(({ placed, minU, minV }) => {
+    const sizeU = Math.max(...[...placed.values()].map(p => p.u + p.uSize)) - minU
+    const result = new Map<NodeId, { x: number; y: number }>()
+    for (const [id, p] of placed) {
+      const u = reversed ? sizeU - (p.u - minU) - p.uSize : p.u - minU
+      const v = p.v - minV
+      result.set(id, across ? { x: u, y: v } : { x: v, y: u })
+    }
+    return result
+  })
 }
