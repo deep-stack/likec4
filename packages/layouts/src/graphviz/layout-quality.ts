@@ -1,9 +1,15 @@
 import type { DiagramEdge, DiagramNode } from '@likec4/core'
 
-/** How cluttered a layout is: edge labels that cover each other, and edges drawn across nodes they do not join. */
+/**
+ * How cluttered a layout is: edge labels that cover each other or a node, edges drawn across nodes they do not join,
+ * edges that cross each other, and edges that pass through a group neither of their ends is in.
+ */
 export interface LayoutQuality {
   labelOverlaps: number
+  labelsOverNodes: number
   edgesOverNodes: number
+  edgeCrossings: number
+  edgesThroughGroups: number
 }
 
 type Rect = { x: number; y: number; width: number; height: number }
@@ -30,7 +36,7 @@ function along(points: DiagramEdge['points']): Array<[number, number]> {
 
 /** Counts what clutters a layout, to compare two layouts of the same view. */
 export function layoutQuality(
-  nodes: ReadonlyArray<Pick<DiagramNode, 'id' | 'x' | 'y' | 'width' | 'height' | 'children'>>,
+  nodes: ReadonlyArray<Pick<DiagramNode, 'id' | 'x' | 'y' | 'width' | 'height' | 'children' | 'parent'>>,
   edges: ReadonlyArray<Pick<DiagramEdge, 'source' | 'target' | 'points' | 'labelBBox'>>,
 ): LayoutQuality {
   const labels = edges.flatMap(edge => (edge.labelBBox ? [edge.labelBBox] : []))
@@ -39,6 +45,7 @@ export function layoutQuality(
     labelOverlaps += labels.slice(i + 1).filter(other => intersects(label, other)).length
   })
   const leaves = nodes.filter(node => node.children.length === 0)
+  const labelsOverNodes = labels.filter(label => leaves.some(node => intersects(label, node))).length
   let edgesOverNodes = 0
   for (const edge of edges) {
     const points = along(edge.points)
@@ -55,5 +62,50 @@ export function layoutQuality(
       }
     }
   }
-  return { labelOverlaps, edgesOverNodes }
+  // Pairs of edges that cross each other; edges that share a node meet there, which is no crossing.
+  const lines = edges.map(edge => along(edge.points))
+  const turn = (p: [number, number], q: [number, number], r: [number, number]) =>
+    (q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0])
+  const crosses = (a: Array<[number, number]>, b: Array<[number, number]>) =>
+    a.slice(1).some((a2, i) => {
+      const a1 = a[i]!
+      return b.slice(1).some((b2, j) => {
+        const b1 = b[j]!
+        return turn(a1, a2, b1) * turn(a1, a2, b2) < 0 && turn(b1, b2, a1) * turn(b1, b2, a2) < 0
+      })
+    })
+  let edgeCrossings = 0
+  edges.forEach((edge, i) => {
+    edges.slice(i + 1).forEach((other, k) => {
+      const shared = [edge.source, edge.target].some(id => id === other.source || id === other.target)
+      if (!shared && crosses(lines[i]!, lines[i + 1 + k]!)) {
+        edgeCrossings++
+      }
+    })
+  })
+  const parents = new Map(nodes.map(node => [node.id, node.parent]))
+  const ancestors = (id: string) => {
+    const found = new Set<string>()
+    for (let at = parents.get(id as DiagramNode['id']); at; at = parents.get(at)) {
+      found.add(at)
+    }
+    return found
+  }
+  const groups = nodes.filter(node => node.children.length > 0)
+  let edgesThroughGroups = 0
+  edges.forEach((edge, i) => {
+    const own = new Set([edge.source, edge.target, ...ancestors(edge.source), ...ancestors(edge.target)])
+    for (const group of groups) {
+      if (own.has(group.id)) {
+        continue
+      }
+      const through = lines[i]!.some(([x, y]) =>
+        group.x + 4 < x && x < group.x + group.width - 4 && group.y + 4 < y && y < group.y + group.height - 4
+      )
+      if (through) {
+        edgesThroughGroups++
+      }
+    }
+  })
+  return { labelOverlaps, labelsOverNodes, edgesOverNodes, edgeCrossings, edgesThroughGroups }
 }

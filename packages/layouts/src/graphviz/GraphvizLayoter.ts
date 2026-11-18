@@ -227,10 +227,10 @@ export class GraphvizLayouter implements Disposable {
    * Rearranges a left-to-right element view that opens too small to read, when that makes it open larger: a view of
    * groups gets its groups in columns (see {@link packGroups}), and a view without groups gets its long ranks split into
    * shorter lines (see {@link wrapLayers}). The edges are routed again for the new places, and a placement is kept only
-   * when it has no more overlapping edge labels and no more edges across nodes than Graphviz's layout.
+   * when it is no more cluttered than Graphviz's layout (see {@link layoutQuality}).
    *
    * Top-to-bottom views, which read in order, keep the layout Graphviz chose, as do views with tables, classes, rank
-   * constraints, groups inside groups, nodes outside groups beside groups, or edges that end at a group.
+   * constraints, groups inside groups, or edges that end at a group.
    */
   protected async rearrange(
     dot: DotSource,
@@ -287,7 +287,13 @@ export class GraphvizLayouter implements Disposable {
         }
         const result = parseGraphvizJson(routed, view)
         const after = layoutQuality(result.nodes, result.edges)
-        if (after.labelOverlaps <= before.labelOverlaps && after.edgesOverNodes <= before.edgesOverNodes) {
+        if (
+          after.labelOverlaps <= before.labelOverlaps
+          && after.labelsOverNodes <= before.labelsOverNodes
+          && after.edgesOverNodes <= before.edgesOverNodes
+          && after.edgeCrossings <= before.edgeCrossings
+          && after.edgesThroughGroups <= before.edgesThroughGroups
+        ) {
           return { dot: pinned, json: routed }
         }
         logger.debug`rearranged placement of ${view.id} is more cluttered, trying the next one`

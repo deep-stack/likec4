@@ -37,7 +37,7 @@ describe('packGroups', () => {
     }
   })
 
-  it('keeps a view with a node outside the groups', () => {
+  it('places a node outside the groups as a block of its own', () => {
     const boxes = [...stacked(), {
       id: id('loose'),
       parent: null,
@@ -47,6 +47,7 @@ describe('packGroups', () => {
       width: 320,
       height: 180,
     }]
-    expect(packGroups(boxes)).toEqual([])
+    const [packed] = packGroups(boxes)
+    expect(packed?.get(id('loose'))).toBeDefined()
   })
 })
