@@ -122,6 +122,8 @@ export namespace GraphvizJson {
   }
 
   export interface GvNodeObject {
+    /** The node's name in the DOT source */
+    name: GvNodeName
     _draw_: Draw[]
     _ldraw_?: LabelDrawOps[]
     likec4_type?: 'folder' | 'file' | 'view'

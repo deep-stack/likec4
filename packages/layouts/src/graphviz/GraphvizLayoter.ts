@@ -13,6 +13,7 @@ import type { ComputedProjectsView, LayoutedProjectsView } from '@likec4/core/co
 import { nonexhaustive } from '@likec4/core/utils'
 import { loggable, rootLogger as mainLogger, wrapError } from '@likec4/log'
 import { randomString } from 'remeda'
+import { attribute as _, fromDot, toDot } from 'ts-graphviz'
 import { calcSequenceLayout } from '../sequence'
 import type { AILayoutHints } from './ai/types'
 import { AiLayoutViewPrinter } from './AiLayoutPrinter'
@@ -24,14 +25,22 @@ import { parseGraphvizJson, parseGraphvizJsonOfProjectsView } from './GraphvizPa
 import { ProjectsViewPrinter } from './ProjectsViewPrinter'
 import type { DotSource } from './types'
 import type { GraphvizJson } from './types-dot'
+import { pxToPoints } from './utils'
 import { GraphvizWasmAdapter } from './wasm/GraphvizWasmAdapter'
+import { wrapLayers } from './wrap-layers'
+
+/**
+ * The Graphviz engine to lay out with: `dot` places the nodes and routes the edges; `nop` keeps the nodes where their
+ * `pos` puts them and routes the edges only.
+ */
+export type LayoutEngine = 'dot' | 'nop'
 
 export interface GraphvizPort extends Disposable {
   get name(): string
   get concurrency(): number
   unflatten(dot: DotSource): Promise<DotSource>
   acyclic(dot: DotSource): Promise<DotSource>
-  layoutJson(dot: DotSource): Promise<string>
+  layoutJson(dot: DotSource, engine?: LayoutEngine): Promise<string>
   svg(dot: DotSource): Promise<string>
   dispose(): void
 }
@@ -108,11 +117,11 @@ export class GraphvizLayouter implements Disposable {
     return rootLogger.getChild([operation, '_', randomString(4).toLowerCase()])
   }
 
-  async dotToJson(dot: DotSource): Promise<GraphvizJson> {
+  async dotToJson(dot: DotSource, engine: LayoutEngine = 'dot'): Promise<GraphvizJson> {
     const logger = this.newScopedLogger('dotToJson')
     let json
     try {
-      json = await this.graphviz.layoutJson(dot)
+      json = await this.graphviz.layoutJson(dot, engine)
     } catch (error) {
       logger.error(loggable(error))
       logger.error('Failed to convert DOT to JSON:\n' + dot)
@@ -135,6 +144,11 @@ export class GraphvizLayouter implements Disposable {
       const { view } = params
       const json = await this.dotToJson(dot)
       let diagram = parseGraphvizJson(json, view)
+      const wrapped = await this.wrapLongLayers(dot, json, diagram, view)
+      if (wrapped) {
+        dot = wrapped.dot
+        diagram = parseGraphvizJson(wrapped.json, view)
+      }
 
       if (isDynamicView(diagram)) {
         Object.assign(
@@ -152,6 +166,56 @@ export class GraphvizLayouter implements Disposable {
     } catch (e) {
       logger.warn(loggable(e))
       throw wrapError(e, `Error during layout: ${params.view.id}`)
+    }
+  }
+
+  /**
+   * Splits the long ranks of an element view into shorter lines, when that makes the diagram open larger in its frame
+   * (see {@link wrapLayers}), and routes the edges again for the new places. Views with groups, tables, classes or
+   * rank constraints keep the layout Graphviz chose.
+   */
+  protected async wrapLongLayers(
+    dot: DotSource,
+    json: GraphvizJson,
+    diagram: DiagramView,
+    view: ComputedView,
+  ): Promise<{ dot: DotSource; json: GraphvizJson } | null> {
+    const eligible = isElementView(view)
+      && view.edges.length > 0
+      && !view.ranks?.length
+      && view.nodes.every(node => node.children.length === 0 && !node.table && !node.classifier)
+    if (!eligible) {
+      return null
+    }
+    const positions = wrapLayers(diagram.nodes, view.autoLayout.direction)
+    if (!positions) {
+      return null
+    }
+    const logger = this.newScopedLogger('wrap')
+    try {
+      // The printer names dot as the graph's layout, which would override the engine asked for, and a rank direction,
+      // which Graphviz would apply again to positions that already have it; top to bottom applies none.
+      const graph = fromDot(
+        dot.replace(/\blayout\s*=\s*"?dot"?/, 'layout="nop"').replace(/\brankdir\s*=\s*"?[A-Z]{2}"?/, 'rankdir="TB"'),
+      )
+      const objects = json.objects ?? []
+      for (const box of diagram.nodes) {
+        const place = positions.get(box.id)
+        const object = objects.find(o => o.likec4_id === box.id)
+        const node = place && object && 'pos' in object ? graph.getNode(object.name) : undefined
+        if (!place || !node) {
+          return null
+        }
+        // Graphviz places by the centre, in points, with y up.
+        const x = pxToPoints(place.x + box.width / 2)
+        const y = -pxToPoints(place.y + box.height / 2)
+        node.attributes.set(_.pos, `${x},${y}!`)
+      }
+      const pinned = toDot(graph) as DotSource
+      return { dot: pinned, json: await this.dotToJson(pinned, 'nop') }
+    } catch (error) {
+      logger.warn(`Error while wrapping long ranks: ${view.id}`, { error })
+      return null
     }
   }
 
